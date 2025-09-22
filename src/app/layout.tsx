@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import { CalSans } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 import "./globals.css";
+import LenisProvider from "@/components/shared/LenisProvider";
+import CursorAura from "@/components/shared/CursorAura";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -22,11 +24,14 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
+          "bg-gradient-to-r from-background via-[#112240] to-background",
+          "animate-breathing-gradient",
           inter.variable,
           CalSans.variable
         )}
       >
-        {children}
+        <CursorAura />
+        <LenisProvider>{children}</LenisProvider>
       </body>
     </html>
   );
