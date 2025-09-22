@@ -6,6 +6,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-cal: var(--font-calsans);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -79,24 +80,35 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --background: oklch(18.2% 0.05 265.52); /* #0A192F - Midnight Blue */
+  --foreground: oklch(86.96% 0.033 265.57); /* #CCD6F6 - Light Slate */
+
+  --card: oklch(22.1% 0.058 265.54); /* #112240 - Navy Tint */
+  --card-foreground: oklch(86.96% 0.033 265.57); /* #CCD6F6 - Light Slate */
+
+  --popover: oklch(18.2% 0.05 265.52);
+  --popover-foreground: oklch(86.96% 0.033 265.57);
+
+  --primary: oklch(65.41% 0.168 50.53); /* #FF8C00 - Dark Orange (The Sun) */
+  --primary-foreground: oklch(
+    18.2% 0.05 265.52
+  ); /* Midnight Blue for contrast on buttons */
+
+  --secondary: oklch(27.45% 0.066 265.55);
+  --secondary-foreground: oklch(86.96% 0.033 265.57);
+
+  --muted: oklch(27.45% 0.066 265.55);
+  --muted-foreground: oklch(58.82% 0.044 265.6);
+
+  --accent: oklch(75.33% 0.188 60.11); /* #FFA500 - Orange (Glow/Hover) */
+  --accent-foreground: oklch(18.2% 0.05 265.52);
+
+  --destructive: oklch(57.7% 0.245 27.325);
+
+  --border: oklch(86.96% 0.033 265.57 / 10%); /* Light Slate at 10% opacity */
+  --input: oklch(86.96% 0.033 265.57 / 15%); /* Light Slate at 15% opacity */
+  --ring: oklch(65.41% 0.168 50.53); /* #FF8C00 - Dark Orange for focus rings */
+
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -118,5 +130,70 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Headings: Set CalSans as the default, define sizes and spacing */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-cal tracking-tight text-foreground;
+  }
+
+  h1 {
+    /* Responsive font size */
+    @apply text-4xl font-semibold md:text-5xl lg:text-6xl;
+    /* Vertical rhythm */
+    @apply mt-8 mb-4;
+  }
+
+  h2 {
+    @apply text-3xl font-semibold md:text-4xl;
+    @apply mt-6 mb-3;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold md:text-3xl;
+    @apply mt-4 mb-2;
+  }
+
+  /* Paragraphs: Optimized for readability */
+  p {
+    /* Using text-primary which is our main light slate color */
+    @apply text-primary leading-relaxed mb-4;
+    /* Limit line length for better reading experience on wide screens */
+    @apply max-w-prose;
+  }
+
+  /* Links: Use our accent color for high visibility */
+  a {
+    /* #FF8C00 - The Sun */
+    @apply text-accent font-medium;
+    @apply transition-colors duration-300;
+  }
+
+  a:hover {
+    /* #FFA500 - Orange Glow */
+    @apply underline;
+  }
+
+  /* Lists: Restore default styling */
+  ul,
+  ol {
+    @apply mb-4 ml-6;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  li {
+    @apply mb-2;
   }
 }
