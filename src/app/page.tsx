@@ -5,6 +5,7 @@ import About from "@/components/sections/About";
 import Projects from "@/components/sections/Projects";
 import Journey from "@/components/sections/Journey";
 import Engine from "@/components/sections/Engine";
+import Horizon from "@/components/sections/Horizon";
 
 export default function Home() {
   return (
@@ -14,9 +15,7 @@ export default function Home() {
       <Projects data={portfolioData.projects} />
       <Journey data={portfolioData.journey} />
       <Engine skills={portfolioData.skills} certs={portfolioData.certifications} />
-      {/*
-        <Horizon />
-      */}
+      <Horizon />
     </main>
   );
 }
