@@ -10,8 +10,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Abubakr Alsheikh | Full-Stack Developer",
-  description:
-    "Transforming complex ideas into high-performance, intelligent digital products.",
+  description: "Transforming complex ideas into high-performance, intelligent digital products.",
 };
 
 export default function RootLayout({
@@ -20,12 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark scroll-smooth">
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          "bg-gradient-to-r from-background via-[#112240] to-background",
-          "animate-breathing-gradient",
+          "min-h-screen font-sans antialiased text-slate-200",
+          "bg-[#020617] selection:bg-orange-500/30 selection:text-orange-200",
           inter.variable,
           CalSans.variable
         )}
