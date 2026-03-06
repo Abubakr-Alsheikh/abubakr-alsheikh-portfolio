@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { ArrowRight, Github } from "lucide-react";
 
 type HeroData = {
@@ -13,7 +13,7 @@ type HeroData = {
 export default function Hero({ data }: { data: HeroData }) {
   const words = data.headingMain.split(" ");
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -21,7 +21,7 @@ export default function Hero({ data }: { data: HeroData }) {
     },
   };
 
-  const wordVariants = {
+  const wordVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 10 } },
   };

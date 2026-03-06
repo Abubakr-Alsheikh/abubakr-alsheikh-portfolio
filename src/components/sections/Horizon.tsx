@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, MouseEvent } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
-import { ArrowUpRight, Github, Linkedin, FileText, Mail } from "lucide-react";
+import { ArrowUpRight, Github, Linkedin, FileText, Mail, LucideIcon } from "lucide-react";
 
 const MagneticButton = ({ children }: { children: React.ReactNode }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -41,14 +41,14 @@ const MagneticButton = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const ScrambleLink = ({ text, href, icon: Icon }: { text: string; href: string, icon?: any }) => {
+const ScrambleLink = ({ text, href, icon: Icon }: { text: string; href: string, icon?: LucideIcon }) => {
   const [displayText, setDisplayText] = useState(text);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+";
 
   const handleMouseEnter = () => {
     let iteration = 0;
     const interval = setInterval(() => {
-      setDisplayText((prev) =>
+      setDisplayText(
         text
           .split("")
           .map((letter, index) => {
