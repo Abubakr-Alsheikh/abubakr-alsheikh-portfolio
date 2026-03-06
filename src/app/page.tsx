@@ -2,6 +2,7 @@ import { portfolioData } from "@/lib/data";
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
 import Projects from "@/components/sections/Projects";
+import Archive from "@/components/sections/Archive";
 import Journey from "@/components/sections/Journey";
 import Engine from "@/components/sections/Engine";
 import Horizon from "@/components/sections/Horizon";
@@ -21,7 +22,9 @@ export default function Home() {
              <About data={portfolioData.about} />
         </div>
         
-        <Projects data={portfolioData.projects} />
+        <Projects data={portfolioData.topProjects} />
+        
+        <Archive projects={portfolioData.archiveProjects} />
         
         <div className="py-20">
              <Journey data={portfolioData.journey} />

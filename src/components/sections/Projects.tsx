@@ -2,13 +2,13 @@
 import React from "react";
 import { StickyScroll } from "@/components/ui/sticky-scroll-reveal";
 import { motion } from "framer-motion";
-import { ArrowUpRight, FolderGit2 } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 type Project = {
   title: string;
   description: string;
   stack: string[];
-  image: string;
+  link: string;
 };
 
 // --- Visual Placeholders (Same as before) ---
@@ -59,17 +59,19 @@ const PromptCraftVisual = () => (
   </div>
 );
 
-const GhosnVisual = () => (
-  <div className="w-full h-full flex items-center justify-center bg-emerald-950/30 relative overflow-hidden group border border-slate-800/50 rounded-xl">
-    <div className="w-[180px] h-[320px] bg-slate-950 border-4 border-slate-800 rounded-[2rem] shadow-2xl relative overflow-hidden group-hover:-translate-y-2 transition-transform duration-500">
-      <div className="absolute top-0 left-0 right-0 h-6 bg-slate-900 z-10 flex justify-center">
-        <div className="w-16 h-4 bg-slate-950 rounded-b-xl"></div>
+const TelegramBotVisual = () => (
+  <div className="w-full h-full flex items-center justify-center bg-[#0F172A] relative overflow-hidden group border border-slate-800/50 rounded-xl">
+    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
+    <div className="w-[90%] font-mono text-xs text-slate-300 p-6 bg-slate-950 rounded-xl border border-slate-800 shadow-2xl opacity-90 group-hover:opacity-100 transition-opacity">
+      <div className="flex gap-4 mb-4 text-slate-500 border-b border-slate-800 pb-2">
+         <span>bot_handler.py</span>
       </div>
-      <div className="p-4 mt-6 space-y-3">
-        <div className="h-8 w-2/3 bg-emerald-500/20 rounded-lg"></div>
-        <div className="h-24 w-full bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center text-emerald-600/50">
-          <FolderGit2 size={24} />
-        </div>
+      <div className="space-y-1">
+        <p><span className="text-purple-400">async def</span> <span className="text-yellow-300">process_message</span>(msg):</p>
+        <p className="pl-4">analysis = <span className="text-blue-400">await</span> openai.chat(msg)</p>
+        <p className="pl-4 mb-2"><span className="text-green-400"># AI Response Generated</span></p>
+        <p><span className="text-slate-500"># Sending to user...</span></p>
+        <p><span className="text-green-500">{`>>> Telegram API: Delivered`}</span></p>
       </div>
     </div>
   </div>
@@ -84,7 +86,7 @@ export default function Projects({ data }: { data: Project[] }) {
       <div className="h-full w-full flex items-center justify-center text-white">
         {index === 0 && <LearningPlatformVisual />}
         {index === 1 && <PromptCraftVisual />}
-        {index === 2 && <GhosnVisual />}
+        {index === 2 && <TelegramBotVisual />}
       </div>
     ),
   }));

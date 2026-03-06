@@ -13,36 +13,75 @@ export const portfolioData = {
     location: "Aleppo, Syria",
     languages: "Arabic (Native) • English (C1)",
     scholar: "Pursuing dual IT Engineering degrees simultaneously at Aleppo University & SVU.",
-    frontend: "Delivering clean, reliable, and maintainable Next.js + Tailwind interfaces."
+    frontend: "Delivering clean, reliable, and maintainable Next.js + TypeScript interfaces."
   },
 
-  projects:[
+  topProjects: [
     {
-      title: "Enterprise Learning Platform",
-      description: "Architected a highly scalable multi-app Django backend paired with a type-safe Next.js frontend. Engineered real-time WebSockets, granular role-based permissions, and asynchronous task processing with Celery.",
-      stack:["Django", "Next.js", "Celery", "WebSockets", "Redis", "PostgreSQL"],
-      image: "/projects/learning-platform.png",
+      title: "Learning Management System",
+      description: "Architected a scalable Django backend with a modular multi-app structure, versioned RESTful API, and a custom administrative dashboard with granular permissions.",
+      stack: ["Django", "Next.js", "Celery", "Redis", "PostgreSQL", "WebSockets", "Pytest"],
+      link: "#",
+    },
+    {
+      title: "Advanced Telegram Bot",
+      description: "Highly modular system utilizing Asyncio and OpenAI. Features personalized feedback, automated content deployment via CLI, and dynamic PDF/video generation.",
+      stack: ["Python", "Asyncio", "OpenAI API", "SQLite", "Pandas", "DocxTemplate"],
+      link: "https://github.com/Abubakr-Alsheikh/",
     },
     {
       title: "PromptCraft: Dungeon Delver",
-      description: "Engineered a robust Python/Flask backend with a dual-provider AI service (Ollama + Gemini). Utilized Pydantic schemas to compel deterministic structured JSON from LLMs for reliable game state parsing.",
-      stack:["Flask", "LLM Integration", "Pydantic", "Zustand", "TypeScript"],
-      image: "/projects/promptcraft.png",
-    },
-    {
-      title: "Ghosn (غصن) - Smart Farming",
-      description: "Built under hackathon pressure. A responsive UI enabling farmers to input complex data for AI processing. Features full RTL support, live AI chat, and a dynamic leaderboard system.",
-      stack:["React", "Material-UI", ".NET", "Axios"],
-      image: "/projects/ghosn.png",
+      description: "Dual-provider AI service orchestrating local (Ollama) and cloud (Gemini) LLMs with intelligent fallback logic and deterministic JSON parsing.",
+      stack: ["Flask", "Next.js", "Zustand", "Pydantic", "TypeScript"],
+      link: "#",
     }
   ],
 
-  journey:[
+  archiveProjects: [
+    {
+      title: "Ghosn (غصن) - AI Smart Farming",
+      description: "Hackathon winner. Developed a responsive UI for environmental data processing and live AI chat interaction.",
+      stack: ["React", "Material-UI", ".NET", "Axios"],
+      link: "#"
+    },
+    {
+      title: "IntelliDo: AI To-Do App",
+      description: "AI-driven task management integrated with Gemini API for text/media task suggestions.",
+      stack: ["React", "Django RF", "Redux Toolkit", "JWT"],
+      link: "#"
+    },
+    {
+      title: "AskVid: Video AI Chat",
+      description: "Summarization and transcription of video/audio content using AssemblyAI and Google Gemini.",
+      stack: ["Django", "Python", "AssemblyAI", "Gemini API"],
+      link: "#"
+    },
+    {
+      title: "Screen Scene: Movie Discovery",
+      description: "Dynamic movie website featuring TMDB API integration and local storage optimization.",
+      stack: ["Django", "Tailwind CSS", "JavaScript", "TMDB API"],
+      link: "#"
+    },
+    {
+      title: "E-Commerce Backend",
+      description: "Secure cart and order management system with coupon logic and autocomplete search.",
+      stack: ["Django", "Python", "Bootstrap"],
+      link: "#"
+    },
+    {
+      title: "Book Inventory System",
+      description: "Full CRUD operations and user authentication built with ASP.NET and SQL Server.",
+      stack: ["ASP.NET", "C#", "MS SQL Server", "Bootstrap"],
+      link: "#"
+    }
+  ],
+
+  journey: [
     {
       date: "Aug 2024 - Present",
       title: "Full-Stack Developer",
       subtitle: "Freelance @ Khamsat",
-      description: "Developing and deploying full-stack e-commerce and LMS platforms. Architecting secure RESTful APIs with Django (DRF) and managing end-to-end VPS deployment.",
+      description: "Developing and deploying full-stack e-commerce and LMS platforms. Managing end-to-end deployment lifecycle on VPS.",
       tags: ["Next.js", "Django", "VPS", "REST APIs"],
       align: "left"
     },
@@ -50,30 +89,33 @@ export const portfolioData = {
       date: "2021 - Present",
       title: "Concurrent IT Scholar",
       subtitle: "Aleppo Univ & SVU",
-      description: "Simultaneously pursuing dual Bachelor's degrees in Information Technology Engineering, deeply cementing theoretical and architectural software concepts.",
-      tags:["Software Architecture", "Algorithms", "System Design"],
+      description: "Dual Bachelor's degrees in IT Engineering, cementing theoretical system design and algorithms.",
+      tags: ["Software Architecture", "Algorithms", "System Design"],
       align: "right"
     },
     {
-      date: "Sep 2021 - Jun 2023",
+      date: "2021 - 2023",
       title: "Software Engineering Diploma",
       subtitle: "1st Graduate (90.36%)",
-      description: "Mastered the core fundamentals of software engineering. Graduated top of the class, setting the foundation for advanced full-stack web development.",
+      description: "Mastered core CS fundamentals, algorithms, and database design.",
       tags: ["C#", "SQL Server", "Data Structures"],
       align: "left"
     }
   ],
 
   skills: {
-    frontend:["Next.js", "React.js", "TypeScript", "Zustand", "TanStack Query", "Tailwind CSS", "Shadcn UI", "Framer Motion"],
-    backend:["Django", "Django REST (DRF)", "Python", "PostgreSQL", "Redis", "Node.js", "C#", ".NET"],
-    devops:["Docker", "VPS Management", "Celery", "WebSockets", "Nginx", "CI/CD", "Pytest", "Linux"]
+    frontend: ["Next.js", "React.js", "TypeScript", "JavaScript", "TanStack Query", "Zustand", "Redux Toolkit", "Shadcn UI", "Material UI"],
+    backend: ["Django", "Django REST Framework", "OpenAPI", "Python", "Node.js", ".NET", "C#", "PHP"],
+    devops: ["PostgreSQL", "MySQL", "Redis", "Docker", "Git", "Nginx", "VPS Management", "CI/CD", "Celery", "WebSockets", "Pytest", "Figma"]
   },
 
-  certifications:[
+  certifications: [
+    { issuer: "Meta", title: "Android Developer Prof. Cert", date: "Oct 2025" },
+    { issuer: "Meta", title: "Database Engineer Specialization", date: "Oct 2025" },
     { issuer: "Meta", title: "Back-End Developer Specialization", date: "Feb 2025" },
     { issuer: "Meta", title: "Front-End Developer Specialization", date: "Jul 2024" },
-    { issuer: "Univ of Michigan", title: "Django for Everybody", date: "Jan 2024" },
     { issuer: "EBTECH", title: "Odoo Developer", date: "Dec 2024" },
+    { issuer: "U-Michigan", title: "Django for Everybody", date: "Jan 2024" },
+    { issuer: "U-Michigan", title: "Python for Everybody", date: "Sep 2023" }
   ]
 };
