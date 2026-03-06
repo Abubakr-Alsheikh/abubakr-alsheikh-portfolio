@@ -1,7 +1,8 @@
 import { sanityFetch } from "@/sanity/lib/live";
-import { HERO_QUERY } from "@/sanity/lib/queries";
-import { HeroData } from "@/types";
+import { HERO_QUERY, ABOUT_QUERY } from "@/sanity/lib/queries"; // 1. Import ABOUT_QUERY
+import { HeroData, AboutData } from "@/types"; // 2. Import AboutData
 import Hero from "@/components/sections/Hero";
+import About from "@/components/sections/About"; // 3. Import About component
 
 export const revalidate = 60;
 
@@ -13,33 +14,27 @@ type SanityFetchResult = {
 };
 
 export default async function Home() {
-  // Fetch the entire result object from Sanity
-  const heroFetchResult = await sanityFetch<SanityFetchResult>({
-    query: HERO_QUERY,
-    tags: ["hero"],
-  });
-
-  // Extract just the data payload
+  // Use Promise.all to fetch data concurrently for better performance
+  const [heroFetchResult, aboutDataResult] = await Promise.all([
+    sanityFetch<HeroData>({ query: HERO_QUERY, tags: ["hero"] }),
+    sanityFetch<AboutData>({ query: ABOUT_QUERY, tags: ["about"] }),
+  ]);
   const heroData = heroFetchResult.data;
+  const aboutData = aboutDataResult.data;
 
-  // Guard against null/undefined data from the CMS
+  // Guards for both data sources
   if (!heroData) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="font-cal text-2xl">Hero content not found.</p>
+        <p className="font-cal text-2xl">Content is not available.</p>
       </main>
     );
   }
 
   return (
     <main className="flex flex-col items-center justify-between">
-      {/*
-        THE FIX: Pass the unwrapped 'heroData' object to the component.
-        This now correctly matches the 'HeroProps' type.
-      */}
       <Hero data={heroData} />
-
-      {/* Other sections will go here later */}
+      <About data={aboutData} />
     </main>
   );
 }

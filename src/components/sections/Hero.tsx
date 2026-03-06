@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { HeroData } from "@/types";
 import { urlFor } from "@/sanity/lib/image";
 import { TextAnimate } from "../ui/text-animate";
+import { HyperText } from "../ui/hyper-text";
 
 // Props definition to accept data from Sanity
 type HeroProps = {
@@ -53,11 +54,11 @@ export default function Hero({ data }: HeroProps) {
         <TextAnimate
           animation="blurIn"
           as="h1"
-          className="font-cal text-5xl font-bold tracking-tighter text-foreground md:text-7xl lg:text-8xl"
+          className="font-cal text-5xl font-bold tracking-tighter text-foreground md:text-7xl lg:text-6xl"
         >
           {data.headline}
         </TextAnimate>
-
+        {/* <HyperText animateOnHover={false}>{data.headline}</HyperText> */}
         {/* Sub-headline */}
         <motion.h2
           initial="hidden"
@@ -66,7 +67,13 @@ export default function Hero({ data }: HeroProps) {
           variants={blurInVariants}
           className="mt-4 font-sans text-lg text-primary md:text-xl"
         >
-          {data.subheadline}
+          <HyperText
+            animateOnHover={false}
+            delay={700}
+            className="font-sans text-lg md:text-xl"
+          >
+            {data.subheadline}
+          </HyperText>
         </motion.h2>
 
         {/* Bio */}
@@ -75,7 +82,7 @@ export default function Hero({ data }: HeroProps) {
           animate="visible"
           transition={{ duration: 0.7, delay: 0.7 }}
           variants={blurInVariants}
-          className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-primary/80 md:text-lg"
+          className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-primary/90 md:text-lg"
         >
           {data.bio}
         </motion.p>

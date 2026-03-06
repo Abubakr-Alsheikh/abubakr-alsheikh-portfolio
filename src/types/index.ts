@@ -1,4 +1,4 @@
-import { Image } from "sanity";
+import { Image } from 'sanity';
 
 export type HeroData = {
   _id: string;
@@ -8,4 +8,18 @@ export type HeroData = {
   ctaPrimary: string;
   ctaSecondary: string;
   profileImage: Image;
+};
+
+export type SkillCategory = {
+  _key: string;
+  categoryTitle: string;
+  skillList: string[];
+};
+
+export type AboutData = {
+  _id: string;
+  title: string;
+  profileImage: Image;
+  description: string;
+  skills: SkillCategory[];
 };
