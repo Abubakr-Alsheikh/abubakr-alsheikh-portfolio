@@ -9,7 +9,7 @@ import Horizon from "@/components/sections/Horizon";
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-between w-full bg-[#020617] overflow-x-hidden">
+    <main className="flex flex-col items-center justify-between w-full bg-[#020617]">
       <Hero data={portfolioData.hero} />
       <About data={portfolioData.about} />
       <Projects data={portfolioData.projects} />
