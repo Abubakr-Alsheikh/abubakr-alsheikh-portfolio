@@ -3,6 +3,7 @@ import { portfolioData } from "@/lib/data";
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
 import Projects from "@/components/sections/Projects";
+import Journey from "@/components/sections/Journey";
 
 export default function Home() {
   return (
@@ -10,8 +11,8 @@ export default function Home() {
       <Hero data={portfolioData.hero} />
       <About data={portfolioData.about} />
       <Projects data={portfolioData.projects} />
+      <Journey data={portfolioData.journey} />
       {/*
-        <Journey data={portfolioData.journey} />
         <Engine skills={portfolioData.skills} certs={portfolioData.certifications} />
         <Horizon />
       */}
