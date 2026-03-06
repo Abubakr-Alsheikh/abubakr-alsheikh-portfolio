@@ -36,9 +36,19 @@ const config = {
             "background-position": "right center",
           },
         },
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(calc(-100% - 1rem))" },
+        },
+        "marquee-reverse": {
+          from: { transform: "translateX(calc(-100% - 1rem))" },
+          to: { transform: "translateX(0)" },
+        },
       },
       animation: {
         "breathing-gradient": "breathing-gradient 10s ease infinite",
+        marquee: "marquee 50s linear infinite",
+        "marquee-reverse": "marquee-reverse 50s linear infinite",
       },
     },
   },

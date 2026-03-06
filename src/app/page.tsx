@@ -4,6 +4,7 @@ import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
 import Projects from "@/components/sections/Projects";
 import Journey from "@/components/sections/Journey";
+import Engine from "@/components/sections/Engine";
 
 export default function Home() {
   return (
@@ -12,8 +13,8 @@ export default function Home() {
       <About data={portfolioData.about} />
       <Projects data={portfolioData.projects} />
       <Journey data={portfolioData.journey} />
+      <Engine skills={portfolioData.skills} certs={portfolioData.certifications} />
       {/*
-        <Engine skills={portfolioData.skills} certs={portfolioData.certifications} />
         <Horizon />
       */}
     </main>
