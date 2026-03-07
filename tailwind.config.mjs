@@ -19,12 +19,13 @@ const config = {
     },
     extend: {
       fontFamily: {
-        // We are NOT using the font variables from globals.css here.
-        // Instead, we are creating utility classes like `font-cal`.
         sans: ["var(--font-inter)"],
         cal: ["var(--font-cal)"],
       },
-      // You can still add keyframes and other extensions here
+      backgroundImage: {
+        "grid-white":
+          "linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)",
+      },
       keyframes: {
         "breathing-gradient": {
           "0%, 100%": {
@@ -36,19 +37,19 @@ const config = {
             "background-position": "right center",
           },
         },
-        marquee: {
-          from: { transform: "translateX(0)" },
-          to: { transform: "translateX(calc(-100% - 1rem))" },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-20px)" },
         },
-        "marquee-reverse": {
-          from: { transform: "translateX(calc(-100% - 1rem))" },
-          to: { transform: "translateX(0)" },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.5", transform: "scale(1.05)" },
         },
       },
       animation: {
         "breathing-gradient": "breathing-gradient 10s ease infinite",
-        marquee: "marquee 50s linear infinite",
-        "marquee-reverse": "marquee-reverse 50s linear infinite",
+        float: "float 6s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },

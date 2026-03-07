@@ -1,6 +1,9 @@
 export const heroData = {
-  badge: "Available for freelance & full-time",
-  headingMain: "I transform complex ideas into",
-  headingGradient: "high-performance digital products.",
-  subtext: "Hi, I'm Abubakr Alsheikh. A Full-Stack Engineer in Aleppo, Syria, architecting scalable Django backends and crafting fluid Next.js interfaces.",
+  status: "Available for new opportunities",
+  title1: "Engineering",
+  title2: "systems &",
+  title3: "interfaces.",
+  description:
+    "I am Abubakr Alsheikh. A Full-Stack Developer specializing in end-to-end architecture. I design secure Django backends and build responsive, type-safe Next.js frontends to deliver software that solves real problems.",
+  primaryAction: "View my work",
 };

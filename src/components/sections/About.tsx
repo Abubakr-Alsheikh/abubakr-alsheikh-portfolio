@@ -102,13 +102,6 @@ export default function About({ data }: { data: AboutData }) {
           <p className="text-slate-400 max-w-md text-lg leading-relaxed">
             {data.aiArchitecture}
           </p>
-          {/*           
-          <div className="mt-8 rounded-xl bg-[#020617] border border-slate-800 p-4 font-mono text-sm text-blue-300 opacity-80 group-hover:opacity-100 transition-opacity">
-            <span className="text-orange-400">class</span> <span className="text-yellow-200">GameState</span>(BaseModel):<br/>
-            &nbsp;&nbsp;player_health: <span className="text-blue-200">int</span> = Field(default=100)<br/>
-            &nbsp;&nbsp;inventory: <span className="text-blue-200">List</span>[Item]<br/>
-            <span className="text-slate-500"># Deterministic JSON from LLM</span>
-          </div> */}
         </BentoCard>
 
         <BentoCard

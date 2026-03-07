@@ -17,20 +17,23 @@ export default function Home() {
 
       <div className="w-full space-y-0 relative z-10">
         <Hero data={portfolioData.hero} />
-        
+
         <div className="relative z-20 -mt-20">
-             <About data={portfolioData.about} />
+          <About data={portfolioData.about} />
         </div>
-        
+
         <Projects data={portfolioData.topProjects} />
-        
+
         <Archive projects={portfolioData.archiveProjects} />
-        
+
         <div className="py-20">
-             <Journey data={portfolioData.journey} />
+          <Journey data={portfolioData.journey} />
         </div>
-        
-        <Engine skills={portfolioData.skills} certs={portfolioData.certifications} />
+
+        <Engine
+          skills={portfolioData.skills}
+          certs={portfolioData.certifications}
+        />
         <Horizon />
       </div>
     </main>
