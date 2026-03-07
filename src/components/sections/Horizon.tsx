@@ -1,49 +1,30 @@
 "use client";
-import { useRef, useState, MouseEvent } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
-import { ArrowUpRight, Github, Linkedin, FileText, Mail, LucideIcon } from "lucide-react";
 
-const MagneticButton = ({ children }: { children: React.ReactNode }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+import { useRef, useState, MouseEvent, FormEvent } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  ArrowUpRight,
+  Github,
+  Linkedin,
+  FileText,
+  Send,
+  TerminalSquare,
+  CheckCircle2,
+} from "lucide-react";
 
-  const springX = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
-  const springY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 });
-
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    const { clientX, clientY } = e;
-    const { height, width, left, top } = ref.current!.getBoundingClientRect();
-    
-    const middleX = clientX - (left + width / 2);
-    const middleY = clientY - (top + height / 2);
-    
-    x.set(middleX * 0.3); 
-    y.set(middleY * 0.3);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ x: springX, y: springY }}
-      className="relative inline-block"
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-const ScrambleLink = ({ text, href, icon: Icon }: { text: string; href: string, icon?: LucideIcon }) => {
+// --- Sub-component: Scramble Text Link ---
+// Kept this because it fits the high-tech terminal vibe perfectly.
+const ScrambleLink = ({
+  text,
+  href,
+  icon: Icon,
+}: {
+  text: string;
+  href: string;
+  icon?: React.ElementType;
+}) => {
   const [displayText, setDisplayText] = useState(text);
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_/";
 
   const handleMouseEnter = () => {
     let iteration = 0;
@@ -57,114 +38,271 @@ const ScrambleLink = ({ text, href, icon: Icon }: { text: string; href: string, 
             }
             return chars[Math.floor(Math.random() * chars.length)];
           })
-          .join("")
+          .join(""),
       );
 
       if (iteration >= text.length) {
         clearInterval(interval);
       }
-      
       iteration += 1 / 3;
     }, 30);
   };
 
   return (
-    <a 
-      href={href} 
-      target="_blank" 
+    <a
+      href={href}
+      target="_blank"
       rel="noopener noreferrer"
-      onMouseEnter={handleMouseEnter} 
-      className="flex items-center gap-2 text-slate-400 hover:text-orange-500 font-mono text-sm transition-colors group"
+      onMouseEnter={handleMouseEnter}
+      className="flex items-center gap-2 text-slate-500 hover:text-orange-400 font-mono text-xs md:text-sm uppercase tracking-widest transition-colors group"
     >
-      {Icon && <Icon className="w-4 h-4 group-hover:-translate-y-1 transition-transform duration-300" />}
+      {Icon && (
+        <Icon className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform duration-300" />
+      )}
       <span>{displayText}</span>
     </a>
   );
 };
 
 export default function Horizon() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // The final leg of the Trace Line
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end end"],
+  });
+  const traceHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  // Form State to make the interaction feel "Alive"
+  const [formState, setFormState] = useState<"idle" | "submitting" | "success">(
+    "idle",
+  );
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setFormState("submitting");
+    // Simulate a network request/payload delivery
+    setTimeout(() => {
+      setFormState("success");
+    }, 1500);
+  };
+
   return (
-    <section className="relative w-full min-h-[85vh] bg-[#020617] flex flex-col items-center justify-end overflow-hidden pt-32 pb-10 px-6">
-      
-      <motion.div 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 1.5 }}
-        className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[140%] h-[60vh] bg-gradient-to-t from-orange-600/20 via-blue-900/10 to-transparent blur-[120px] pointer-events-none" 
-      />
+    <section
+      id="contact"
+      ref={containerRef}
+      className="relative w-full min-h-[100dvh] bg-[#020617] flex flex-col justify-between pt-32 pb-10 px-6 md:px-12 lg:px-20 z-20 overflow-hidden"
+    >
+      {/* --- BACKGROUND HORIZON GLOW --- */}
+      <div className="absolute bottom-0 left-0 right-0 h-[50vh] bg-gradient-to-t from-orange-900/10 via-[#020617] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/20 to-transparent" />
 
-      <div className="relative z-10 flex flex-col items-center text-center mb-auto mt-auto">
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex items-center gap-3 mb-8 px-5 py-2 rounded-full border border-slate-800 bg-slate-900/50 backdrop-blur-md"
-        >
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-          </span>
-          <span className="text-sm text-slate-300 font-medium">Available for new opportunities</span>
-        </motion.div>
-
-        <motion.h2 
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-5xl md:text-7xl lg:text-9xl font-black text-white tracking-tighter mb-8 leading-[0.9]"
-        >
-          Let&apos;s Architect <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-b from-slate-200 to-slate-600">The Future.</span>
-        </motion.h2>
-
-        <motion.p 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          className="text-lg md:text-2xl text-slate-400 max-w-2xl mb-12 leading-relaxed"
-        >
-          Whether you need a scalable Django backend, a fluid Next.js frontend, or both.
-        </motion.p>
-
+      {/* --- THE TERMINATING TRACE LINE --- */}
+      <div className="absolute left-6 md:left-[5.2rem] top-0 bottom-[120px] w-px bg-slate-800/50 hidden lg:block">
         <motion.div
-           initial={{ opacity: 0, scale: 0.8 }}
-           whileInView={{ opacity: 1, scale: 1 }}
-           viewport={{ once: true }}
-           transition={{ delay: 0.4, type: "spring" }}
-        >
-            <MagneticButton>
-              <a href="mailto:AbubakrAlsheikh@outlook.com" className="group relative flex items-center justify-center w-48 h-48 md:w-64 md:h-64 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 text-white shadow-[0_0_50px_-10px_rgba(249,115,22,0.5)] cursor-pointer overflow-hidden transition-transform duration-500 hover:scale-105">
-                  
-                  <div className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-700 ease-out" />
-                  
-                  <div className="relative z-10 flex flex-col items-center gap-2">
-                      <Mail className="w-8 h-8 md:w-10 md:h-10 mb-2" />
-                      <span className="text-xl md:text-2xl font-bold">Say Hello</span>
-                      <ArrowUpRight className="w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </div>
-              </a>
-            </MagneticButton>
-        </motion.div>
-
+          style={{ height: traceHeight }}
+          className="absolute top-0 left-[-1px] w-[3px] bg-gradient-to-b from-transparent via-orange-500 to-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.6)]"
+        />
+        {/* Terminal Block at the very end of the line */}
+        <div className="absolute bottom-0 left-[-4px] w-2 h-4 bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,1)]" />
+        <div className="absolute -bottom-8 left-[-14px] font-mono text-[10px] text-orange-500/50 tracking-widest whitespace-nowrap rotate-90 origin-left">
+          [END_OF_TRACE]
+        </div>
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto border-t border-slate-800/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-        
-        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 text-slate-500 text-sm">
-          <span>© 2026 Abubakr Alsheikh.</span>
-          <span className="hidden md:inline w-1 h-1 rounded-full bg-slate-700" />
-          <span>Built with Next.js, Tailwind & Framer Motion.</span>
+      {/* --- MAIN CONTENT GRID --- */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 lg:pl-16 items-start mt-10">
+        {/* Left Column: Massive Typography & Story Conclusion */}
+        <div className="lg:col-span-6 flex flex-col">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex items-center gap-3 mb-8"
+          >
+            <TerminalSquare className="w-5 h-5 text-orange-500" />
+            <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">
+              SYS.COMMS <span className="text-slate-700">//</span> Secure
+              Channel
+            </span>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-5xl md:text-7xl lg:text-8xl font-cal text-slate-100 tracking-tight leading-[0.95] mb-8"
+          >
+            Initiate <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">
+              Connection.
+            </span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-lg md:text-xl text-slate-400 leading-relaxed font-light max-w-md"
+          >
+            The system architecture is reviewed. The logs are verified.{" "}
+            <br className="hidden md:block" />
+            If you need a scalable Django backend, a fluid Next.js frontend, or
+            end-to-end delivery—transmit your payload.
+          </motion.p>
         </div>
 
-        <div className="flex items-center gap-8">
-          <ScrambleLink text="GITHUB" href="https://github.com/Abubakr-Alsheikh/" icon={Github} />
-          <ScrambleLink text="LINKEDIN" href="https://www.linkedin.com/in/abubakr-alsheikh-dev/" icon={Linkedin} />
-          <ScrambleLink text="RESUME" href="#" icon={FileText} />
+        {/* Right Column: The "Secure Transmission" Form */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2, duration: 0.8 }}
+          className="lg:col-span-6 w-full max-w-lg lg:ml-auto"
+        >
+          <div className="bg-[#0A0F1C]/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+            {/* High-tech corner accents */}
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-slate-800 rounded-tl-2xl" />
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-slate-800 rounded-tr-2xl" />
+
+            {formState === "success" ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center py-12 text-center h-full min-h-[300px]"
+              >
+                <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                </div>
+                <h3 className="text-2xl font-cal text-slate-100 mb-2">
+                  Payload Delivered
+                </h3>
+                <p className="text-slate-400 font-light">
+                  The transmission was successful. I will decode the sequence
+                  and respond shortly.
+                </p>
+              </motion.div>
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-6 relative z-10"
+              >
+                {/* Identifier (Name) */}
+                <div className="group flex flex-col gap-2">
+                  <label
+                    htmlFor="name"
+                    className="text-[10px] font-mono text-slate-500 tracking-widest uppercase flex items-center gap-2"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-focus-within:bg-orange-500 transition-colors" />
+                    IDENTIFIER // Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    required
+                    disabled={formState === "submitting"}
+                    className="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 text-sm font-light placeholder:text-slate-600 focus:outline-none focus:border-orange-500/50 focus:bg-slate-900 transition-all disabled:opacity-50"
+                    placeholder="Enter your designation"
+                  />
+                </div>
+
+                {/* Return Route (Email) */}
+                <div className="group flex flex-col gap-2">
+                  <label
+                    htmlFor="email"
+                    className="text-[10px] font-mono text-slate-500 tracking-widest uppercase flex items-center gap-2"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-focus-within:bg-orange-500 transition-colors" />
+                    RETURN_ROUTE // Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    disabled={formState === "submitting"}
+                    className="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 text-sm font-light placeholder:text-slate-600 focus:outline-none focus:border-orange-500/50 focus:bg-slate-900 transition-all disabled:opacity-50"
+                    placeholder="system@domain.com"
+                  />
+                </div>
+
+                {/* Data Payload (Message) */}
+                <div className="group flex flex-col gap-2">
+                  <label
+                    htmlFor="message"
+                    className="text-[10px] font-mono text-slate-500 tracking-widest uppercase flex items-center gap-2"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-focus-within:bg-orange-500 transition-colors" />
+                    DATA_PAYLOAD // Objective
+                  </label>
+                  <textarea
+                    id="message"
+                    rows={4}
+                    required
+                    disabled={formState === "submitting"}
+                    className="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 text-sm font-light placeholder:text-slate-600 focus:outline-none focus:border-orange-500/50 focus:bg-slate-900 transition-all resize-none disabled:opacity-50"
+                    placeholder="Describe the architecture required..."
+                  />
+                </div>
+
+                {/* Submit Action */}
+                <button
+                  type="submit"
+                  disabled={formState === "submitting"}
+                  className="group relative w-full flex items-center justify-center gap-3 px-6 py-4 mt-2 rounded-lg bg-slate-100 text-[#020617] font-semibold transition-all duration-300 hover:bg-white disabled:opacity-70 overflow-hidden"
+                >
+                  <div className="absolute inset-0 w-full h-full bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.05)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] bg-[position:200%_0,0_0] bg-no-repeat group-hover:transition-[background-position_0s_ease] group-hover:bg-[position:-100%_0,0_0] group-hover:duration-[1500ms]" />
+
+                  <span className="relative z-10 uppercase tracking-wider text-sm">
+                    {formState === "submitting"
+                      ? "Transmitting..."
+                      : "Transmit Payload"}
+                  </span>
+
+                  {formState === "submitting" ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="relative z-10"
+                    >
+                      <div className="w-4 h-4 border-2 border-[#020617] border-t-transparent rounded-full" />
+                    </motion.div>
+                  ) : (
+                    <Send className="w-4 h-4 relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  )}
+                </button>
+              </form>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* --- FOOTER (Bottom Bar) --- */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto border-t border-slate-800/50 pt-8 mt-24 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 text-slate-600 text-[11px] md:text-xs font-mono uppercase tracking-widest">
+          <span>© {new Date().getFullYear()} Abubakr Alsheikh</span>
+          <span className="hidden md:inline text-slate-800">|</span>
+          <span>Sys.Architecture: Next.js + Tailwind</span>
         </div>
 
+        <div className="flex items-center gap-6 md:gap-8">
+          <ScrambleLink
+            text="GitHub"
+            href="https://github.com/Abubakr-Alsheikh/"
+            icon={Github}
+          />
+          <ScrambleLink
+            text="LinkedIn"
+            href="https://www.linkedin.com/in/abubakr-alsheikh-dev/"
+            icon={Linkedin}
+          />
+          <ScrambleLink text="Resume" href="#" icon={FileText} />
+        </div>
       </div>
     </section>
   );
