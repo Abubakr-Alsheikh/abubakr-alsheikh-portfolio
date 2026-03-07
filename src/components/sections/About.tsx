@@ -1,169 +1,140 @@
 "use client";
 
-import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
-import { MouseEvent } from "react";
-import { BrainCircuit, GraduationCap, MapPin, Code2 } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { ArrowDownRight } from "lucide-react";
 
-type AboutData = {
-  aiArchitecture: string;
-  grade: string;
-  diploma: string;
-  location: string;
-  languages: string;
-  scholar: string;
-  frontend: string;
+type Capability = {
+  id: string;
+  title: string;
+  metric?: string;
+  subtitle: string;
+  description: string;
 };
 
-function BentoCard({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  function handleMouseMove({ currentTarget, clientX, clientY }: MouseEvent) {
-    const { left, top } = currentTarget.getBoundingClientRect();
-    mouseX.set(clientX - left);
-    mouseY.set(clientY - top);
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.5, delay, type: "spring", stiffness: 100 }}
-      onMouseMove={handleMouseMove}
-      className={`relative group rounded-3xl border border-slate-800 bg-[#0F172A]/80 overflow-hidden ${className}`}
-    >
-      <motion.div
-        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition duration-300 group-hover:opacity-100"
-        style={{
-          background: useMotionTemplate`
-            radial-gradient(
-              400px circle at ${mouseX}px ${mouseY}px,
-              rgba(249, 115, 22, 0.15),
-              transparent 80%
-            )
-          `,
-        }}
-      />
-      <div className="relative h-full w-full p-8 flex flex-col z-10">
-        {children}
-      </div>
-    </motion.div>
-  );
-}
+type AboutData = {
+  manifesto: string;
+  capabilities: Capability[];
+};
 
 export default function About({ data }: { data: AboutData }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Track scroll for the glowing Trace Line
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end end"],
+  });
+
+  // The glowing line grows down as you scroll
+  const traceHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
   return (
-    <section className="relative w-full py-32 bg-[#020617] text-white flex flex-col items-center px-6">
-      <div className="text-center mb-16 md:mb-24 relative z-10">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-bold mb-4 tracking-tight"
-        >
-          My{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-blue-500">
-            Core
-          </span>
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="text-slate-400 max-w-xl mx-auto text-lg"
-        >
-          Bridging relentless learning with architectural precision.
-        </motion.p>
+    <section
+      id="about"
+      ref={containerRef}
+      className="relative w-full min-h-screen bg-[#020617] pt-24 pb-48 px-6 md:px-12 lg:px-20 z-20"
+    >
+      {/* 
+        1. SEAMLESS CONNECTION
+        This faint text bridges the visual gap between the Hero and About section, 
+        making it feel like a continuous terminal readout.
+      */}
+      <div className="absolute top-0 left-6 md:left-20 text-[10px] font-mono text-slate-700 tracking-[0.2em] uppercase">
+        <span className="text-orange-500 mr-2">↓</span> Continuing Sequence //
+        System Profile
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full">
-        <BentoCard className="md:col-span-2" delay={0.1}>
-          <div className="flex items-start justify-between mb-6">
-            <div className="p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
-              <BrainCircuit className="w-8 h-8" />
-            </div>
-            <span className="text-xs font-mono text-slate-500 border border-slate-800 bg-slate-900/50 px-3 py-1 rounded-full">
-              Backend System Design
-            </span>
-          </div>
-          <h3 className="text-2xl md:text-3xl font-bold mb-3 text-slate-100">
-            Architecting Intelligence
-          </h3>
-          <p className="text-slate-400 max-w-md text-lg leading-relaxed">
-            {data.aiArchitecture}
-          </p>
-        </BentoCard>
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 relative pt-16">
+        {/* --- LEFT COLUMN: Sticky Narrative (The "Manifesto") --- */}
+        <div className="lg:col-span-5 relative">
+          <div className="sticky top-32 flex flex-col">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h2 className="text-sm font-mono text-orange-500 mb-6 tracking-widest flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                CORE_ARCHITECTURE
+              </h2>
+              <h3 className="text-4xl md:text-5xl lg:text-6xl font-cal text-slate-100 leading-[1.1] tracking-tight mb-8">
+                Precision in <br className="hidden lg:block" />
+                <span className="text-slate-500">execution.</span>
+              </h3>
 
-        <BentoCard
-          className="md:col-span-1 flex flex-col justify-center items-center text-center group"
-          delay={0.2}
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-[60px] rounded-full group-hover:bg-orange-500/30 transition-colors pointer-events-none" />
-          <h3 className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-orange-600 mb-4 tracking-tighter drop-shadow-[0_0_15px_rgba(249,115,22,0.3)]">
-            {data.grade}
-          </h3>
-          <div className="inline-flex items-center gap-2 border border-orange-500/30 bg-orange-500/10 px-4 py-2 rounded-full text-sm font-semibold text-orange-200 mb-3">
-            <GraduationCap className="w-4 h-4" />
-            <span>1st Graduate</span>
+              {/* The Manifesto */}
+              <div className="relative pl-6 border-l border-slate-800">
+                <ArrowDownRight className="absolute -left-3 top-0 w-5 h-5 text-slate-600 bg-[#020617]" />
+                <p className="text-lg md:text-xl text-slate-400 font-light leading-relaxed text-balance">
+                  {data.manifesto}
+                </p>
+              </div>
+            </motion.div>
           </div>
-          <p className="text-slate-400 font-medium">
-            {data.diploma.split("•")[1].trim()}
-          </p>
-        </BentoCard>
+        </div>
 
-        <BentoCard className="md:col-span-1" delay={0.3}>
-          <div className="p-3 w-fit rounded-2xl bg-slate-800/50 border border-slate-700 text-slate-300 mb-auto relative">
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <MapPin className="w-6 h-6" />
+        {/* --- RIGHT COLUMN: The Scrolling Capabilities --- */}
+        <div className="lg:col-span-7 relative pl-8 md:pl-16">
+          {/* THE TRACE LINE (Physical scroll connection) */}
+          <div className="absolute left-0 top-4 bottom-0 w-px bg-slate-800/50">
+            {/* Glowing active segment that follows scroll */}
+            <motion.div
+              style={{ height: traceHeight }}
+              className="absolute top-0 left-[-1px] w-[3px] bg-gradient-to-b from-transparent via-orange-500 to-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.6)]"
+            />
           </div>
-          <div className="mt-12">
-            <h3 className="text-2xl font-bold text-white mb-2">
-              {data.location}
-            </h3>
-            <div className="flex flex-col gap-1 text-slate-400 text-sm font-medium">
-              {data.languages.split("•").map((lang, idx) => (
-                <span key={idx} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
-                  {lang.trim()}
-                </span>
-              ))}
-            </div>
-          </div>
-        </BentoCard>
 
-        <BentoCard className="md:col-span-1" delay={0.4}>
-          <div className="p-3 w-fit rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mb-6">
-            <GraduationCap className="w-6 h-6" />
-          </div>
-          <h3 className="text-xl font-bold mb-3 text-slate-100">
-            Concurrent Scholar
-          </h3>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            {data.scholar}
-          </p>
-        </BentoCard>
+          {/* Render each Capability as a structural node */}
+          <div className="flex flex-col gap-24">
+            {data.capabilities.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-150px" }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.1,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="relative group"
+              >
+                {/* Node dot on the Trace Line */}
+                <div className="absolute top-2 -left-[37px] md:-left-[69px] w-3 h-3 rounded-full border-2 border-[#020617] bg-slate-700 group-hover:bg-orange-400 transition-colors duration-500 z-10" />
 
-        <BentoCard className="md:col-span-1" delay={0.5}>
-          <div className="p-3 w-fit rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-400 mb-6">
-            <Code2 className="w-6 h-6" />
+                {/* Capability Header */}
+                <div className="mb-4">
+                  <span className="text-xs font-mono text-slate-600 tracking-widest block mb-3">
+                    {item.id}
+                  </span>
+
+                  {/* Special rendering for the massive 90.36% stat */}
+                  {item.metric && (
+                    <div className="text-6xl md:text-7xl font-cal font-bold text-transparent bg-clip-text bg-gradient-to-b from-slate-200 to-slate-500 tracking-tight mb-2">
+                      {item.metric}
+                    </div>
+                  )}
+
+                  <h4 className="text-2xl md:text-3xl font-cal text-slate-100 tracking-tight">
+                    {item.title}
+                  </h4>
+                </div>
+
+                {/* Subtitle / Tech Stack Tags */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-medium text-slate-300 mb-6">
+                  {item.subtitle}
+                </div>
+
+                {/* Description */}
+                <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl font-light">
+                  {item.description}
+                </p>
+              </motion.div>
+            ))}
           </div>
-          <h3 className="text-xl font-bold mb-3 text-slate-100">
-            Type-Safe UIs
-          </h3>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            {data.frontend}
-          </p>
-        </BentoCard>
+        </div>
       </div>
     </section>
   );
