@@ -1,7 +1,7 @@
 "use client";
-import { useRef } from "react";
+
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Briefcase, GraduationCap, Medal } from "lucide-react";
+import { useRef } from "react";
 
 type JourneyItem = {
   date: string;
@@ -9,113 +9,103 @@ type JourneyItem = {
   subtitle: string;
   description: string;
   tags: string[];
-  align: string;
-};
-
-const getIcon = (title: string) => {
-  if (title.includes("Freelance")) return <Briefcase className="w-5 h-5" />;
-  if (title.includes("Diploma")) return <Medal className="w-5 h-5" />;
-  return <GraduationCap className="w-5 h-5" />;
 };
 
 export default function Journey({ data }: { data: JourneyItem[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
+  // Continue the scroll trace to the bottom of the timeline
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start 20%", "end 50%"],
+    offset: ["start center", "end end"],
   });
 
-  const height = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  // The glowing line grows down as you scroll
+  const traceHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  // Fade out at the very end to signal the end of the timeline
+  const traceOpacity = useTransform(scrollYProgress, [0.85, 1], [1, 0]);
 
   return (
-    <section ref={containerRef} className="relative w-full py-20 md:py-32 bg-[#020617] text-white overflow-hidden px-6">
-      
-      <div className="text-center mb-16 relative z-10">
-        <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-bold mb-4"
-        >
-          The <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-blue-500">Journey</span>
-        </motion.h2>
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="text-slate-400 max-w-xl mx-auto"
-        >
-          A timeline of relentless learning and shipping production code.
-        </motion.p>
+    <section
+      id="journey"
+      ref={containerRef}
+      className="relative w-full py-32 bg-[#020617] px-6 md:px-12 lg:px-20 z-20"
+    >
+      {/* --- THE UNBROKEN TRACE LINE --- */}
+      <div className="absolute left-6 md:left-[5.2rem] top-0 bottom-0 w-px bg-slate-800/50 hidden lg:block">
+        <motion.div
+          style={{ height: traceHeight, opacity: traceOpacity }}
+          className="absolute top-0 left-[-1px] w-[3px] bg-gradient-to-b from-orange-500 via-orange-500 to-transparent shadow-[0_0_15px_rgba(249,115,22,0.6)]"
+        />
       </div>
 
-      <div className="relative max-w-5xl mx-auto">
-        
-        <div className="absolute left-[28px] md:left-[50%] top-0 bottom-0 w-[2px] bg-slate-800 -translate-x-1/2" />
-        
-        <motion.div 
-          style={{ height }}
-          className="absolute left-[28px] md:left-[50%] top-0 w-[2px] bg-gradient-to-b from-blue-500 via-orange-500 to-orange-600 -translate-x-1/2 shadow-[0_0_15px_rgba(249,115,22,0.6)] z-0" 
-        />
+      <div className="max-w-7xl mx-auto relative lg:pl-16">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-24"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+            <span className="text-xs font-mono text-slate-500 uppercase tracking-widest flex items-center gap-2">
+              Operations Log <span className="text-slate-700">//</span> Career &
+              Academics
+            </span>
+          </div>
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-cal text-slate-100 tracking-tight leading-[1.1]">
+            The <span className="text-slate-600">Timeline.</span>
+          </h2>
+        </motion.div>
 
-        <div className="space-y-12 md:space-y-24 mt-10">
+        {/* The Timeline Entries */}
+        <div className="flex flex-col gap-16 md:gap-24">
           {data.map((item, index) => (
-            <div key={index} className={`relative flex flex-col md:flex-row items-center w-full ${item.align === "left" ? "md:flex-row-reverse" : ""}`}>
-              
-              <div className="hidden md:block w-5/12" />
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="relative grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-12 group"
+            >
+              {/* Node dot on the Trace Line (Visible on Desktop) */}
+              <div className="absolute top-2 -left-[69px] w-3 h-3 rounded-full border-2 border-[#020617] bg-slate-700 group-hover:bg-orange-400 transition-colors duration-500 z-10 hidden lg:block" />
 
-              <div className="absolute left-[16px] md:left-[50%] -translate-x-1/2 flex items-center justify-center z-10">
-                 <motion.div 
-                   initial={{ scale: 0, opacity: 0 }}
-                   whileInView={{ scale: 1, opacity: 1 }}
-                   viewport={{ once: true, margin: "-100px" }}
-                   transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                   className="w-6 h-6 rounded-full bg-[#020617] border-2 border-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)] flex items-center justify-center"
-                 >
-                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                 </motion.div>
+              {/* Left Column: Date & Subtitle */}
+              <div className="md:col-span-4 flex flex-col md:text-right md:border-r border-slate-800/50 md:pr-12 pt-1 md:pt-2">
+                <span className="text-sm font-mono text-orange-500 tracking-widest mb-2">
+                  {item.date}
+                </span>
+                <span className="text-sm font-medium text-slate-500 uppercase tracking-wide">
+                  {item.subtitle}
+                </span>
               </div>
 
-              <motion.div 
-                initial={{ opacity: 0, x: item.align === "left" ? -50 : 50, y: 20 }}
-                whileInView={{ opacity: 1, x: 0, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ type: "spring", stiffness: 50, damping: 20, delay: 0.1 }}
-                className="ml-16 md:ml-0 w-full md:w-5/12 relative group"
-              >
-                <div className={`flex mb-2 ${item.align === "left" ? "md:justify-end" : "md:justify-start"}`}>
-                    <span className="text-orange-500 font-mono text-xs tracking-widest bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full">
-                        {item.date}
+              {/* Right Column: Title, Description, Tags */}
+              <div className="md:col-span-8 flex flex-col">
+                <h3 className="text-3xl md:text-4xl font-cal text-slate-100 mb-6 tracking-tight group-hover:text-orange-400 transition-colors duration-300">
+                  {item.title}
+                </h3>
+
+                <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 font-light max-w-2xl text-balance">
+                  {item.description}
+                </p>
+
+                {/* Tech Stack Tags */}
+                <div className="flex flex-wrap gap-x-3 gap-y-2">
+                  {item.tags.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="px-3 py-1 rounded-full bg-slate-800/20 border border-slate-700/50 text-xs font-mono text-slate-400 group-hover:border-slate-600 group-hover:text-slate-300 transition-colors duration-300"
+                    >
+                      {tag}
                     </span>
+                  ))}
                 </div>
-
-                <div className={`p-6 md:p-8 rounded-2xl border border-slate-800 bg-[#0F172A]/80 backdrop-blur-sm hover:border-slate-600 transition-colors duration-300 ${item.align === "left" ? "text-left md:text-right" : "text-left"}`}>
-                    
-                    <div className={`flex items-center gap-3 mb-3 ${item.align === "left" ? "md:flex-row-reverse" : "flex-row"}`}>
-                        <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
-                             {getIcon(item.title)}
-                        </div>
-                        <h3 className="text-xl md:text-2xl font-bold text-slate-100">{item.title}</h3>
-                    </div>
-                    
-                    <h4 className="text-lg text-blue-400 mb-4 font-medium">{item.subtitle}</h4>
-                    <p className="text-slate-400 leading-relaxed text-sm md:text-base mb-6">
-                        {item.description}
-                    </p>
-                    
-                    <div className={`flex flex-wrap gap-2 ${item.align === "left" ? "md:justify-end" : "justify-start"}`}>
-                        {item.tags.map((tag, i) => (
-                            <span key={i} className="text-xs px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-slate-400 group-hover:text-slate-200 group-hover:border-slate-600 transition-colors">
-                            {tag}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-              </motion.div>
-
-            </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>

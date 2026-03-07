@@ -18,15 +18,13 @@ export default function Home() {
       <div className="w-full space-y-0 relative z-10">
         <Hero data={portfolioData.hero} />
 
-        <div className="relative z-20 -mt-20">
-          <About data={portfolioData.about} />
-        </div>
+        <About data={portfolioData.about} />
 
         <Projects data={portfolioData.topProjects} />
 
         <Archive projects={portfolioData.archiveProjects} />
 
-        <div className="py-20">
+        <div className="">
           <Journey data={portfolioData.journey} />
         </div>
 
