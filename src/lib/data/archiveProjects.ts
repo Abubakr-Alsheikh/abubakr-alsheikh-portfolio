@@ -1,38 +1,44 @@
 export const archiveProjectsData = [
   {
     title: "Ghosn (غصن) - AI Smart Farming",
-    description: "Hackathon winner. Developed a responsive UI for environmental data processing and live AI chat interaction.",
+    description:
+      "Developed a responsive UI for environmental data processing and live AI chat interaction.",
     stack: ["React", "Material-UI", ".NET", "Axios"],
-    link: "#"
+    link: "#",
   },
   {
     title: "IntelliDo: AI To-Do App",
-    description: "AI-driven task management integrated with Gemini API for text/media task suggestions.",
+    description:
+      "AI-driven task management integrated with Gemini API for text/media task suggestions.",
     stack: ["React", "Django RF", "Redux Toolkit", "JWT"],
-    link: "#"
+    link: "#",
   },
   {
     title: "AskVid: Video AI Chat",
-    description: "Summarization and transcription of video/audio content using AssemblyAI and Google Gemini.",
+    description:
+      "Summarization and transcription of video/audio content using AssemblyAI and Google Gemini.",
     stack: ["Django", "Python", "AssemblyAI", "Gemini API"],
-    link: "#"
+    link: "#",
   },
   {
     title: "Screen Scene: Movie Discovery",
-    description: "Dynamic movie website featuring TMDB API integration and local storage optimization.",
+    description:
+      "Dynamic movie website featuring TMDB API integration and local storage optimization.",
     stack: ["Django", "Tailwind CSS", "JavaScript", "TMDB API"],
-    link: "#"
+    link: "#",
   },
   {
     title: "E-Commerce Backend",
-    description: "Secure cart and order management system with coupon logic and autocomplete search.",
+    description:
+      "Secure cart and order management system with coupon logic and autocomplete search.",
     stack: ["Django", "Python", "Bootstrap"],
-    link: "#"
+    link: "#",
   },
   {
     title: "Book Inventory System",
-    description: "Full CRUD operations and user authentication built with ASP.NET and SQL Server.",
+    description:
+      "Full CRUD operations and user authentication built with ASP.NET and SQL Server.",
     stack: ["ASP.NET", "C#", "MS SQL Server", "Bootstrap"],
-    link: "#"
-  }
+    link: "#",
+  },
 ];

@@ -1,20 +1,26 @@
 export const topProjectsData = [
   {
-    title: "Learning Management System",
-    description: "Architected a scalable Django backend with a modular multi-app structure, versioned RESTful API, and a custom administrative dashboard with granular permissions.",
-    stack: ["Django", "Next.js", "Celery", "Redis", "PostgreSQL", "WebSockets", "Pytest"],
+    id: "SYS.MOD_01",
+    title: "Enterprise Learning Infrastructure",
+    description:
+      "Architected a highly scalable Django backend with a modular multi-app structure, versioned RESTful API, and a custom administrative dashboard featuring granular role-based access control.",
+    stack: ["Django", "Next.js", "Celery", "PostgreSQL", "WebSockets"],
     link: "#",
   },
   {
-    title: "Advanced Telegram Bot",
-    description: "Highly modular system utilizing Asyncio and OpenAI. Features personalized feedback, automated content deployment via CLI, and dynamic PDF/video generation.",
-    stack: ["Python", "Asyncio", "OpenAI API", "SQLite", "Pandas", "DocxTemplate"],
+    id: "SYS.MOD_02",
+    title: "AI Orchestration Telegram Engine",
+    description:
+      "Highly modular async system utilizing OpenAI. Features personalized feedback loops, automated content deployment via CLI, and dynamic PDF/video generation pipelines.",
+    stack: ["Python", "Asyncio", "OpenAI", "SQLite", "Pandas"],
     link: "https://github.com/Abubakr-Alsheikh/",
   },
   {
-    title: "PromptCraft: Dungeon Delver",
-    description: "Dual-provider AI service orchestrating local (Ollama) and cloud (Gemini) LLMs with intelligent fallback logic and deterministic JSON parsing.",
-    stack: ["Flask", "Next.js", "Zustand", "Pydantic", "TypeScript"],
+    id: "SYS.MOD_03",
+    title: "PromptCraft LLM Pipeline",
+    description:
+      "Dual-provider AI service orchestrating local (Ollama) and cloud (Gemini) LLMs. Engineered with intelligent fallback logic and deterministic JSON parsing for structured game states.",
+    stack: ["Flask", "Next.js", "Zustand", "Pydantic"],
     link: "#",
-  }
+  },
 ];
