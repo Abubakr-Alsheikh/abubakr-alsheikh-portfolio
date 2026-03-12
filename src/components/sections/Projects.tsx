@@ -1,44 +1,24 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import {
-  ArrowUpRight,
-  Github,
-  Database,
-  Network,
-  Terminal,
-} from "lucide-react";
-import { useRef } from "react";
-
-type Project = {
-  id: string;
-  title: string;
-  description: string;
-  stack: string[];
-  link: string;
-};
-
-// --- Custom Interactive System Visuals ---
+import { motion } from "framer-motion";
+import { ArrowUpRight, Github, Database, Network, Terminal } from "lucide-react";
 
 const ArchitectureVisual = () => (
   <div className="relative w-full h-full min-h-[300px] bg-[#020617] rounded-2xl border border-slate-800/60 overflow-hidden group flex items-center justify-center">
-    {/* Blueprint Grid */}
     <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:16px_16px]" />
 
     <div className="relative z-10 flex items-center gap-6 sm:gap-12">
-      {/* Node 1: Client */}
       <motion.div
         animate={{ y: [-2, 2, -2] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="flex flex-col items-center gap-2"
       >
-        <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.1)] group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all">
+        <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue- items-center justify-center500/30 flex shadow-[0_0_15px_rgba(59,130,246,0.1)] group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all">
           <Network className="w-5 h-5 text-blue-400" />
         </div>
         <span className="text-[10px] font-mono text-slate-500">CLIENT</span>
       </motion.div>
 
-      {/* Connection Line */}
       <div className="w-12 sm:w-20 h-px bg-slate-800 relative">
         <motion.div
           animate={{ x: ["0%", "100%"] }}
@@ -47,7 +27,6 @@ const ArchitectureVisual = () => (
         />
       </div>
 
-      {/* Node 2: Core */}
       <motion.div
         animate={{ y: [2, -2, 2] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
@@ -61,7 +40,6 @@ const ArchitectureVisual = () => (
         </span>
       </motion.div>
 
-      {/* Connection Line */}
       <div className="w-12 sm:w-20 h-px bg-slate-800 relative">
         <motion.div
           animate={{ x: ["0%", "100%"] }}
@@ -75,7 +53,6 @@ const ArchitectureVisual = () => (
         />
       </div>
 
-      {/* Node 3: Database */}
       <motion.div
         animate={{ y: [-1, 1, -1] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -111,7 +88,7 @@ const TerminalVisual = () => (
         response = <span className="text-orange-400">await</span>{" "}
         openai.chat.create(
       </p>
-      <p className="pl-8 text-slate-500">model="gpt-4o",</p>
+      <p className="pl-8 text-slate-500">{`model="gpt-4o",`}</p>
       <p className="pl-8 text-slate-500">messages=context</p>
       <p className="pl-4">)</p>
       <motion.div
@@ -138,18 +115,18 @@ const JSONVisual = () => (
   <div className="relative w-full h-full min-h-[300px] bg-[#020617] rounded-2xl border border-slate-800/60 overflow-hidden group p-6">
     <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-[50px] rounded-full group-hover:bg-purple-500/20 transition-all" />
     <div className="font-mono text-xs sm:text-sm space-y-1 relative z-10">
-      <p className="text-slate-500">// Fallback to local Ollama active</p>
+      <p className="text-slate-500">{/* Fallback to local Ollama active */}</p>
       <p className="text-yellow-200">{"{"}</p>
       <p className="pl-4">
-        <span className="text-purple-300">"status"</span>:{" "}
+        <span className="text-purple-300">{`"status"`}</span>:{" "}
         <span className="text-green-300">200</span>,
       </p>
       <p className="pl-4">
-        <span className="text-purple-300">"model"</span>:{" "}
-        <span className="text-orange-300">"llama3-8b-instruct"</span>,
+        <span className="text-purple-300">{`"model"`}</span>:{" "}
+        <span className="text-orange-300">{`"llama3-8b-instruct"`}</span>,
       </p>
       <p className="pl-4">
-        <span className="text-purple-300">"payload"</span>: {"{"}
+        <span className="text-purple-300">{`"payload"`}</span>: {"{"}
       </p>
       <motion.p
         initial={{ opacity: 0.5 }}
@@ -157,8 +134,8 @@ const JSONVisual = () => (
         transition={{ duration: 0.2 }}
         className="pl-8"
       >
-        <span className="text-blue-300">"player_state"</span>:{" "}
-        <span className="text-orange-300">"combat_engaged"</span>,
+        <span className="text-blue-300">{`"player_state"`}</span>:{" "}
+        <span className="text-orange-300">{`"combat_engaged"`}</span>,
       </motion.p>
       <motion.p
         initial={{ opacity: 0.5 }}
@@ -166,7 +143,7 @@ const JSONVisual = () => (
         transition={{ duration: 0.2 }}
         className="pl-8"
       >
-        <span className="text-blue-300">"enemy_hp"</span>:{" "}
+        <span className="text-blue-300">{`"enemy_hp"`}</span>:{" "}
         <span className="text-green-300">450</span>,
       </motion.p>
       <motion.p
@@ -175,7 +152,7 @@ const JSONVisual = () => (
         transition={{ duration: 0.2 }}
         className="pl-8"
       >
-        <span className="text-blue-300">"loot_generated"</span>:{" "}
+        <span className="text-blue-300">{`"loot_generated"`}</span>:{" "}
         <span className="text-orange-300">true</span>
       </motion.p>
       <p className="pl-4">{"}"}</p>
@@ -184,51 +161,29 @@ const JSONVisual = () => (
   </div>
 );
 
+type Project = {
+  id: string;
+  title: string;
+  description: string;
+  stack: string[];
+  link: string;
+};
+
 export default function Projects({ data }: { data: Project[] }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Continue the scroll trace from the About section
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start center", "end end"],
-  });
-  const traceHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-
   return (
-    <section
-      id="projects"
-      ref={containerRef}
-      className="relative w-full py-32 bg-[#020617] px-6 md:px-12 lg:px-20 z-20"
-    >
-      {/* 1. SEAMLESS CONNECTION: The Continuing Trace Line */}
-      <div className="absolute left-6 md:left-[5.2rem] top-0 bottom-0 w-px bg-slate-800/50 hidden lg:block">
-        <motion.div
-          style={{ height: traceHeight }}
-          className="absolute top-0 left-[-1px] w-[3px] bg-gradient-to-b from-orange-500 via-orange-500 to-transparent shadow-[0_0_15px_rgba(249,115,22,0.6)]"
-        />
-      </div>
-
-      <div className="max-w-7xl mx-auto relative lg:pl-16">
-        {/* Header Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-24"
-        >
-          <div className="flex items-center gap-3 mb-6">
-            <span className="w-2 h-2 rounded-full bg-orange-500" />
-            <span className="text-xs font-mono text-slate-500 uppercase tracking-widest flex items-center gap-2">
-              System Modules <span className="text-slate-700">//</span> Deployed
-              Architectures
-            </span>
-          </div>
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-cal text-slate-100 tracking-tight leading-[1.1]">
-            The <span className="text-slate-600">Arsenal.</span>
+    <section id="projects" className="relative w-full py-32 px-6 md:px-12 lg:px-20 z-20">
+      <div className="max-w-7xl mx-auto relative">
+        
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-24 text-center">
+          <h2 className="text-xs font-mono text-purple-400 mb-6 tracking-widest uppercase flex items-center justify-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+            DEPLOYED_SATELLITES
+          </h2>
+          <h2 className="text-5xl md:text-7xl font-space text-slate-100 tracking-tighter leading-[1.1]">
+            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">Arsenal.</span>
           </h2>
         </motion.div>
 
-        {/* Projects List */}
         <div className="flex flex-col gap-32">
           {data.map((project, index) => (
             <motion.div
@@ -236,94 +191,38 @@ export default function Projects({ data }: { data: Project[] }) {
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="grid grid-cols-1 xl:grid-cols-12 gap-10 xl:gap-16 items-center group"
             >
-              {/* Left Column: Project Details */}
-              <div className="xl:col-span-5 flex flex-col relative z-10 order-2 xl:order-1">
-                {/* Node dot on the Trace Line (Visible on Desktop) */}
-                <div className="absolute top-6 -left-[85px] w-3 h-3 rounded-full border-2 border-[#020617] bg-slate-700 group-hover:bg-orange-400 transition-colors duration-500 hidden lg:block" />
-
-                <span className="text-sm font-mono text-orange-500 mb-4 tracking-widest">
-                  {project.id}
-                </span>
-
-                <h3 className="text-3xl md:text-4xl font-cal text-slate-100 mb-6 tracking-tight leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-slate-100 group-hover:to-slate-400 transition-all duration-500">
+              <div className="xl:col-span-5 flex flex-col relative z-10 order-2 xl:order-1 backdrop-blur-md bg-white/[0.02] p-8 rounded-3xl border border-white/5 hover:border-white/10 transition-colors">
+                <span className="text-xs font-mono text-purple-400 mb-4 tracking-widest">{project.id}</span>
+                <h3 className="text-3xl md:text-4xl font-space font-bold text-slate-100 mb-6 tracking-tight group-hover:text-purple-300 transition-colors duration-500">
                   {project.title}
                 </h3>
-
                 <p className="text-slate-400 text-lg leading-relaxed mb-8 font-light">
                   {project.description}
                 </p>
-
-                {/* Tech Stack Tags */}
                 <div className="flex flex-wrap gap-2 mb-10">
-                  {project.stack.map((tech, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1.5 rounded-full bg-slate-800/30 border border-slate-700 text-xs font-medium text-slate-300"
-                    >
+                  {project.stack.map((tech: string, i: number) => (
+                    <span key={i} className="px-3 py-1 rounded-full bg-slate-800/30 border border-slate-700/50 text-xs font-mono text-slate-300">
                       {tech}
                     </span>
                   ))}
                 </div>
-
-                {/* Interaction Links */}
-                <div className="flex items-center gap-6">
-                  {project.link !== "#" && (
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group/link flex items-center gap-2 text-sm font-medium text-slate-100 hover:text-orange-500 transition-colors"
-                    >
-                      <Github className="w-4 h-4" />
-                      <span>Source Code</span>
-                      <ArrowUpRight className="w-3 h-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                    </a>
-                  )}
-                </div>
+                {project.link !== "#" && (
+                  <a href={project.link} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-mono text-slate-100 hover:text-purple-400 transition-colors w-fit">
+                    <Github className="w-4 h-4" /> <span>Source Code</span> <ArrowUpRight className="w-4 h-4" />
+                  </a>
+                )}
               </div>
-
-              {/* Right Column: Dynamic Visuals */}
-              <div className="xl:col-span-7 relative w-full aspect-[4/3] sm:aspect-[16/9] xl:aspect-[4/3] order-1 xl:order-2">
-                {/* Decorative background glow behind the visual */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-slate-900 via-slate-800/20 to-transparent rounded-2xl transform group-hover:scale-[1.02] transition-transform duration-700 ease-out" />
-
-                <div className="absolute inset-0 rounded-2xl overflow-hidden backdrop-blur-sm border border-slate-800/50 transform group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] transition-all duration-700 ease-out">
-                  {index === 0 && <ArchitectureVisual />}
-                  {index === 1 && <TerminalVisual />}
-                  {index === 2 && <JSONVisual />}
-                </div>
+              
+              <div className="xl:col-span-7 relative w-full aspect-[4/3] order-1 xl:order-2 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group-hover:-translate-y-2 transition-transform duration-700 bg-[#020617]/40 backdrop-blur-md flex items-center justify-center">
+                {index === 0 && <ArchitectureVisual />}
+                {index === 1 && <TerminalVisual />}
+                {index === 2 && <JSONVisual />}
               </div>
             </motion.div>
           ))}
         </div>
-
-        {/* Global Archive Button */}
-        {/* <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-32 pt-16 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-6"
-        >
-          <p className="text-slate-400 font-light text-center sm:text-left">
-            Additional systems and legacy architectures{" "}
-            <br className="hidden sm:block" /> are archived for review.
-          </p>
-          <a
-            href="https://github.com/Abubakr-Alsheikh"
-            target="_blank"
-            rel="noreferrer"
-            className="group relative inline-flex items-center gap-3 text-slate-100 font-medium py-3 px-8 rounded-full border border-slate-700 bg-[#020617] hover:bg-slate-900 transition-colors duration-300 overflow-hidden"
-          >
-            <span className="relative z-10 text-sm tracking-wide uppercase">
-              Access Full Archive
-            </span>
-            <ArrowUpRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300 text-orange-500" />
-            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-orange-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
-          </a>
-        </motion.div> */}
       </div>
     </section>
   );

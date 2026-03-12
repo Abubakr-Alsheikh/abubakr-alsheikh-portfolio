@@ -1,3 +1,5 @@
+"use client";
+
 import { portfolioData } from "@/lib/data";
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
@@ -6,32 +8,33 @@ import Archive from "@/components/sections/Archive";
 import Journey from "@/components/sections/Journey";
 import Engine from "@/components/sections/Engine";
 import Horizon from "@/components/sections/Horizon";
+
 import BackgroundEnv from "@/components/shared/BackgroundEnv";
-import ScrollLine from "@/components/shared/ScrollLine";
+import TelemetryNav from "@/components/shared/TelemetryNav";
+import MasterThread from "@/components/shared/MasterThread";
+import AdminTerminal from "@/components/shared/AdminTerminal";
+import { useBootSequence } from "@/hooks/useBootSequence";
 
 export default function Home() {
+  useBootSequence();
+
   return (
-    <main className="relative flex flex-col items-center w-full min-h-screen">
+    <main className="relative flex flex-col w-full min-h-screen">
       <BackgroundEnv />
-      <ScrollLine />
+      
+      <TelemetryNav />
+      
+      <MasterThread />
 
-      <div className="w-full space-y-0 relative z-10">
+      <AdminTerminal />
+
+      <div className="w-full space-y-0 relative z-10 flex flex-col items-center">
         <Hero data={portfolioData.hero} />
-
         <About data={portfolioData.about} />
-
         <Projects data={portfolioData.topProjects} />
-
         <Archive projects={portfolioData.archiveProjects} />
-
-        <div className="">
-          <Journey data={portfolioData.journey} />
-        </div>
-
-        <Engine
-          skills={portfolioData.skills}
-          certs={portfolioData.certifications}
-        />
+        <Journey data={portfolioData.journey} />
+        <Engine skills={portfolioData.skills} certs={portfolioData.certifications} />
         <Horizon />
       </div>
     </main>

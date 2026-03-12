@@ -1,4 +1,5 @@
 "use client";
+
 import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function BackgroundEnv() {
@@ -6,43 +7,46 @@ export default function BackgroundEnv() {
   
   const bgColor = useTransform(
     scrollYProgress,
-    [0, 0.3, 0.6, 1],
-    ["#020617", "#020617", "#0c0a09", "#020617"]
+    [0, 0.4, 0.7, 0.9, 1],
+    [
+      "#020617",
+      "#0B0F19",
+      "#2E1065",
+      "#9A3412",
+      "#F97316"
+    ]
   );
 
   return (
-    <motion.div style={{ backgroundColor: bgColor }} className="fixed inset-0 -z-50 overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+    <motion.div 
+      style={{ backgroundColor: bgColor }} 
+      className="fixed inset-0 -z-50 overflow-hidden transition-colors duration-200"
+    >
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
       <motion.div 
-        animate={{ 
-          x: [0, 100, 0], 
-          y: [0, 50, 0],
-          opacity: [0.1, 0.2, 0.1] 
-        }}
-        transition={{ duration: 20, repeat: Infinity }}
-        className="absolute top-[20%] -left-20 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full"
-      />
-      
-      <motion.div 
-        animate={{ 
-          x: [0, -80, 0], 
-          y: [0, 100, 0],
-          opacity: [0.1, 0.15, 0.1] 
-        }}
-        transition={{ duration: 25, repeat: Infinity, delay: 2 }}
-        className="absolute top-[60%] -right-20 w-[600px] h-[600px] bg-orange-600/10 blur-[140px] rounded-full"
-      />
-
-      <motion.div 
-        style={{ y: useTransform(scrollYProgress, [0, 1], [0, -500]) }}
-        className="absolute top-1/4 right-0 text-[20vw] font-black text-white/[0.02] select-none leading-none whitespace-nowrap"
+        style={{ opacity: useTransform(scrollYProgress, [0, 0.6], [1, 0]) }}
+        className="absolute inset-0"
       >
-        FULLSTACK
+        {[...Array(30)].map((_, i) => (
+          <div 
+            key={i}
+            className="absolute rounded-full bg-white"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: Math.random() * 2 + 'px',
+              height: Math.random() * 2 + 'px',
+              opacity: Math.random() * 0.8 + 0.2,
+              animation: `pulse-glow ${Math.random() * 3 + 2}s infinite alternate`
+            }}
+          />
+        ))}
       </motion.div>
+
       <motion.div 
-        style={{ y: useTransform(scrollYProgress, [0, 1], [0, -800]) }}
-        className="absolute top-[70%] left-[-5%] text-[20vw] font-black text-white/[0.01] select-none leading-none whitespace-nowrap"
+        style={{ y: useTransform(scrollYProgress, [0, 1], [0, -1000]) }}
+        className="absolute top-[20%] right-[-10%] text-[20vw] font-black text-white/[0.02] select-none leading-none tracking-tighter"
       >
         ARCHITECT
       </motion.div>

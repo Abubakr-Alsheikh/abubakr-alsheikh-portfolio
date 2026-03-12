@@ -6,9 +6,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-space: var(--font-space);
   --font-cal: var(--font-calsans);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -129,7 +130,7 @@
   h4,
   h5,
   h6 {
-    @apply font-cal tracking-tight text-foreground;
+    @apply font-space tracking-tight text-foreground;
   }
 
   h1 {
@@ -186,4 +187,29 @@
   li {
     @apply mb-2;
   }
+}
+
+.glitch-hover {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.glitch-hover::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -10px; width: 2px; height: 100%;
+  background: var(--accent);
+  opacity: 0;
+  transform: scaleY(0);
+  transition: all 0.2s ease;
+}
+
+.glitch-hover:hover::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.glitch-hover:hover {
+  transform: translateX(8px);
+  color: var(--accent);
 }

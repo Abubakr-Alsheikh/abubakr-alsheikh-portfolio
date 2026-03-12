@@ -118,7 +118,7 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
           className="mt-16 flex flex-col sm:flex-row items-center justify-between gap-6"
         >
           <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">
-            // End of system logs
+            {`// End of system logs`}
           </p>
           <a
             href="https://github.com/Abubakr-Alsheikh"
