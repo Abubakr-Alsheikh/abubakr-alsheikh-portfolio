@@ -9,7 +9,6 @@ import Horizon from "@/components/sections/Horizon";
 
 // Global Infrastructure
 import BackgroundEnv from "@/components/shared/BackgroundEnv";
-import GlobalTraceLine from "@/components/shared/GlobalTraceLine";
 import TelemetryNav from "@/components/shared/TelemetryNav";
 
 export default function Home() {

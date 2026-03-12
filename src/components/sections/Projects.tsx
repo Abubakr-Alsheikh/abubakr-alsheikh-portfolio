@@ -44,7 +44,15 @@ const SystemWindowPlaceholder = ({
   </div>
 );
 
-export default function Projects({ data }: { data: any[] }) {
+type Project = {
+  id: string;
+  title: string;
+  description: string;
+  stack: string[];
+  link: string;
+};
+
+export default function Projects({ data }: { data: Project[] }) {
   return (
     <section id="projects" className="relative w-full py-32 z-20">
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:pl-[6.5rem] relative">

@@ -97,7 +97,20 @@ const GeometricJupiter = () => (
   </div>
 );
 
-export default function About({ data }: { data: any }) {
+type Capability = {
+  id: string;
+  title: string;
+  metric?: string;
+  subtitle: string;
+  description: string;
+};
+
+type AboutData = {
+  manifesto: string;
+  capabilities: Capability[];
+};
+
+export default function About({ data }: { data: AboutData }) {
   const sectionRef = useRef<HTMLDivElement>(null);
 
   // Synchronized Parallax
@@ -143,7 +156,7 @@ export default function About({ data }: { data: any }) {
           style={{ y: rightY }}
           className="lg:col-span-7 flex flex-col gap-8 lg:pl-16"
         >
-          {data.capabilities.map((item: any, index: number) => (
+          {data.capabilities.map((item: Capability, index: number) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, filter: "blur(10px)" }}

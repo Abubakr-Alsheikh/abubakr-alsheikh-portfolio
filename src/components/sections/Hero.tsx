@@ -155,7 +155,7 @@ const DeepSpaceEnvironment = () => {
   );
 };
 
-export default function Hero({ data }: { data: any }) {
+export default function Hero({ data }: { data: { status: string; title1: string; title2: string; title3: string; description: string; primaryAction: string } }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Unified Parallax
@@ -179,7 +179,7 @@ export default function Hero({ data }: { data: any }) {
       opacity: 1,
       y: 0,
       rotateX: 0,
-      transition: { duration: 1, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as const },
     },
   };
 
