@@ -1,5 +1,3 @@
-"use client";
-
 import { portfolioData } from "@/lib/data";
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
@@ -9,26 +7,25 @@ import Journey from "@/components/sections/Journey";
 import Engine from "@/components/sections/Engine";
 import Horizon from "@/components/sections/Horizon";
 
+// Global Infrastructure
 import BackgroundEnv from "@/components/shared/BackgroundEnv";
+import GlobalTraceLine from "@/components/shared/GlobalTraceLine";
 import TelemetryNav from "@/components/shared/TelemetryNav";
-import MasterThread from "@/components/shared/MasterThread";
-import AdminTerminal from "@/components/shared/AdminTerminal";
-import { useBootSequence } from "@/hooks/useBootSequence";
 
 export default function Home() {
-  useBootSequence();
-
   return (
-    <main className="relative flex flex-col w-full min-h-screen">
+    <main className="relative flex flex-col items-center w-full min-h-screen selection:bg-[#3B82F6]/30 selection:text-[#3B82F6]">
+      
+      {/* 1. Subtle Dark Atmosphere */}
       <BackgroundEnv />
       
+      {/* 2. The Unbroken Trace Line */}
+      <GlobalTraceLine />
+
+      {/* 3. The Command Center (Navbar + Terminal) */}
       <TelemetryNav />
-      
-      <MasterThread />
 
-      <AdminTerminal />
-
-      <div className="w-full space-y-0 relative z-10 flex flex-col items-center">
+      <div className="w-full relative z-10">
         <Hero data={portfolioData.hero} />
         <About data={portfolioData.about} />
         <Projects data={portfolioData.topProjects} />

@@ -1,92 +1,279 @@
+// src/components/sections/Hero.tsx
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { MoveDownRight } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 
-const ScrambleText = ({ text }: { text: string }) => {
-  const [displayText, setDisplayText] = useState(text);
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_/+-\\";
+// --- Sub-Component: Massive Geometric Saturn ---
+const GeometricPlanet = () => (
+  // Scaled up massively: w-[150vw] max-w-[1600px]
+  <div className="absolute top-[-20%] right-[-30%] md:right-[-20%] w-[150vw] md:w-[120vw] max-w-[1600px] aspect-square opacity-[0.15] pointer-events-none z-0">
+    <svg
+      viewBox="0 0 200 200"
+      className="w-full h-full stroke-[#3B82F6] fill-none"
+    >
+      <g transform="translate(100, 100) rotate(-25)">
+        <circle
+          cx="0"
+          cy="0"
+          r="30"
+          strokeWidth="0.4"
+          className="stroke-slate-500"
+        />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="15"
+          ry="30"
+          strokeWidth="0.2"
+          className="stroke-slate-600"
+        />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="30"
+          ry="10"
+          strokeWidth="0.2"
+          className="stroke-slate-600"
+        />
 
-  const scramble = () => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(
-        text.split("").map((letter, index) => {
-          if (index < iteration) return text[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        }).join("")
-      );
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1 / 3;
-    }, 20);
-  };
+        <motion.ellipse
+          cx="0"
+          cy="0"
+          rx="55"
+          ry="15"
+          strokeWidth="0.4"
+          strokeDasharray="2 4"
+          animate={{ rotateZ: [0, 360] }}
+          transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.ellipse
+          cx="0"
+          cy="0"
+          rx="75"
+          ry="20"
+          strokeWidth="0.6"
+          animate={{ rotateZ: [360, 0] }}
+          transition={{ duration: 200, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.ellipse
+          cx="0"
+          cy="0"
+          rx="90"
+          ry="25"
+          strokeWidth="0.3"
+          strokeDasharray="1 6"
+          animate={{ rotateZ: [0, 360] }}
+          transition={{ duration: 250, repeat: Infinity, ease: "linear" }}
+        />
+      </g>
+    </svg>
+  </div>
+);
+
+// --- Sub-Component: Cinematic Starfield & Meteors ---
+const DeepSpaceEnvironment = () => {
+  const [meteors, setMeteors] = useState<
+    Array<{
+      id: number;
+      top: number;
+      right: number;
+      delay: number;
+      duration: number;
+    }>
+  >([]);
+  const [stars, setStars] = useState<
+    Array<{
+      id: number;
+      top: number;
+      left: number;
+      size: number;
+      delay: number;
+    }>
+  >([]);
+
+  useEffect(() => {
+    // Generate Meteors (Slower, fading smoothly)
+    setMeteors(
+      Array.from({ length: 6 }).map((_, i) => ({
+        id: i,
+        top: Math.random() * 100, // Spread across 200vh
+        right: Math.random() * 50 - 20, // Start slightly off-screen right
+        delay: Math.random() * 8 + i * 3,
+        duration: Math.random() * 2 + 3, // Slower duration (3-5s)
+      })),
+    );
+
+    // Generate Static Twinkling Stars
+    setStars(
+      Array.from({ length: 75 }).map((_, i) => ({
+        id: i,
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        size: Math.random() * 2 + 1,
+        delay: Math.random() * 5,
+      })),
+    );
+  }, []);
 
   return (
-    <span onMouseEnter={scramble} className="cursor-crosshair transition-colors hover:text-orange-400">
-      {displayText}
-    </span>
+    // This container is h-[200vh] so the stars/meteors bleed perfectly into the About section
+    <div className="absolute top-0 left-0 w-full h-[200vh] pointer-events-none z-0 overflow-hidden mask-fade-bottom">
+      {/* Stars */}
+      {stars.map((star) => (
+        <motion.div
+          key={`star-${star.id}`}
+          className="absolute rounded-full bg-white"
+          style={{
+            top: `${star.top}%`,
+            left: `${star.left}%`,
+            width: star.size,
+            height: star.size,
+          }}
+          animate={{ opacity: [0.1, 0.8, 0.1] }}
+          transition={{
+            duration: 3 + star.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+
+      {/* Meteors (Moving Top-Right to Bottom-Left) */}
+      {meteors.map((meteor) => (
+        <motion.div
+          key={`meteor-${meteor.id}`}
+          className="absolute w-[150px] h-[1px] bg-gradient-to-l from-transparent via-[#3B82F6] to-white"
+          style={{
+            top: `${meteor.top}%`,
+            right: `${meteor.right}%`,
+            rotate: "-35deg",
+          }}
+          initial={{ opacity: 0, x: 0, y: 0 }}
+          // Move diagonally down and left, fading in then out
+          animate={{ opacity: [0, 1, 0], x: -800, y: 500 }}
+          transition={{
+            delay: meteor.delay,
+            duration: meteor.duration,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
   );
 };
 
-type HeroData = {
-  status: string;
-  title1: string;
-  title2: string;
-  title3: string;
-  description: string;
-  primaryAction: string;
-};
-
-export default function Hero({ data }: { data: HeroData }) {
+export default function Hero({ data }: { data: any }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  // Subtle Parallax (Reduced to prevent overlap with About section)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+  const textY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
+  // Framer Motion staggered animation variants
+  const containerVars = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2, delayChildren: 0.3 },
+    },
+  };
+  const textVars = {
+    hidden: { opacity: 0, y: 50, rotateX: 20 },
+    show: {
+      opacity: 1,
+      y: 0,
+      rotateX: 0,
+      transition: { duration: 1, ease: [0.16, 1, 0.3, 1] },
+    },
+  };
 
   return (
-    <section ref={containerRef} className="relative w-full min-h-[100dvh] flex flex-col justify-center px-6 md:px-12 lg:px-20 pt-32 pb-24 z-10 overflow-hidden">
-      <motion.div style={{ y, opacity }} className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        
-        <div className="lg:col-span-8 flex flex-col cursor-default z-20">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.2 }}
-            className="flex items-center gap-3 mb-8 w-fit backdrop-blur-md bg-white/[0.02] border border-white/10 px-4 py-2 rounded-full"
+    <section
+      ref={containerRef}
+      className="relative w-full min-h-[100dvh] flex flex-col justify-center px-6 md:px-12 lg:px-20 pt-32 pb-24 z-10"
+    >
+      <DeepSpaceEnvironment />
+      <GeometricPlanet />
+
+      <motion.div
+        style={{ y: textY, opacity: textOpacity }}
+        className="relative z-10 w-full max-w-7xl mx-auto flex flex-col gap-12 lg:pl-[6.5rem]"
+      >
+        <motion.div
+          variants={containerVars}
+          initial="hidden"
+          animate="show"
+          className="flex flex-col cursor-default perspective-1000"
+        >
+          <motion.div
+            variants={textVars}
+            className="flex items-center gap-3 mb-6 w-fit border border-slate-800 px-4 py-2 rounded-sm bg-[#020617]/50 backdrop-blur-md"
           >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+            <span className="w-1.5 h-1.5 bg-[#3B82F6] animate-pulse rounded-sm" />
+            <span className="text-[10px] md:text-xs font-mono text-slate-400 uppercase tracking-widest">
+              {data.status}
             </span>
-            <span className="text-xs font-mono text-slate-300 uppercase tracking-widest">{data.status}</span>
           </motion.div>
 
-          <h1 className="text-[4rem] sm:text-6xl md:text-7xl lg:text-[8rem] font-bold tracking-tighter text-slate-100 font-space leading-[0.9]">
-            {data.title1}
-          </h1>
-          <h1 className="text-[4rem] sm:text-6xl md:text-7xl lg:text-[8rem] font-bold tracking-tighter text-slate-600 font-space leading-[0.9]">
-            {data.title2}
-          </h1>
-          <h1 className="text-[4rem] sm:text-6xl md:text-7xl lg:text-[8rem] font-bold tracking-tighter text-transparent bg-clip-text bg-[linear-gradient(to_right,#3B82F6,#A855F7,#F97316)] bg-[length:200%_auto] animate-breathing-gradient font-space leading-[1.1]">
-            {data.title3}
-          </h1>
-        </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.6 }}
-          className="lg:col-span-4 flex flex-col justify-end relative z-20"
-        >
-          <div className="p-6 backdrop-blur-xl bg-white/[0.02] border border-white/5 rounded-2xl shadow-2xl">
-            <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 font-mono font-light text-balance">
-              <ScrambleText text="I am Abubakr Alsheikh." /> A Full-Stack Architect designing secure Django backends and building responsive Next.js frontends to deliver software that solves real problems.
-            </p>
-            <button
-              onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-              className="group relative inline-flex items-center gap-4 text-slate-100 font-mono text-sm tracking-widest uppercase py-3 px-6 rounded-full border border-slate-700/50 bg-slate-900/50 hover:bg-slate-800 transition-colors duration-300 overflow-hidden"
+          {/* Bigger Typography with elegant line height */}
+          <div className="overflow-hidden pb-2">
+            <motion.h1
+              variants={textVars}
+              className="text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter text-slate-100 font-space leading-[1.1]"
             >
-              <span className="relative z-10">{data.primaryAction}</span>
-              <MoveDownRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 group-hover:translate-y-1 transition-transform text-orange-400" />
-            </button>
+              {data.title1}
+            </motion.h1>
           </div>
+          <div className="overflow-hidden pb-2">
+            <motion.h1
+              variants={textVars}
+              className="text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter text-slate-600 font-space leading-[1.1]"
+            >
+              {data.title2}
+            </motion.h1>
+          </div>
+          <div className="overflow-hidden pb-4">
+            <motion.h1
+              variants={textVars}
+              className="text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter text-[#3B82F6] font-space leading-[1.1]"
+            >
+              {data.title3}
+            </motion.h1>
+          </div>
+        </motion.div>
+
+        {/* Balanced Description directly below the title */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 1 }}
+          className="max-w-2xl relative pl-6 border-l-2 border-[#F97316] mt-4"
+        >
+          <div className="absolute top-0 -left-[5px] w-2 h-2 bg-[#020617] border border-[#F97316]" />
+          <p className="text-slate-400 text-lg md:text-xl leading-relaxed font-mono font-light text-balance mb-8">
+            <span className="text-slate-200 font-bold">
+              I am Abubakr Alsheikh.
+            </span>{" "}
+            {data.description}
+          </p>
+          <button
+            onClick={() =>
+              document
+                .getElementById("about")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="flex items-center gap-3 text-slate-300 hover:text-[#F97316] font-mono text-xs tracking-widest uppercase transition-colors group"
+          >
+            <span>{data.primaryAction}</span>
+            <MoveDownRight className="w-4 h-4 group-hover:translate-x-1 group-hover:translate-y-1 transition-transform" />
+          </button>
         </motion.div>
       </motion.div>
     </section>

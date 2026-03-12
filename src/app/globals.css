@@ -82,110 +82,60 @@
 
 .dark {
   /* Deep Night #020617 */
-  --background: #020617; 
+  --background: #020617;
   /* Pure White for text readability */
-  --foreground: #F8FAFC; 
+  --foreground: #f8fafc;
 
   /* Cards slightly lighter slate */
-  --card: #0F172A; 
-  --card-foreground: #F8FAFC; 
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
 
   --popover: #020617;
-  --popover-foreground: #F8FAFC;
+  --popover-foreground: #f8fafc;
 
   /* Sunrise Orange #F97316 */
-  --primary: #F97316; 
-  --primary-foreground: #FFFFFF; 
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
 
   /* Electric Blue Accent #3B82F6 */
-  --secondary: #3B82F6; 
-  --secondary-foreground: #FFFFFF;
+  --secondary: #3b82f6;
+  --secondary-foreground: #ffffff;
 
-  --muted: #1E293B;
-  --muted-foreground: #94A3B8;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
 
   /* Glow / Hover state orange #EA580C */
-  --accent: #EA580C; 
-  --accent-foreground: #FFFFFF;
+  --accent: #f97316;
+  --accent-foreground: #ffffff;
 
   --destructive: oklch(57.7% 0.245 27.325);
 
-  --border: #1E293B; 
-  --input: #1E293B; 
-  --ring: #F97316; /* Orange focus rings */
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #f97316; /* Orange focus rings */
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[var(--background)] text-[var(--foreground)] overflow-x-hidden;
   }
 
-  /* Headings: Set CalSans as the default, define sizes and spacing */
+  /* Core Typography Defaults */
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply font-space tracking-tight text-foreground;
+    @apply font-space tracking-tight text-[var(--foreground)];
   }
 
-  h1 {
-    /* Responsive font size */
-    @apply text-4xl font-semibold md:text-5xl lg:text-6xl;
-    /* Vertical rhythm */
-    @apply mt-8 mb-4;
-  }
-
-  h2 {
-    @apply text-3xl font-semibold md:text-4xl;
-    @apply mt-6 mb-3;
-  }
-
-  h3 {
-    @apply text-2xl font-semibold md:text-3xl;
-    @apply mt-4 mb-2;
-  }
-
-  /* Paragraphs: Optimized for readability */
   p {
-    /* Using text-primary which is our main light slate color */
-    @apply text-primary leading-relaxed mb-4;
-    /* Limit line length for better reading experience on wide screens */
-    @apply max-w-prose;
-  }
-
-  /* Links: Use our accent color for high visibility */
-  a {
-    /* #FF8C00 - The Sun */
-    @apply text-accent font-medium;
-    @apply transition-colors duration-300;
-  }
-
-  a:hover {
-    /* #FFA500 - Orange Glow */
-    @apply underline;
-  }
-
-  /* Lists: Restore default styling */
-  ul,
-  ol {
-    @apply mb-4 ml-6;
-  }
-
-  ul {
-    @apply list-disc;
-  }
-
-  ol {
-    @apply list-decimal;
-  }
-
-  li {
-    @apply mb-2;
+    @apply font-mono font-light text-slate-400 leading-relaxed;
   }
 }
 
@@ -195,9 +145,12 @@
 }
 
 .glitch-hover::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: -10px; width: 2px; height: 100%;
+  top: 0;
+  left: -10px;
+  width: 2px;
+  height: 100%;
   background: var(--accent);
   opacity: 0;
   transform: scaleY(0);
@@ -212,4 +165,30 @@
 .glitch-hover:hover {
   transform: translateX(8px);
   color: var(--accent);
+}
+
+/* 
+  Global UI Utility: Technical Left Border
+  Used for text blocks instead of generic glass boxes 
+*/
+.tech-border {
+  @apply relative pl-6 border-l-2 border-slate-800 transition-colors duration-300;
+}
+
+.tech-border:hover {
+  @apply border-[var(--accent)];
+}
+
+.tech-border::before {
+  content: "";
+  @apply absolute top-0 -left-[5px] w-2 h-2 bg-[var(--background)] border-2 border-slate-800 transition-colors duration-300;
+}
+
+.tech-border:hover::before {
+  @apply border-[var(--accent)] bg-[var(--accent)];
+}
+
+.mask-fade-bottom {
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
 }
