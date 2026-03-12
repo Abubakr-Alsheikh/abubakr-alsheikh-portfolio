@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { CalSans } from "@/lib/fonts";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import LenisProvider from "@/components/shared/LenisProvider";
 import CursorAura from "@/components/shared/CursorAura";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const spaceGrotesk = Space_Grotesk({ 
+  subsets: ["latin"], 
+  variable: "--font-space",
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({ 
+  subsets: ["latin"], 
+  variable: "--font-mono",
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: "Abubakr Alsheikh | Full-Stack Developer",
+  title: "Abubakr Alsheikh | Full-Stack Architect",
   description: "Transforming complex ideas into high-performance, intelligent digital products.",
 };
 
@@ -22,10 +31,10 @@ export default function RootLayout({
     <html lang="en" className="dark scroll-smooth">
       <body
         className={cn(
-          "min-h-screen font-sans antialiased text-slate-200",
+          "min-h-screen antialiased text-slate-200 overflow-x-hidden",
           "bg-[#020617] selection:bg-orange-500/30 selection:text-orange-200",
-          inter.variable,
-          CalSans.variable
+          spaceGrotesk.variable,
+          jetbrainsMono.variable
         )}
       >
         <CursorAura />

@@ -1,4 +1,3 @@
-// tailwind.config.mjs
 /** @type {import('tailwindcss').Config} */
 const config = {
   darkMode: ["class"],
@@ -19,37 +18,13 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)"],
-        cal: ["var(--font-cal)"],
+        space: ["var(--font-space)"],
+        mono: ["var(--font-mono)"],
       },
-      backgroundImage: {
-        "grid-white":
-          "linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)",
-      },
-      keyframes: {
-        "breathing-gradient": {
-          "0%, 100%": {
-            "background-size": "200% 200%",
-            "background-position": "left center",
-          },
-          "50%": {
-            "background-size": "200% 200%",
-            "background-position": "right center",
-          },
-        },
-        float: {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-20px)" },
-        },
-        "pulse-glow": {
-          "0%, 100%": { opacity: "1", transform: "scale(1)" },
-          "50%": { opacity: "0.5", transform: "scale(1.05)" },
-        },
-      },
-      animation: {
-        "breathing-gradient": "breathing-gradient 10s ease infinite",
-        float: "float 6s ease-in-out infinite",
-        "pulse-glow": "pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      colors: {
+        space: "#020617",
+        azure: "#3B82F6",
+        technical: "#F97316",
       },
     },
   },
