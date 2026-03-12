@@ -1,4 +1,3 @@
-// src/components/sections/Hero.tsx
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -7,8 +6,7 @@ import { useRef, useEffect, useState } from "react";
 
 // --- Sub-Component: Massive Geometric Saturn ---
 const GeometricPlanet = () => (
-  // Scaled up massively: w-[150vw] max-w-[1600px]
-  <div className="absolute top-[-20%] right-[-30%] md:right-[-20%] w-[150vw] md:w-[120vw] max-w-[1600px] aspect-square opacity-[0.15] pointer-events-none z-0">
+  <div className="absolute top-[-20%] right-[-30%] md:right-[-10%] w-[150vw] md:w-[100vw] max-w-[1400px] aspect-square opacity-[0.15] pointer-events-none z-0">
     <svg
       viewBox="0 0 200 200"
       className="w-full h-full stroke-[#3B82F6] fill-none"
@@ -37,7 +35,6 @@ const GeometricPlanet = () => (
           strokeWidth="0.2"
           className="stroke-slate-600"
         />
-
         <motion.ellipse
           cx="0"
           cy="0"
@@ -94,18 +91,16 @@ const DeepSpaceEnvironment = () => {
   >([]);
 
   useEffect(() => {
-    // Generate Meteors (Slower, fading smoothly)
     setMeteors(
       Array.from({ length: 6 }).map((_, i) => ({
         id: i,
-        top: Math.random() * 100, // Spread across 200vh
-        right: Math.random() * 50 - 20, // Start slightly off-screen right
+        top: Math.random() * 100,
+        right: Math.random() * 50 - 20,
         delay: Math.random() * 8 + i * 3,
-        duration: Math.random() * 2 + 3, // Slower duration (3-5s)
+        duration: Math.random() * 2 + 3,
       })),
     );
 
-    // Generate Static Twinkling Stars
     setStars(
       Array.from({ length: 75 }).map((_, i) => ({
         id: i,
@@ -118,9 +113,7 @@ const DeepSpaceEnvironment = () => {
   }, []);
 
   return (
-    // This container is h-[200vh] so the stars/meteors bleed perfectly into the About section
     <div className="absolute top-0 left-0 w-full h-[200vh] pointer-events-none z-0 overflow-hidden mask-fade-bottom">
-      {/* Stars */}
       {stars.map((star) => (
         <motion.div
           key={`star-${star.id}`}
@@ -139,8 +132,6 @@ const DeepSpaceEnvironment = () => {
           }}
         />
       ))}
-
-      {/* Meteors (Moving Top-Right to Bottom-Left) */}
       {meteors.map((meteor) => (
         <motion.div
           key={`meteor-${meteor.id}`}
@@ -151,7 +142,6 @@ const DeepSpaceEnvironment = () => {
             rotate: "-35deg",
           }}
           initial={{ opacity: 0, x: 0, y: 0 }}
-          // Move diagonally down and left, fading in then out
           animate={{ opacity: [0, 1, 0], x: -800, y: 500 }}
           transition={{
             delay: meteor.delay,
@@ -168,7 +158,7 @@ const DeepSpaceEnvironment = () => {
 export default function Hero({ data }: { data: any }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Subtle Parallax (Reduced to prevent overlap with About section)
+  // Unified Parallax
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -176,16 +166,15 @@ export default function Hero({ data }: { data: any }) {
   const textY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
-  // Framer Motion staggered animation variants
   const containerVars = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.3 },
+      transition: { staggerChildren: 0.2, delayChildren: 0.2 },
     },
   };
   const textVars = {
-    hidden: { opacity: 0, y: 50, rotateX: 20 },
+    hidden: { opacity: 0, y: 40, rotateX: 15 },
     show: {
       opacity: 1,
       y: 0,
@@ -194,27 +183,32 @@ export default function Hero({ data }: { data: any }) {
     },
   };
 
+  // Fluid typography class ensures text shrinks gracefully on smaller screens without breaking layout
+  const fluidTextClass =
+    "text-[clamp(3.5rem,8vw,9rem)] font-bold tracking-tighter font-space leading-[1.1]";
+
   return (
     <section
       ref={containerRef}
-      className="relative w-full min-h-[100dvh] flex flex-col justify-center px-6 md:px-12 lg:px-20 pt-32 pb-24 z-10"
+      className="relative w-full min-h-[100dvh] flex flex-col justify-center pt-32 pb-24 z-10"
     >
       <DeepSpaceEnvironment />
       <GeometricPlanet />
 
+      {/* Reduced padding to md:pl-[8rem] to give text maximum horizontal space, perfectly clearing the TraceLine */}
       <motion.div
         style={{ y: textY, opacity: textOpacity }}
-        className="relative z-10 w-full max-w-7xl mx-auto flex flex-col gap-12 lg:pl-[6.5rem]"
+        className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col gap-6 px-6 md:pl-[8rem] md:pr-12"
       >
         <motion.div
           variants={containerVars}
           initial="hidden"
           animate="show"
-          className="flex flex-col cursor-default perspective-1000"
+          className="flex flex-col cursor-default perspective-1000 w-full"
         >
           <motion.div
             variants={textVars}
-            className="flex items-center gap-3 mb-6 w-fit border border-slate-800 px-4 py-2 rounded-sm bg-[#020617]/50 backdrop-blur-md"
+            className="flex items-center gap-3 mb-8 w-fit border border-slate-800 px-4 py-2 rounded-sm bg-[#020617]/50 backdrop-blur-md"
           >
             <span className="w-1.5 h-1.5 bg-[#3B82F6] animate-pulse rounded-sm" />
             <span className="text-[10px] md:text-xs font-mono text-slate-400 uppercase tracking-widest">
@@ -222,58 +216,60 @@ export default function Hero({ data }: { data: any }) {
             </span>
           </motion.div>
 
-          {/* Bigger Typography with elegant line height */}
-          <div className="overflow-hidden pb-2">
+          {/* Title 1 & 2 */}
+          <div className="overflow-hidden pb-2 w-full">
             <motion.h1
               variants={textVars}
-              className="text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter text-slate-100 font-space leading-[1.1]"
+              className={`${fluidTextClass} text-slate-100`}
             >
               {data.title1}
             </motion.h1>
           </div>
-          <div className="overflow-hidden pb-2">
+          <div className="overflow-hidden pb-2 w-full">
             <motion.h1
               variants={textVars}
-              className="text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter text-slate-600 font-space leading-[1.1]"
+              className={`${fluidTextClass} text-slate-600`}
             >
               {data.title2}
             </motion.h1>
           </div>
-          <div className="overflow-hidden pb-4">
-            <motion.h1
-              variants={textVars}
-              className="text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter text-[#3B82F6] font-space leading-[1.1]"
-            >
-              {data.title3}
-            </motion.h1>
-          </div>
-        </motion.div>
 
-        {/* Balanced Description directly below the title */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, delay: 1 }}
-          className="max-w-2xl relative pl-6 border-l-2 border-[#F97316] mt-4"
-        >
-          <div className="absolute top-0 -left-[5px] w-2 h-2 bg-[#020617] border border-[#F97316]" />
-          <p className="text-slate-400 text-lg md:text-xl leading-relaxed font-mono font-light text-balance mb-8">
-            <span className="text-slate-200 font-bold">
-              I am Abubakr Alsheikh.
-            </span>{" "}
-            {data.description}
-          </p>
-          <button
-            onClick={() =>
-              document
-                .getElementById("about")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="flex items-center gap-3 text-slate-300 hover:text-[#F97316] font-mono text-xs tracking-widest uppercase transition-colors group"
-          >
-            <span>{data.primaryAction}</span>
-            <MoveDownRight className="w-4 h-4 group-hover:translate-x-1 group-hover:translate-y-1 transition-transform" />
-          </button>
+          {/* INTERLOCKING ROW: Title 3 and Description */}
+          {/* By using w-full and removing justify-between, the 3rd title perfectly left-aligns with the ones above it. */}
+          <div className="flex flex-col 2xl:flex-row 2xl:items-end gap-8 2xl:gap-16 w-full mt-2">
+            <div className="overflow-hidden pb-2 shrink-0">
+              <motion.h1
+                variants={textVars}
+                className={`${fluidTextClass} text-[#3B82F6]`}
+              >
+                {data.title3}
+              </motion.h1>
+            </div>
+
+            {/* The description sits natively on the right side of the flex row, taking up remaining space */}
+            <motion.div
+              variants={textVars}
+              className="max-w-md relative pl-6 border-l-2 border-[#F97316] mb-4 2xl:mb-8 group"
+            >
+              <div className="absolute top-0 -left-[5px] w-2 h-2 bg-[#020617] border border-[#F97316] group-hover:bg-[#F97316] transition-colors" />
+              <p className="text-slate-400 text-base md:text-lg leading-relaxed font-mono font-light text-balance mb-6">
+                <span className="text-slate-200 font-bold">Hello there!</span>{" "}
+                <br></br>
+                {data.description}
+              </p>
+              <button
+                onClick={() =>
+                  document
+                    .getElementById("about")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="flex items-center gap-3 text-slate-300 hover:text-[#F97316] font-mono text-xs tracking-widest uppercase transition-colors group/btn"
+              >
+                <span>{data.primaryAction}</span>
+                <MoveDownRight className="w-4 h-4 group-hover/btn:translate-x-1 group-hover/btn:translate-y-1 transition-transform" />
+              </button>
+            </motion.div>
+          </div>
         </motion.div>
       </motion.div>
     </section>
