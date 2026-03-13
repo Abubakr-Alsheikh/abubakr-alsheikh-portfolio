@@ -28,10 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className="dark scroll-smooth overflow-x-hidden max-w-full">
       <body
         className={cn(
-          "min-h-screen antialiased text-slate-200 overflow-x-hidden",
+          "min-h-screen antialiased text-slate-200 overflow-x-hidden max-w-full",
           "bg-[#020617] selection:bg-orange-500/30 selection:text-orange-200",
           spaceGrotesk.variable,
           jetbrainsMono.variable

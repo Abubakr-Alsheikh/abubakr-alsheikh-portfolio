@@ -188,13 +188,12 @@ export default function TelemetryNav() {
 
           {/* RIGHT SIDE: Telemetry & Expandable Menu */}
           <div className="pointer-events-auto flex flex-col items-end">
-            <motion.div
-              layout
+            <div
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="flex flex-col bg-[#020617]/50 backdrop-blur-xl border border-slate-800/60 rounded-2xl shadow-2xl overflow-hidden cursor-pointer hover:border-[#F97316]/40 transition-colors"
             >
               {/* Top Persistent Bar */}
-              <div className="flex items-center gap-4 md:gap-6 p-3 md:p-4">
+              <div className="flex items-center gap-4 md:gap-6 p-3 md:p-4 min-w-[200px] md:min-w-[340px] justify-end">
                 {/* Network Graph (Hidden on Mobile) */}
                 <div className="hidden md:block">
                   <NetworkGraph />
@@ -203,8 +202,8 @@ export default function TelemetryNav() {
                 <div className="w-px h-8 bg-slate-800 hidden md:block" />
 
                 {/* Altitude (Visible on Mobile to indicate it's clickable) */}
-                <div className="flex flex-col text-right group">
-                  <span className="text-[8px] font-mono text-slate-500 mb-1 tracking-widest uppercase">
+                <div className="flex flex-col text-right group w-[110px]">
+                  <span className="text-[8px] font-mono text-slate-500 mb-1 tracking-widest uppercase transition-colors group-hover:text-[#F97316]">
                     {isMenuOpen ? "CLOSE MENU" : "ALTITUDE (CLICK)"}
                   </span>
                   <span className="text-slate-200 font-mono text-xs md:text-sm tracking-widest">
@@ -214,7 +213,7 @@ export default function TelemetryNav() {
                 </div>
 
                 {/* Velocity (Hidden on Mobile) */}
-                <div className="hidden md:flex flex-col text-right w-18">
+                <div className="hidden md:flex flex-col text-right w-20">
                   <span className="text-[8px] font-mono text-slate-500 mb-1 tracking-widest uppercase">
                     VELOCITY
                   </span>
@@ -267,10 +266,10 @@ export default function TelemetryNav() {
                         );
                       })}
                     </div>
-                  </motion.div>
+                    </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </div>
           </div>
         </div>
       </motion.header>

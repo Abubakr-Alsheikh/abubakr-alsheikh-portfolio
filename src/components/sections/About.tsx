@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef } from "react";
 
 const GeometricJupiter = () => (
-  <div className="absolute top-[10%] left-[-30%] md:left-[-15%] w-[120vw] md:w-[100vw] max-w-[1200px] aspect-square opacity-[0.1] pointer-events-none z-0">
+  <div className="absolute top-[10%] left-[-30%] md:left-[-15%] w-[120%] md:w-[100%] max-w-[1200px] aspect-square opacity-[0.1] pointer-events-none z-0">
     <svg
       viewBox="0 0 200 200"
       className="w-full h-full stroke-[#F97316] fill-none"

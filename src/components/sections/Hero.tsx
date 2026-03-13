@@ -6,7 +6,7 @@ import { useRef, useEffect, useState } from "react";
 
 // --- Sub-Component: Massive Geometric Saturn ---
 const GeometricPlanet = () => (
-  <div className="absolute top-[-20%] right-[-30%] md:right-[-10%] w-[150vw] md:w-[100vw] max-w-[1400px] aspect-square opacity-[0.15] pointer-events-none z-0">
+  <div className="absolute top-[-20%] right-[-30%] md:right-[-10%] w-[150%] md:w-[100%] max-w-[1400px] aspect-square opacity-[0.15] pointer-events-none z-0">
     <svg
       viewBox="0 0 200 200"
       className="w-full h-full stroke-[#3B82F6] fill-none"

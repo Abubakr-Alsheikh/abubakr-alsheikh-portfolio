@@ -14,11 +14,11 @@ import { BranchCenterToLeft, BranchLeftToCenter } from "@/components/shared/Trac
 
 export default function Home() {
   return (
-    <main className="relative flex flex-col items-center w-full min-h-screen selection:bg-[#3B82F6]/30 selection:text-[#3B82F6]">
+    <main className="relative flex flex-col items-center w-full max-w-full min-h-screen overflow-x-hidden selection:bg-[#3B82F6]/30 selection:text-[#3B82F6]">
       <BackgroundEnv />
       <TelemetryNav />
 
-      <div className="w-full relative z-10 flex flex-col">
+      <div className="w-full max-w-full relative z-10 flex flex-col">
         <Hero data={portfolioData.hero} />
         
         {/* CENTER TRACE ACTIVE */}
