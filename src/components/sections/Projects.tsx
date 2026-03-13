@@ -35,32 +35,29 @@ type Project = {
 
 export default function Projects({ data }: { data: Project[] }) {
   const sectionRef = useRef<HTMLDivElement>(null);
-
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start center", "end center"] });
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const dotY = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
-  const fillY = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+  const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   return (
-    <section id="projects" ref={sectionRef} className="relative w-full py-32 z-20">
-      <div className="max-w-7xl mx-auto relative px-6 md:px-12">
+    <section id="projects" ref={sectionRef} className="relative w-full flex justify-center z-20">
+      
+      {/* PADDING MOVED HERE */}
+      <div className="w-full max-w-7xl relative pt-16 pb-16 px-6 md:px-12">
         
         {/* LEFT TRACE LINE */}
-        <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800 hidden md:block">
-          <motion.div style={{ height: fillY }} className="w-full bg-slate-700/50 origin-top" />
+        <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
+          <motion.div style={{ height: fillHeight }} className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]">
+            {/* The Data Packet perfectly fixed to the tip */}
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]">
+              <div className="w-1 h-1 bg-white rounded-full" />
+            </div>
+          </motion.div>
         </div>
 
-        {/* DATA PACKET (FOLLOWING DOT) */}
-        <motion.div
-          style={{ top: dotY }}
-          className="absolute left-[4rem] -translate-x-1/2 w-5 h-5 bg-[#020617] border-2 border-[#3B82F6] rounded-full hidden md:flex items-center justify-center z-50 shadow-[0_0_20px_rgba(59,130,246,0.8)]"
-        >
-          <div className="w-1.5 h-1.5 bg-[#3B82F6] rounded-full animate-pulse" />
-        </motion.div>
-
-        {/* Main Content pushed past trace line */}
-        <div className="md:pl-[8rem]">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-24">
+        {/* Content pushed exactly right to clear the left trace */}
+        <div className="md:pl-[8rem] relative z-10">
+          <div className="mb-24">
             <div className="flex items-center gap-3 mb-6">
               <Rocket className="w-5 h-5 text-[#3B82F6]" />
               <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">System Modules // Deployed Architectures</span>
@@ -68,20 +65,13 @@ export default function Projects({ data }: { data: Project[] }) {
             <h2 className="text-5xl md:text-7xl font-space font-bold text-slate-100 tracking-tighter leading-[1]">
               The <span className="text-slate-600">Arsenal.</span>
             </h2>
-          </motion.div>
+          </div>
 
           <div className="flex flex-col gap-24 lg:gap-32 relative">
-            <div className="absolute left-[-24px] top-0 bottom-0 w-px bg-slate-800 md:hidden" />
-
             {data.map((project, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="relative grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 group pl-6 md:pl-0"
-              >
-                {/* Connector mapping to absolute left-[4rem] */}
+              <motion.div key={index} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="relative grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 group">
+                
+                {/* Horizontal Hardware Connector to Trace Line */}
                 <div className="hidden md:block absolute top-[40px] -left-[4rem] w-16 h-px bg-slate-800 group-hover:bg-[#3B82F6] transition-colors duration-500" />
                 <div className="absolute left-[-28px] top-[40px] w-2 h-2 rounded-full bg-[#020617] border border-[#3B82F6] md:hidden" />
 
@@ -95,7 +85,7 @@ export default function Projects({ data }: { data: Project[] }) {
                   <p className="text-slate-400 text-sm md:text-base leading-relaxed font-mono font-light mb-8">{project.description}</p>
                   
                   <div className="flex flex-wrap gap-x-3 gap-y-2 mb-10">
-                    {project.stack.map((tech: string, i: number) => (
+                    {project.stack.map((tech, i) => (
                       <span key={i} className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
                         {i !== 0 && <span className="text-slate-800 mr-3">|</span>} [{tech}]
                       </span>
@@ -112,7 +102,7 @@ export default function Projects({ data }: { data: Project[] }) {
                   </div>
                 </div>
 
-                {/* Right Placeholder */}
+                {/* Right Visual */}
                 <div className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-1 xl:order-2">
                   <SystemWindowPlaceholder index={index} title={project.title} />
                 </div>

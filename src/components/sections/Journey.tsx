@@ -16,26 +16,22 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start center", "end center"] });
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const dotY = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
-  const fillY = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+  const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   return (
-    <section id="journey" ref={sectionRef} className="relative w-full py-32 z-20">
-      <div className="max-w-7xl mx-auto relative px-6 md:px-12">
+    <section id="journey" ref={sectionRef} className="relative w-full flex justify-center z-20">
+      <div className="w-full max-w-7xl relative pt-16 pb-16 px-6 md:px-12">
         
         {/* LEFT TRACE LINE */}
-        <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800 hidden md:block">
-          <motion.div style={{ height: fillY }} className="w-full bg-slate-700/50 origin-top" />
+        <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
+          <motion.div style={{ height: fillHeight }} className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]">
+            {/* The Data Packet perfectly fixed to the tip */}
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]">
+              <div className="w-1 h-1 bg-white rounded-full" />
+            </div>
+          </motion.div>
         </div>
-
-        {/* DATA PACKET (FOLLOWING DOT) */}
-        <motion.div
-          style={{ top: dotY }}
-          className="absolute left-[4rem] -translate-x-1/2 w-5 h-5 bg-[#020617] border-2 border-[#3B82F6] rounded-full hidden md:flex items-center justify-center z-50 shadow-[0_0_20px_rgba(59,130,246,0.8)]"
-        >
-          <div className="w-1.5 h-1.5 bg-[#3B82F6] rounded-full animate-pulse" />
-        </motion.div>
 
         <div className="md:pl-[8rem]">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-24">
@@ -71,7 +67,7 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
                   </div>
                   <p className="text-slate-400 text-sm md:text-base leading-relaxed font-mono font-light mb-8 max-w-3xl">{item.description}</p>
                   <div className="flex flex-wrap gap-2 border-t border-slate-800 pt-6">
-                    {item.tags.map((tag: string, i: number) => (
+                    {item.tags.map((tag, i) => (
                       <span key={i} className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{i !== 0 && <span className="text-slate-800 mr-2">|</span>} {tag}</span>
                     ))}
                   </div>

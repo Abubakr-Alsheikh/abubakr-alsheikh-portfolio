@@ -10,35 +10,25 @@ import Horizon from "@/components/sections/Horizon";
 // Global Infrastructure
 import BackgroundEnv from "@/components/shared/BackgroundEnv";
 import TelemetryNav from "@/components/shared/TelemetryNav";
-import { BranchCenterToLeft, BranchLeftToCenter } from "@/components/shared/GlobalTraceLine";
+import { BranchCenterToLeft, BranchLeftToCenter } from "@/components/shared/TraceRouters";
 
 export default function Home() {
   return (
     <main className="relative flex flex-col items-center w-full min-h-screen selection:bg-[#3B82F6]/30 selection:text-[#3B82F6]">
-      {/* 1. Subtle Dark Atmosphere */}
       <BackgroundEnv />
-
-      {/* 2. The Unbroken Trace Line */}
-      {/* <GlobalTraceLine /> */}
-
-      {/* 3. The Command Center (Navbar + Terminal) */}
       <TelemetryNav />
 
-      <div className="w-full relative z-10">
+      <div className="w-full relative z-10 flex flex-col">
         <Hero data={portfolioData.hero} />
         
         {/* CENTER TRACE ACTIVE */}
         <About data={portfolioData.about} />
-        
-        {/* ROUTER: CENTER -> LEFT */}
         <BranchCenterToLeft />
         
         {/* LEFT TRACE ACTIVE */}
         <Projects data={portfolioData.topProjects} />
         <Archive projects={portfolioData.archiveProjects} />
         <Journey data={portfolioData.journey} />
-        
-        {/* ROUTER: LEFT -> CENTER */}
         <BranchLeftToCenter />
         
         {/* CENTER TRACE ACTIVE */}
