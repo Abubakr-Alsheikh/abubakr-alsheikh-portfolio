@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Send, TerminalSquare, CheckCircle2 } from "lucide-react";
+import { useRef } from "react";
 
 const PlanetCurvature = () => (
   <div className="absolute bottom-0 left-0 right-0 w-full h-[50vh] overflow-hidden pointer-events-none z-0 flex justify-center items-end">
@@ -30,7 +31,12 @@ const PlanetCurvature = () => (
 );
 
 export default function Horizon() {
+  const sectionRef = useRef<HTMLDivElement>(null);
   const [formState, setFormState] = useState<"idle" | "submitting" | "success">("idle");
+
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start center", "end center"] });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const fillY = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -39,11 +45,16 @@ export default function Horizon() {
   };
 
   return (
-    <section id="contact" className="relative w-full min-h-[100dvh] flex flex-col justify-between pt-32 pb-10 px-6 md:px-12 lg:px-20 z-20 overflow-hidden">
+    <section id="contact" ref={sectionRef} className="relative w-full min-h-[100dvh] flex flex-col justify-between pt-32 pb-10 px-6 md:px-12 z-20 overflow-hidden">
       
       <PlanetCurvature />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center mt-10 lg:pl-[6.5rem]">
+      {/* CENTER TRACE LINE */}
+      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800 hidden md:block -translate-x-1/2">
+        <motion.div style={{ height: fillY }} className="w-full bg-slate-700/50 origin-top" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center mt-10 md:pl-[4rem]">
         
         <div className="lg:col-span-6 flex flex-col">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex items-center gap-3 mb-8">
@@ -103,7 +114,7 @@ export default function Horizon() {
         </motion.div>
       </div>
       
-      <div className="relative z-10 w-full max-w-7xl mx-auto border-t border-slate-800 pt-8 mt-24 flex flex-col md:flex-row items-center justify-between gap-6 lg:pl-[6.5rem]">
+      <div className="relative z-10 w-full max-w-7xl mx-auto border-t border-slate-800 pt-8 mt-24 flex flex-col md:flex-row items-center justify-between gap-6 md:pl-[4rem]">
         <div className="text-slate-600 text-[10px] font-mono uppercase tracking-widest">
           © {new Date().getFullYear()} Abubakr Alsheikh <span className="text-slate-800 mx-2">|</span> Next.js Engine Active
         </div>

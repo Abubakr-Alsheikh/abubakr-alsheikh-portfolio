@@ -1,7 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ShieldCheck, Cpu } from "lucide-react";
+import { useRef } from "react";
 
 type Skills = {
   frontend: string[];
@@ -36,10 +37,30 @@ const DataStream = ({ items, reverse = false, speed = 40 }: { items: string[]; r
 };
 
 export default function Engine({ skills, certs }: { skills: Skills; certs: Cert[] }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start center", "end center"] });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const dotY = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+  const fillY = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+
   return (
-    <section id="engine" className="relative w-full py-32 z-20">
+    <section id="engine" ref={sectionRef} className="relative w-full py-32 z-20">
       
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 lg:pl-[6.5rem] relative">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative">
+        {/* CENTER TRACE LINE */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800 hidden md:block -translate-x-1/2">
+          <motion.div style={{ height: fillY }} className="w-full bg-slate-700/50 origin-top" />
+        </div>
+
+        {/* DATA PACKET (FOLLOWING DOT) */}
+        <motion.div
+          style={{ top: dotY }}
+          className="absolute left-1/2 -translate-x-1/2 w-5 h-5 bg-[#020617] border-2 border-[#F97316] rounded-full hidden md:flex items-center justify-center z-50 shadow-[0_0_20px_rgba(249,115,22,0.8)]"
+        >
+          <div className="w-1.5 h-1.5 bg-[#F97316] rounded-full animate-pulse" />
+        </motion.div>
+
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20">
           <div className="flex items-center gap-3 mb-6">
             <Cpu className="w-5 h-5 text-[#3B82F6]" />
@@ -59,7 +80,7 @@ export default function Engine({ skills, certs }: { skills: Skills; certs: Cert[
         <DataStream items={skills.devops} speed={45} />
       </motion.div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 lg:pl-[6.5rem] relative">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-800 pb-4">
           <h3 className="text-xs font-mono text-[#F97316] uppercase tracking-widest flex items-center gap-3">
             <ShieldCheck className="w-4 h-4" /> Compliance Matrix

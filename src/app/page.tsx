@@ -10,6 +10,7 @@ import Horizon from "@/components/sections/Horizon";
 // Global Infrastructure
 import BackgroundEnv from "@/components/shared/BackgroundEnv";
 import TelemetryNav from "@/components/shared/TelemetryNav";
+import { BranchCenterToLeft, BranchLeftToCenter } from "@/components/shared/GlobalTraceLine";
 
 export default function Home() {
   return (
@@ -25,10 +26,22 @@ export default function Home() {
 
       <div className="w-full relative z-10">
         <Hero data={portfolioData.hero} />
+        
+        {/* CENTER TRACE ACTIVE */}
         <About data={portfolioData.about} />
+        
+        {/* ROUTER: CENTER -> LEFT */}
+        <BranchCenterToLeft />
+        
+        {/* LEFT TRACE ACTIVE */}
         <Projects data={portfolioData.topProjects} />
         <Archive projects={portfolioData.archiveProjects} />
         <Journey data={portfolioData.journey} />
+        
+        {/* ROUTER: LEFT -> CENTER */}
+        <BranchLeftToCenter />
+        
+        {/* CENTER TRACE ACTIVE */}
         <Engine
           skills={portfolioData.skills}
           certs={portfolioData.certifications}

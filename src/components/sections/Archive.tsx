@@ -12,8 +12,8 @@ type ArchiveProject = {
 
 export default function Archive({ projects }: { projects: ArchiveProject[] }) {
   return (
-    <section className="relative w-full pb-32 pt-10 px-6 md:px-12 lg:px-20 z-20">
-      <div className="max-w-7xl mx-auto relative lg:pl-[6.5rem]">
+    <section className="relative w-full pb-32 pt-10 px-6 md:px-12 z-20">
+      <div className="max-w-7xl mx-auto relative md:pl-[8rem]">
         
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
           <h3 className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest flex items-center gap-3">
