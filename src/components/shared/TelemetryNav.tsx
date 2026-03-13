@@ -165,7 +165,7 @@ export default function TelemetryNav() {
                 LOGO
               </div> */}
               <Image
-                src="/logo.png"
+                src="/web-app-manifest-512x512.png"
                 alt="Logo"
                 fill
                 className="object-contain"
