@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { MoveDownRight } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
 
@@ -100,7 +100,6 @@ const DeepSpaceEnvironment = () => {
         duration: Math.random() * 2 + 3,
       })),
     );
-
     setStars(
       Array.from({ length: 75 }).map((_, i) => ({
         id: i,
@@ -155,60 +154,69 @@ const DeepSpaceEnvironment = () => {
   );
 };
 
-export default function Hero({ data }: { data: { status: string; title1: string; title2: string; title3: string; description: string; primaryAction: string } }) {
+export default function Hero({
+  data,
+}: {
+  data: {
+    status: string;
+    title1: string;
+    title2: string;
+    title3: string;
+    description: string;
+    primaryAction: string;
+  };
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Unified Parallax
+  // Trace Line scrolling logic (No Parallax for the content)
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end start"],
+    offset: ["start start", "end start"], // Hero scrolling away
   });
-  const textY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+
+  const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const fillHeight = useTransform(smooth, [0, 0.5], ["0%", "100%"]); // Line fills as you scroll past the Hero
 
   const containerVars = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.2 },
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
     },
   };
   const textVars = {
-    hidden: { opacity: 0, y: 40, rotateX: 15 },
+    hidden: { opacity: 0, y: 50 },
     show: {
       opacity: 1,
       y: 0,
-      rotateX: 0,
-      transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as const },
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
     },
   };
 
-  // Fluid typography class ensures text shrinks gracefully on smaller screens without breaking layout
+  // MASSIVE titles. leading-[0.85] perfectly stacks them together like a solid block of geometry.
   const fluidTextClass =
-    "text-[clamp(3.5rem,8vw,9rem)] font-bold tracking-tighter font-space leading-[1.1]";
+    "text-[clamp(4rem,9vw,11rem)] font-bold tracking-tighter font-space leading-[0.85]";
 
   return (
     <section
       ref={containerRef}
-      className="relative w-full min-h-[100dvh] flex flex-col justify-center pt-32 pb-24 z-10"
+      id="hero"
+      className="relative w-full flex justify-center min-h-[100dvh] z-10"
     >
       <DeepSpaceEnvironment />
       <GeometricPlanet />
 
-      {/* Reduced padding to md:pl-[8rem] to give text maximum horizontal space, perfectly clearing the TraceLine */}
-      <motion.div
-        style={{ y: textY, opacity: textOpacity }}
-        className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col gap-6 px-6 md:pl-[8rem] md:pr-12"
-      >
+      {/* Hero Inner Container - No bottom padding so the line physically hits the section edge */}
+      <div className="w-full max-w-7xl relative flex flex-col px-6 md:px-12 pt-32 pb-0 z-10">
         <motion.div
           variants={containerVars}
           initial="hidden"
           animate="show"
-          className="flex flex-col cursor-default perspective-1000 w-full"
+          className="flex flex-col flex-1 mt-4 mb-8"
         >
           <motion.div
             variants={textVars}
-            className="flex items-center gap-3 mb-8 w-fit border border-slate-800 px-4 py-2 rounded-sm bg-[#020617]/50 backdrop-blur-md"
+            className="flex items-center gap-3 mb-10 w-fit border border-slate-800 px-4 py-2 rounded-sm bg-[#020617]/50 backdrop-blur-md"
           >
             <span className="w-1.5 h-1.5 bg-[#3B82F6] animate-pulse rounded-sm" />
             <span className="text-[10px] md:text-xs font-mono text-slate-400 uppercase tracking-widest">
@@ -216,7 +224,7 @@ export default function Hero({ data }: { data: { status: string; title1: string;
             </span>
           </motion.div>
 
-          {/* Title 1 & 2 */}
+          {/* Colossal Titles */}
           <div className="overflow-hidden pb-2 w-full">
             <motion.h1
               variants={textVars}
@@ -233,30 +241,61 @@ export default function Hero({ data }: { data: { status: string; title1: string;
               {data.title2}
             </motion.h1>
           </div>
+          <div className="overflow-hidden pb-2 w-full">
+            <motion.h1
+              variants={textVars}
+              className={`${fluidTextClass} text-[#3B82F6]`}
+            >
+              {data.title3}
+            </motion.h1>
+          </div>
+        </motion.div>
 
-          {/* INTERLOCKING ROW: Title 3 and Description */}
-          {/* By using w-full and removing justify-between, the 3rd title perfectly left-aligns with the ones above it. */}
-          <div className="flex flex-col 2xl:flex-row 2xl:items-end gap-8 2xl:gap-16 w-full mt-2">
-            <div className="overflow-hidden pb-2 shrink-0">
-              <motion.h1
-                variants={textVars}
-                className={`${fluidTextClass} text-[#3B82F6]`}
-              >
-                {data.title3}
-              </motion.h1>
+        {/* BOTTOM GRID: Description (Right) & The Circuit Root (Center) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 w-full relative pb-24">
+          {/* THE CIRCUIT ROOT (Global Trace Line Origin Point) */}
+          <div className="absolute left-[50%] top-[24px] bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0">
+            <motion.div
+              style={{ height: fillHeight }}
+              className="w-full bg-[#F97316] origin-top relative shadow-[0_0_15px_#F97316]"
+            >
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#F97316] rounded-full flex items-center justify-center z-50 shadow-[0_0_10px_#F97316]">
+                <div className="w-1 h-1 bg-white rounded-full" />
+              </div>
+            </motion.div>
+          </div>
+          <div className="hidden md:block"></div> {/* Empty Left Column */}
+          {/* Right Column: Contains the Description and the Horizontal Connector */}
+          <div className="relative flex justify-start pl-0 md:pl-16">
+            {/* Horizontal Hardware Line: Spans exactly 4rem from the center line to the description's left border */}
+            <div className="absolute top-[24px] left-0 w-16 h-px bg-slate-800/50 hidden md:block z-0">
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 1.5, ease: "easeInOut", delay: 1 }}
+                className="w-full h-full bg-[#F97316] origin-left shadow-[0_0_10px_#F97316]"
+              />
             </div>
 
-            {/* The description sits natively on the right side of the flex row, taking up remaining space */}
+            {/* Hardware Intersection Node at the dead center of the screen */}
+            <div className="absolute top-[24px] left-0 w-2 h-2 -translate-x-[4px] -translate-y-[3.5px] bg-[#020617] border border-[#F97316] rounded-sm hidden md:block z-10" />
+
+            {/* The Description Block */}
             <motion.div
-              variants={textVars}
-              className="max-w-md relative pl-6 border-l-2 border-[#F97316] mb-4 2xl:mb-8 group"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="max-w-md relative pl-6 border-l-2 border-[#F97316] group bg-[#020617]/50 backdrop-blur-sm pt-1"
             >
-              <div className="absolute top-0 -left-[5px] w-2 h-2 bg-[#020617] border border-[#F97316] group-hover:bg-[#F97316] transition-colors" />
+              {/* This square physically connects the horizontal line to the vertical border */}
+              <div className="absolute top-[20px] -left-[6px] w-2.5 h-2.5 bg-[#020617] border border-[#F97316] group-hover:bg-[#F97316] transition-colors" />
+
               <p className="text-slate-400 text-base md:text-lg leading-relaxed font-mono font-light text-balance mb-6">
                 <span className="text-slate-200 font-bold">Hello there!</span>{" "}
-                <br></br>
+                <br />
                 {data.description}
               </p>
+
               <button
                 onClick={() =>
                   document
@@ -270,8 +309,8 @@ export default function Hero({ data }: { data: { status: string; title1: string;
               </button>
             </motion.div>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }
