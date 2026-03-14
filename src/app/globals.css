@@ -121,7 +121,7 @@
   }
 
   body {
-    @apply bg-[var(--background)] text-[var(--foreground)] overflow-x-hidden;
+    @apply bg-[var(--background)] text-[var(--foreground)] overflow-x-clip;
   }
 
   /* Core Typography Defaults */
