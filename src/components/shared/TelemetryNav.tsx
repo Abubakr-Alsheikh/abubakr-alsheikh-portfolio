@@ -1,4 +1,3 @@
-// src/components/shared/TelemetryNav.tsx
 "use client";
 
 import {
@@ -14,7 +13,6 @@ import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import AdminTerminal from "./AdminTerminal";
 
-// --- Sub-Component: Dynamic Mouse Sparkline (System Work) ---
 const NetworkGraph = () => {
   const [points, setPoints] = useState<number[]>(Array(20).fill(5));
   const mouseSpeed = useMotionValue(0);
@@ -67,7 +65,6 @@ const NetworkGraph = () => {
 };
 
 export default function TelemetryNav() {
-  // Scroll Physics
   const { scrollYProgress, scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
 
@@ -88,7 +85,6 @@ export default function TelemetryNav() {
   const [altDisplay, setAltDisplay] = useState("400,000");
   const [machDisplay, setMachDisplay] = useState("0.00");
 
-  // States
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
@@ -106,7 +102,6 @@ export default function TelemetryNav() {
     };
   }, [altitude, machSpeed]);
 
-  // Track active section for the dropdown menu
   useEffect(() => {
     const handleScroll = () => {
       const sections = ["about", "projects", "engine", "contact"];
@@ -131,17 +126,26 @@ export default function TelemetryNav() {
     { id: "contact", name: "04. HORIZON" },
   ];
 
+  // FIX: Hardened scroll execution
   const scrollToSection = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
     e.stopPropagation();
+
+    // 1. Close the menu immediately
     setIsMenuOpen(false);
-    if (id === "hero") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+
+    // 2. Micro-delay allows the DOM to process the unmount before moving the camera
+    setTimeout(() => {
+      if (id === "hero") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      const element = document.getElementById(id);
+      if (element) {
+        // block: "start" ensures it aligns perfectly with the top of the viewport
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 50);
   };
 
   return (
@@ -153,17 +157,11 @@ export default function TelemetryNav() {
         className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 pt-4 pointer-events-none"
       >
         <div className="max-w-7xl mx-auto flex items-start justify-between">
-          {/* LEFT SIDE: Logo & Terminal Trigger */}
           <button
             onClick={() => setIsTerminalOpen(true)}
             className="pointer-events-auto flex items-center gap-3 md:gap-4 bg-[#020617]/50 backdrop-blur-xl border border-slate-800/60 p-2 md:p-3 rounded-2xl shadow-2xl group transition-all duration-300 hover:border-[#3B82F6]/50 hover:bg-[#020617]/70"
           >
-            {/* Logo Placeholder */}
             <div className="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
-              {/* Replace src with your actual logo path (e.g., "/logo.png") */}
-              {/* <div className="absolute inset-0 bg-slate-800 rounded flex items-center justify-center text-[8px] text-slate-500 font-mono">
-                LOGO
-              </div> */}
               <Image
                 src="/web-app-manifest-512x512.png"
                 alt="Logo"
@@ -171,8 +169,6 @@ export default function TelemetryNav() {
                 className="object-contain"
               />
             </div>
-
-            {/* Typography mimicking your image */}
             <div className="flex flex-col items-start leading-[1.1] tracking-wide">
               <span className="font-space font-bold text-slate-100 text-sm md:text-lg">
                 ABUBAKR
@@ -180,30 +176,22 @@ export default function TelemetryNav() {
               <span className="font-space font-bold text-slate-400 text-sm md:text-lg">
                 ALSHEIKH
               </span>
-              {/* <span className="font-mono text-[8px] md:text-[9px] text-slate-500 mt-0.5 uppercase tracking-widest group-hover:text-[#F97316] transition-colors">
-                // ARCHITECT
-              </span> */}
             </div>
           </button>
 
-          {/* RIGHT SIDE: Telemetry & Expandable Menu */}
           <div className="pointer-events-auto flex flex-col items-end">
-            <div
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex flex-col bg-[#020617]/50 backdrop-blur-xl border border-slate-800/60 rounded-2xl shadow-2xl overflow-hidden cursor-pointer hover:border-[#F97316]/40 transition-colors"
-            >
-              {/* Top Persistent Bar */}
-              <div className="flex items-center gap-4 md:gap-6 p-3 md:p-4 min-w-[200px] md:min-w-[340px] justify-end">
-                {/* Network Graph (Hidden on Mobile) */}
-                <div className="hidden md:block">
-                  <NetworkGraph />
-                </div>
-
+            {/* FIX: Removed cursor-pointer and onClick from this parent wrapper */}
+            <div className="flex flex-col bg-[#020617]/50 backdrop-blur-xl border border-slate-800/60 rounded-2xl shadow-2xl overflow-hidden hover:border-[#F97316]/40 transition-colors">
+              {/* FIX: Moved onClick and cursor-pointer to this header ONLY. Now clicks on links won't conflict with the wrapper. */}
+              <div
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="flex items-center gap-2 md:gap-6 p-3 md:p-4 min-w-[200px] md:min-w-[340px] justify-end cursor-pointer group/header"
+              >
+                <NetworkGraph />
                 <div className="w-px h-8 bg-slate-800 hidden md:block" />
 
-                {/* Altitude (Visible on Mobile to indicate it's clickable) */}
-                <div className="flex flex-col text-right group w-[110px]">
-                  <span className="text-[8px] font-mono text-slate-500 mb-1 tracking-widest uppercase transition-colors group-hover:text-[#F97316]">
+                <div className="flex flex-col text-right w-[110px]">
+                  <span className="text-[8px] font-mono text-slate-500 mb-1 tracking-widest uppercase transition-colors group-hover/header:text-[#F97316]">
                     {isMenuOpen ? "CLOSE MENU" : "ALTITUDE (CLICK)"}
                   </span>
                   <span className="text-slate-200 font-mono text-xs md:text-sm tracking-widest">
@@ -212,7 +200,6 @@ export default function TelemetryNav() {
                   </span>
                 </div>
 
-                {/* Velocity (Hidden on Mobile) */}
                 <div className="hidden md:flex flex-col text-right w-20">
                   <span className="text-[8px] font-mono text-slate-500 mb-1 tracking-widest uppercase">
                     VELOCITY
@@ -223,7 +210,6 @@ export default function TelemetryNav() {
                 </div>
               </div>
 
-              {/* Gradient Progress Bar & Glowing Circle */}
               <div className="relative w-full h-[2px] bg-slate-800/50">
                 <motion.div
                   style={{ scaleX: smoothProgress, transformOrigin: "0% 50%" }}
@@ -235,7 +221,6 @@ export default function TelemetryNav() {
                 />
               </div>
 
-              {/* Expandable Navigation Menu */}
               <AnimatePresence>
                 {isMenuOpen && (
                   <motion.div
@@ -266,7 +251,7 @@ export default function TelemetryNav() {
                         );
                       })}
                     </div>
-                    </motion.div>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>
@@ -274,7 +259,6 @@ export default function TelemetryNav() {
         </div>
       </motion.header>
 
-      {/* The Interactive Terminal (Triggered by Logo) */}
       <AdminTerminal
         isOpen={isTerminalOpen}
         onClose={() => setIsTerminalOpen(false)}
