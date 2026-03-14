@@ -22,41 +22,27 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
   const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   return (
-    <section
-      id="archive"
-      ref={sectionRef}
-      className="relative w-full flex justify-center z-20"
-    >
-      {/* PADDING MOVED HERE. No vertical gaps between this and Projects/Journey */}
-      <div className="w-full max-w-7xl relative pt-16 pb-16 px-6 md:px-12">
-        {/* LEFT TRACE LINE (Connecting Projects -> Journey) */}
+    <section id="archive" ref={sectionRef} className="relative w-full flex justify-center z-20">
+      
+      <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
+        
+        {/* LEFT TRACE LINE */}
         <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
-          <motion.div
-            style={{ height: fillHeight }}
-            className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]"
-          >
-            {/* The Data Packet perfectly fixed to the tip */}
+          <motion.div style={{ height: fillHeight }} className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]">
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]">
               <div className="w-1 h-1 bg-white rounded-full" />
             </div>
           </motion.div>
         </div>
 
-        {/* Content pushed exactly right to clear the left trace */}
-        <div className="md:pl-[8rem] relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-12"
-          >
+        <div className="pl-6 md:pl-[8rem] pr-6 md:pr-12 relative z-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
             <h3 className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest flex items-center gap-3">
               <Database className="w-4 h-4" />
               System Logs // Legacy Architectures
             </h3>
           </motion.div>
 
-          {/* The Archive Rows */}
           <div className="flex flex-col border-t-2 border-slate-800">
             {projects.map((project, idx) => (
               <motion.a
@@ -69,21 +55,15 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
                 className={`group relative grid grid-cols-1 md:grid-cols-12 gap-4 items-center py-6 border-b border-slate-800 transition-colors duration-300 ${
-                  project.link !== "#"
-                    ? "hover:bg-[#3B82F6]/5 cursor-pointer"
-                    : "cursor-default"
+                  project.link !== "#" ? "hover:bg-[#3B82F6]/5 cursor-pointer" : "cursor-default"
                 }`}
               >
-                {/* Horizontal Hardware Connector to Trace Line (Activates on Hover) */}
+                {/* Horizontal Hardware Connector */}
                 <div className="hidden md:block absolute top-1/2 -left-[4rem] w-[4rem] h-px bg-slate-800 group-hover:bg-[#3B82F6] transition-colors duration-500 -translate-y-1/2 z-0" />
+                <div className="hidden md:block absolute top-1/2 -left-[4rem] w-2 h-2 rounded-sm bg-[#020617] border border-slate-800 group-hover:border-[#3B82F6] transition-colors duration-500 -translate-x-[4px] -translate-y-[4px] z-10" />
 
-                {/* Hardware Node indicating intersection */}
-                <div className="hidden md:block absolute top-1/2 left-[-4px] w-2 h-2 rounded-full bg-[#020617] border border-slate-800 group-hover:border-[#3B82F6] transition-colors duration-500 -translate-y-1/2 z-10" />
-
-                {/* Left Active Selection Indicator */}
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#F97316] opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                {/* Column 1: Title & Desc */}
                 <div className="md:col-span-6 pl-6">
                   <h4 className="text-xl font-space font-bold text-slate-200 mb-2 group-hover:text-[#F97316] transition-colors">
                     {project.title}
@@ -93,20 +73,16 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
                   </p>
                 </div>
 
-                {/* Column 2: Tech Stack Array */}
                 <div className="md:col-span-5 pl-6 md:pl-0">
                   <div className="flex flex-wrap gap-x-2 gap-y-1 text-[10px] md:text-xs font-mono text-slate-500">
                     {project.stack.map((s, i) => (
                       <span key={i} className="flex items-center">
-                        <span className="group-hover:text-slate-300 transition-colors">
-                          [{s}]
-                        </span>
+                        <span className="group-hover:text-slate-300 transition-colors">[{s}]</span>
                       </span>
                     ))}
                   </div>
                 </div>
 
-                {/* Column 3: Action Arrow */}
                 <div className="md:col-span-1 hidden md:flex justify-end pr-6">
                   {project.link !== "#" && (
                     <ArrowRight className="w-5 h-5 text-slate-600 group-hover:text-[#F97316] group-hover:translate-x-2 transition-all" />
@@ -116,21 +92,11 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
             ))}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="mt-12 flex items-center justify-between"
-          >
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mt-12 flex items-center justify-between">
             <p className="text-slate-600 font-mono text-[10px] uppercase tracking-widest">
               EOF // End of Logs
             </p>
-            <a
-              href="https://github.com/Abubakr-Alsheikh"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 text-[#3B82F6] hover:text-[#F97316] font-mono text-xs uppercase tracking-widest transition-colors group"
-            >
+            <a href="https://github.com/Abubakr-Alsheikh" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#3B82F6] hover:text-[#F97316] font-mono text-xs uppercase tracking-widest transition-colors group">
               Inspect Full Repository
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </a>

@@ -21,19 +21,19 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
 
   return (
     <section id="journey" ref={sectionRef} className="relative w-full flex justify-center z-20">
-      <div className="w-full max-w-7xl relative pt-16 pb-16 px-6 md:px-12">
+      
+      <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
         
         {/* LEFT TRACE LINE */}
         <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
           <motion.div style={{ height: fillHeight }} className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]">
-            {/* The Data Packet perfectly fixed to the tip */}
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]">
               <div className="w-1 h-1 bg-white rounded-full" />
             </div>
           </motion.div>
         </div>
 
-        <div className="md:pl-[8rem]">
+        <div className="pl-6 md:pl-[8rem] pr-6 md:pr-12 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-24">
             <div className="flex items-center gap-3 mb-6">
               <Terminal className="w-5 h-5 text-[#F97316]" />
@@ -51,8 +51,9 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
               <motion.div key={index} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} className="relative pl-6 md:pl-0 group">
                 <div className="absolute left-[-28px] top-6 w-2 h-2 rounded-full bg-[#020617] border border-[#F97316] md:hidden" />
                 
-                {/* Connector mapping to absolute left-[4rem] */}
-                <div className="hidden md:block absolute top-[28px] -left-[4rem] w-16 h-px bg-slate-800 group-hover:bg-[#F97316] transition-colors duration-500" />
+                {/* Horizontal Connector */}
+                <div className="hidden md:block absolute top-[28px] -left-[4rem] w-[4rem] h-px bg-slate-800 group-hover:bg-[#F97316] transition-colors duration-500 z-0" />
+                <div className="hidden md:block absolute top-[28px] -left-[4rem] w-2 h-2 rounded-sm bg-[#020617] border border-slate-800 group-hover:border-[#F97316] transition-colors duration-500 -translate-x-[4px] -translate-y-[3.5px] z-10" />
 
                 <div className="relative border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300">
                   <div className="absolute top-2 left-2 w-1 h-1 rounded-full bg-slate-800 group-hover:bg-[#3B82F6]" />

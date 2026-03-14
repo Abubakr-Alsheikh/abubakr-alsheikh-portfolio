@@ -42,21 +42,20 @@ export default function Projects({ data }: { data: Project[] }) {
   return (
     <section id="projects" ref={sectionRef} className="relative w-full flex justify-center z-20">
       
-      {/* PADDING MOVED HERE */}
-      <div className="w-full max-w-7xl relative pt-16 pb-16 px-6 md:px-12">
+      {/* Outer wrapper is relative and spans 100% of the section height */}
+      <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
         
-        {/* LEFT TRACE LINE */}
+        {/* LEFT TRACE LINE (Sits directly on max-w-7xl border, ignoring padding) */}
         <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
           <motion.div style={{ height: fillHeight }} className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]">
-            {/* The Data Packet perfectly fixed to the tip */}
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]">
               <div className="w-1 h-1 bg-white rounded-full" />
             </div>
           </motion.div>
         </div>
 
-        {/* Content pushed exactly right to clear the left trace */}
-        <div className="md:pl-[8rem] relative z-10">
+        {/* Content Wrapper applies padding here, pushed 8rem to leave exactly a 4rem gap for the connector */}
+        <div className="pl-6 md:pl-[8rem] pr-6 md:pr-12 relative z-10">
           <div className="mb-24">
             <div className="flex items-center gap-3 mb-6">
               <Rocket className="w-5 h-5 text-[#3B82F6]" />
@@ -71,11 +70,12 @@ export default function Projects({ data }: { data: Project[] }) {
             {data.map((project, index) => (
               <motion.div key={index} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="relative grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 group">
                 
-                {/* Horizontal Hardware Connector to Trace Line */}
-                <div className="hidden md:block absolute top-[40px] -left-[4rem] w-16 h-px bg-slate-800 group-hover:bg-[#3B82F6] transition-colors duration-500" />
-                <div className="absolute left-[-28px] top-[40px] w-2 h-2 rounded-full bg-[#020617] border border-[#3B82F6] md:hidden" />
+                {/* Horizontal Hardware Connector (Spans exactly 4rem backwards) */}
+                <div className="hidden md:block absolute top-[40px] -left-[4rem] w-[4rem] h-px bg-slate-800 group-hover:bg-[#3B82F6] transition-colors duration-500 z-0" />
+                <div className="hidden md:block absolute top-[40px] -left-[4rem] w-2 h-2 rounded-sm bg-[#020617] border border-slate-800 group-hover:border-[#3B82F6] transition-colors duration-500 -translate-x-[4px] -translate-y-[3.5px] z-10" />
+                
+                <div className="absolute left-[-28px] top-[40px] w-2 h-2 rounded-full bg-[#020617] border border-[#3B82F6] md:hidden z-10" />
 
-                {/* Left Card */}
                 <div className="xl:col-span-5 flex flex-col relative z-10 order-2 xl:order-1 border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6] transition-colors duration-300">
                   <div className="absolute top-2 left-2 w-1 h-1 bg-slate-800 group-hover:bg-[#3B82F6]" />
                   <div className="absolute bottom-2 right-2 w-1 h-1 bg-slate-800 group-hover:bg-[#3B82F6]" />
@@ -102,7 +102,6 @@ export default function Projects({ data }: { data: Project[] }) {
                   </div>
                 </div>
 
-                {/* Right Visual */}
                 <div className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-1 xl:order-2">
                   <SystemWindowPlaceholder index={index} title={project.title} />
                 </div>

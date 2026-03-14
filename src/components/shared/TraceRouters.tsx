@@ -14,7 +14,7 @@ export const BranchCenterToLeft = () => {
 
   return (
     <div ref={ref} className="w-full flex justify-center h-32 md:h-48 z-10 pointer-events-none relative">
-      <div className="w-full max-w-7xl h-full relative hidden md:block">
+      <div className="w-full max-w-7xl mx-auto relative h-full hidden md:block">
         
         {/* 1. Center Drop */}
         <div className="absolute top-0 left-1/2 w-px h-1/2 bg-slate-800/50 -translate-x-1/2">
@@ -32,8 +32,8 @@ export const BranchCenterToLeft = () => {
         </div>
 
         {/* Physical Hardware Corner Nodes */}
-        <div className="absolute top-1/2 left-[4rem] w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-[#020617] border border-[#3B82F6] rounded-sm z-10" />
-        <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-[#020617] border border-[#F97316] rounded-sm z-10" />
+        <div className="absolute top-1/2 left-[4rem] w-2 h-2 -translate-x-[4px] -translate-y-[4px] bg-[#020617] border border-[#3B82F6] rounded-sm z-10" />
+        <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-[4px] -translate-y-[4px] bg-[#020617] border border-[#F97316] rounded-sm z-10" />
       </div>
     </div>
   );
@@ -50,7 +50,7 @@ export const BranchLeftToCenter = () => {
 
   return (
     <div ref={ref} className="w-full flex justify-center h-32 md:h-48 z-10 pointer-events-none relative">
-      <div className="w-full max-w-7xl h-full relative hidden md:block">
+      <div className="w-full max-w-7xl mx-auto relative h-full hidden md:block">
         
         {/* 1. Left Drop */}
         <div className="absolute top-0 left-[4rem] w-px h-1/2 bg-slate-800/50">
@@ -68,8 +68,8 @@ export const BranchLeftToCenter = () => {
         </div>
 
         {/* Physical Hardware Corner Nodes */}
-        <div className="absolute top-1/2 left-[4rem] w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-[#020617] border border-[#3B82F6] rounded-sm z-10" />
-        <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-[#020617] border border-[#F97316] rounded-sm z-10" />
+        <div className="absolute top-1/2 left-[4rem] w-2 h-2 -translate-x-[4px] -translate-y-[4px] bg-[#020617] border border-[#3B82F6] rounded-sm z-10" />
+        <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-[4px] -translate-y-[4px] bg-[#020617] border border-[#F97316] rounded-sm z-10" />
       </div>
     </div>
   );
