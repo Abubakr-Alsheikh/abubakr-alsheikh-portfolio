@@ -51,7 +51,7 @@ export default function Horizon() {
   });
   const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
-  // The line fills completely to 100%, plunging directly into the bottom edge
+  // The line fills completely to 100%, plunging directly into the bottom footer
   const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   const handleSubmit = (e: FormEvent) => {
@@ -64,13 +64,14 @@ export default function Horizon() {
     <section
       id="contact"
       ref={sectionRef}
-      className="relative w-full flex justify-center z-20 overflow-hidden min-h-[100dvh]"
+      className="relative w-full flex flex-col items-center justify-between z-20 overflow-hidden min-h-[100dvh]"
     >
       <PlanetCurvature />
 
-      {/* PADDING MOVED HERE. No gaps. */}
-      <div className="w-full max-w-7xl relative pt-32 pb-10 px-6 md:px-12 flex flex-col justify-between">
+      {/* Main Content Area (Relative for the Trace Line) */}
+      <div className="w-full max-w-7xl mx-auto relative pt-32 pb-32 px-6 md:px-12 flex-1 flex flex-col justify-center">
         {/* CENTER TRACE LINE - Final Grounding Sequence */}
+        {/* Note: It goes exactly from top-0 to bottom-0 of THIS container */}
         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0">
           <motion.div
             style={{ height: fillHeight }}
@@ -81,13 +82,11 @@ export default function Horizon() {
               <div className="w-1 h-1 bg-white rounded-full" />
             </div>
           </motion.div>
-
-          {/* Terminal Grounding Point (The line hits this at the exact bottom of the page) */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-1 bg-[#F97316] shadow-[0_0_15px_#F97316]" />
         </div>
 
         {/* Content Split: Left Text, Right Form */}
-        <div className="relative z-10 w-full grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-center flex-1">
+        {/* FIX: Set md:gap-24 explicitly. This means the gap is 6rem. Half of 6rem is 3rem. */}
+        <div className="relative z-10 w-full grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-center">
           {/* Left Side: Call to Action */}
           <div className="flex flex-col pr-8">
             <motion.div
@@ -131,8 +130,11 @@ export default function Horizon() {
             viewport={{ once: true }}
             className="w-full relative group"
           >
-            {/* Direct Hardware Connector bridging from the center line to the form */}
-            <div className="hidden md:block absolute top-[50%] -left-[3rem] lg:-left-[6rem] w-[3rem] lg:w-[6rem] h-px bg-slate-800 group-hover:bg-[#F97316] transition-colors duration-500 z-0" />
+            {/* FIX: Perfect Math Connector. Gap is 24 (6rem). So the left edge is EXACTLY 3rem from the center line. */}
+            <div className="hidden md:block absolute top-[50%] -left-[3rem] w-[3rem] h-px bg-slate-800 group-hover:bg-[#F97316] transition-colors duration-500 z-0" />
+
+            {/* FIX: Hardware node sits EXACTLY on the intersection of the center trace line */}
+            <div className="hidden md:block absolute top-[50%] -left-[3rem] w-2 h-2 rounded-sm bg-[#020617] border border-slate-800 group-hover:border-[#F97316] transition-colors duration-500 -translate-x-[4px] -translate-y-[3.5px] z-10" />
 
             <div className="bg-[#020617] border border-slate-800 p-8 relative z-10 group-hover:border-[#F97316]/50 transition-colors duration-500">
               <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#F97316]" />
@@ -198,12 +200,36 @@ export default function Horizon() {
             </div>
           </motion.div>
         </div>
+      </div>
 
-        {/* Footer / Grounding Layer */}
-        <div className="relative z-10 w-full border-t border-slate-800 pt-8 mt-24 flex flex-col md:flex-row items-center justify-between gap-6 bg-[#020617]/50 backdrop-blur-sm">
-          <div className="text-slate-600 text-[10px] font-mono uppercase tracking-widest bg-[#020617] px-4 py-2 border border-slate-800 mx-auto">
-            © {new Date().getFullYear()} Abubakr Alsheikh{" "}
-            <span className="text-slate-800 mx-2">|</span> Next.js Engine Active
+      {/* PREMIUM FOOTER / GROUND STATION */}
+      {/* Sits completely flush with the bottom of the container above it */}
+      <div className="w-full border-t border-slate-800 bg-[#020617]/90 backdrop-blur-md relative z-30">
+        {/* The Hardware Grounding Port (The trace line physically drops directly into this socket) */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-3 bg-[#020617] border border-slate-800 hidden md:flex items-center justify-center">
+          <div className="w-3 h-1 bg-[#F97316] shadow-[0_0_10px_#F97316]" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Left Side: System Status */}
+          <div className="flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-[#F97316] animate-pulse shadow-[0_0_8px_#F97316]" />
+            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+              SYS.ONLINE // {new Date().getFullYear()} Abubakr Alsheikh
+            </span>
+          </div>
+
+          {/* Right Side: Telemetry Tags */}
+          <div className="flex items-center gap-4 text-[10px] font-mono text-slate-600 uppercase tracking-widest">
+            <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair hidden sm:block">
+              [ REACT_CORE ]
+            </span>
+            <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair">
+              [ NEXT.JS_ENGINE ]
+            </span>
+            <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair hidden md:block">
+              [ ORBITAL_STABLE ]
+            </span>
           </div>
         </div>
       </div>
