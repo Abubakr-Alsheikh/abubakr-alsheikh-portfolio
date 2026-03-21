@@ -11,7 +11,7 @@ const BOOT_LOGS = [
   "ESTABLISHING_TELEMETRY_LINK...",
   "RENDERING_HUD_GEOMETRY...",
   "BYPASSING_SECURITY_PROTOCOLS...",
-  "SYSTEM_ONLINE.",
+  "SYSTEM_READY.",
 ];
 
 export default function SystemBootSequence({
@@ -24,7 +24,7 @@ export default function SystemBootSequence({
   const [hexCode, setHexCode] = useState("0x00000000");
 
   useEffect(() => {
-    const duration = 3800;
+    const duration = 5500;
     const intervalTime = 30;
     const steps = duration / intervalTime;
     let currentStep = 0;
@@ -39,7 +39,7 @@ export default function SystemBootSequence({
 
       if (newProgress >= 100) {
         clearInterval(progressInterval);
-        setTimeout(() => onComplete(), 600);
+        setTimeout(() => onComplete(), 1200);
       }
     }, intervalTime);
 

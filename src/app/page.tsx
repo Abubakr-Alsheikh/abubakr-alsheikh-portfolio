@@ -44,7 +44,7 @@ export default function Home() {
         <TelemetryNav />
 
         <div className="w-full max-w-full relative z-10 flex flex-col">
-          <Hero data={portfolioData.hero} />
+          <Hero data={portfolioData.hero} isBooting={isBooting} />
           
           <About data={portfolioData.about} />
           <BranchCenterToLeft />

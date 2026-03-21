@@ -7,6 +7,7 @@ import GeometricPlanet from "@/components/visuals/GeometricPlanet";
 
 export default function Hero({
   data,
+  isBooting,
 }: {
   data: {
     status: string;
@@ -16,6 +17,7 @@ export default function Hero({
     description: string;
     primaryAction: string;
   };
+  isBooting: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +61,7 @@ export default function Hero({
         <motion.div
           variants={containerVars}
           initial="hidden"
-          animate="show"
+          animate={isBooting ? "hidden" : "show"}
           className="flex flex-col md:flex-1 mt-4 mb-8"
         >
           <motion.div
@@ -116,7 +118,7 @@ export default function Hero({
             <div className="absolute top-[32px] left-0 w-16 h-px bg-slate-800/50 hidden md:block z-0">
               <motion.div
                 initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
+                animate={{ scaleX: isBooting ? 0 : 1 }}
                 transition={{ duration: 1.5, ease: "easeInOut", delay: 1 }}
                 className="w-full h-full bg-[#F97316] origin-left shadow-[0_0_10px_#F97316]"
               />
@@ -126,7 +128,7 @@ export default function Hero({
 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
+              animate={{ opacity: isBooting ? 0 : 1, x: isBooting ? 20 : 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               className="max-w-lg relative p-6 md:p-8 border border-white/5 border-l-2 border-l-[#F97316] group bg-[#020617]/40 backdrop-blur-xl "
             >
