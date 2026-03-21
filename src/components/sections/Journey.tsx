@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Terminal } from "lucide-react";
 import { useRef } from "react";
+import GeometricMars from "@/components/visuals/GeometricMars";
 
 type JourneyItem = {
   date: string;
@@ -22,6 +23,8 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
   return (
     <section id="journey" ref={sectionRef} className="relative w-full flex justify-center z-20">
       
+      <GeometricMars />
+
       <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
         
         {/* LEFT TRACE LINE */}
@@ -55,7 +58,7 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
                 <div className="hidden md:block absolute top-[28px] -left-[4rem] w-[4rem] h-px bg-slate-800 group-hover:bg-[#F97316] transition-colors duration-500 z-0" />
                 <div className="hidden md:block absolute top-[28px] -left-[4rem] w-2 h-2 rounded-sm bg-[#020617] border border-slate-800 group-hover:border-[#F97316] transition-colors duration-500 -translate-x-[4px] -translate-y-[3.5px] z-10" />
 
-                <div className="relative border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300">
+                <div className="relative border border-slate-800 bg-[#020617]/40 backdrop-blur-md p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]">
                   <div className="absolute top-2 left-2 w-1 h-1 rounded-full bg-slate-800 group-hover:bg-[#3B82F6]" />
                   <div className="absolute bottom-2 right-2 w-1 h-1 rounded-full bg-slate-800 group-hover:bg-[#3B82F6]" />
 
@@ -64,7 +67,7 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
                       <span className="text-xs font-mono text-[#F97316] uppercase tracking-widest block mb-2">{item.date}</span>
                       <h3 className="text-2xl md:text-3xl font-space font-bold text-slate-100 group-hover:text-[#3B82F6] transition-colors">{item.title}</h3>
                     </div>
-                    <div className="inline-flex px-3 py-1 bg-slate-900 border border-slate-800 text-[10px] font-mono text-slate-400 uppercase tracking-widest self-start">{item.subtitle}</div>
+                    <div className="inline-flex px-3 py-1 bg-[#020617]/80 border border-slate-700 text-[10px] font-mono text-slate-400 uppercase tracking-widest self-start">{item.subtitle}</div>
                   </div>
                   <p className="text-slate-400 text-sm md:text-base leading-relaxed font-mono font-light mb-8 max-w-3xl">{item.description}</p>
                   <div className="flex flex-wrap gap-2 border-t border-slate-800 pt-6">

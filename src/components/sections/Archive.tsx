@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowRight, Database } from "lucide-react";
 import { useRef } from "react";
+import GeometricNeptune from "@/components/visuals/GeometricNeptune";
 
 type ArchiveProject = {
   title: string;
@@ -22,13 +23,20 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
   const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   return (
-    <section id="archive" ref={sectionRef} className="relative w-full flex justify-center z-20">
-      
+    <section
+      id="archive"
+      ref={sectionRef}
+      className="relative w-full flex justify-center z-0"
+    >
+      <GeometricNeptune />
+
       <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
-        
         {/* LEFT TRACE LINE */}
         <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
-          <motion.div style={{ height: fillHeight }} className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]">
+          <motion.div
+            style={{ height: fillHeight }}
+            className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]"
+          >
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]">
               <div className="w-1 h-1 bg-white rounded-full" />
             </div>
@@ -36,7 +44,12 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
         </div>
 
         <div className="pl-6 md:pl-[8rem] pr-6 md:pr-12 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-12"
+          >
             <h3 className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest flex items-center gap-3">
               <Database className="w-4 h-4" />
               System Logs // Legacy Architectures
@@ -55,7 +68,9 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
                 className={`group relative grid grid-cols-1 md:grid-cols-12 gap-4 items-center py-6 border-b border-slate-800 transition-colors duration-300 ${
-                  project.link !== "#" ? "hover:bg-[#3B82F6]/5 cursor-pointer" : "cursor-default"
+                  project.link !== "#"
+                    ? "hover:bg-[#3B82F6]/5 cursor-pointer"
+                    : "cursor-default"
                 }`}
               >
                 {/* Horizontal Hardware Connector */}
@@ -77,7 +92,9 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
                   <div className="flex flex-wrap gap-x-2 gap-y-1 text-[10px] md:text-xs font-mono text-slate-500">
                     {project.stack.map((s, i) => (
                       <span key={i} className="flex items-center">
-                        <span className="group-hover:text-slate-300 transition-colors">[{s}]</span>
+                        <span className="group-hover:text-slate-300 transition-colors">
+                          [{s}]
+                        </span>
                       </span>
                     ))}
                   </div>
@@ -92,11 +109,21 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
             ))}
           </div>
 
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mt-12 flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="mt-12 flex items-center justify-between"
+          >
             <p className="text-slate-600 font-mono text-[10px] uppercase tracking-widest">
               EOF // End of Logs
             </p>
-            <a href="https://github.com/Abubakr-Alsheikh" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#3B82F6] hover:text-[#F97316] font-mono text-xs uppercase tracking-widest transition-colors group">
+            <a
+              href="https://github.com/Abubakr-Alsheikh"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 text-[#3B82F6] hover:text-[#F97316] font-mono text-xs uppercase tracking-widest transition-colors group"
+            >
               Inspect Full Repository
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </a>

@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ShieldCheck, Cpu } from "lucide-react";
 import { useRef } from "react";
+import GeometricPulsar from "@/components/visuals/GeometricPulsar";
 
 type Skills = {
   frontend: string[];
@@ -69,6 +70,8 @@ export default function Engine({
       ref={sectionRef}
       className="relative w-full flex justify-center z-20 overflow-hidden"
     >
+      <GeometricPulsar />
+
       {/* PADDING MOVED HERE. No gaps. */}
       <div className="w-full max-w-7xl relative pt-32 pb-32 px-6 md:px-12 flex flex-col items-center">
         {/* CENTER TRACE LINE (Slices through the exact middle) */}
