@@ -22,6 +22,12 @@ export default function Home() {
   const [isBooting, setIsBooting] = useState(true);
 
   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    window.scrollTo(0, 0);
+
     if (isBooting) {
       document.body.style.overflow = "hidden";
     } else {
