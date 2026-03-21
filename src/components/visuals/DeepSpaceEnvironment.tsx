@@ -13,38 +13,39 @@ export default function DeepSpaceEnvironment() {
 
   useEffect(() => {
     setMeteors(
-      Array.from({ length: 6 }).map((_, i) => ({
+      Array.from({ length: 25 }).map((_, i) => ({
         id: i,
-        top: Math.random() * 100,
-        right: Math.random() * 50 - 20,
-        delay: Math.random() * 8 + i * 3,
-        duration: Math.random() * 2 + 3,
-      })),
+        top: Math.random() * 95,
+        right: Math.random() * 80 - 20,
+        delay: Math.random() * 12 + i * 1.5,
+        duration: Math.random() * 1.5 + 2,
+      }))
     );
+    
     setStars(
-      Array.from({ length: 75 }).map((_, i) => ({
+      Array.from({ length: 600 }).map((_, i) => ({
         id: i,
         top: Math.random() * 100,
         left: Math.random() * 100,
-        size: Math.random() * 2 + 1,
+        size: Math.random() * 2 + 0.5,
         delay: Math.random() * 5,
-      })),
+      }))
     );
   }, []);
 
   return (
-    <div className="absolute top-0 left-0 w-full h-[200vh] pointer-events-none z-0 overflow-hidden mask-fade-bottom">
+    <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
       {stars.map((star) => (
         <motion.div
           key={`star-${star.id}`}
-          className="absolute rounded-full bg-white"
+          className="absolute rounded-full bg-white will-change-[opacity]"
           style={{
             top: `${star.top}%`,
             left: `${star.left}%`,
             width: star.size,
             height: star.size,
           }}
-          animate={{ opacity: [0.1, 0.8, 0.1] }}
+          animate={{ opacity: [0.1, 0.7, 0.1] }}
           transition={{
             duration: 3 + star.delay,
             repeat: Infinity,
@@ -52,22 +53,24 @@ export default function DeepSpaceEnvironment() {
           }}
         />
       ))}
+      
       {meteors.map((meteor) => (
         <motion.div
           key={`meteor-${meteor.id}`}
-          className="absolute w-[150px] h-[1px] bg-gradient-to-l from-transparent via-[#3B82F6] to-white"
+          className="absolute w-[250px] h-[1px] bg-gradient-to-l from-transparent via-[#3B82F6] to-white will-change-[transform,opacity]"
           style={{
             top: `${meteor.top}%`,
             right: `${meteor.right}%`,
             rotate: "-35deg",
           }}
           initial={{ opacity: 0, x: 0, y: 0 }}
-          animate={{ opacity: [0, 1, 0], x: -800, y: 500 }}
+          animate={{ opacity: [0, 1, 0], x: -2000, y: 1200 }}
           transition={{
             delay: meteor.delay,
             duration: meteor.duration,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: "linear",
+            times: [0, 0.1, 0.8],
           }}
         />
       ))}

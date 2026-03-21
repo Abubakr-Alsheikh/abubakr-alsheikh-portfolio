@@ -3,7 +3,6 @@
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { MoveDownRight } from "lucide-react";
 import { useRef } from "react";
-import DeepSpaceEnvironment from "@/components/visuals/DeepSpaceEnvironment";
 import GeometricPlanet from "@/components/visuals/GeometricPlanet";
 
 export default function Hero({
@@ -54,7 +53,6 @@ export default function Hero({
       id="hero"
       className="relative w-full flex justify-center min-h-[100dvh] z-10"
     >
-      <DeepSpaceEnvironment />
       <GeometricPlanet />
 
       <div className="w-full max-w-7xl relative flex flex-col px-6 md:px-12 pt-32 pb-0 z-10">
