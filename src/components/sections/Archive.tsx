@@ -31,7 +31,6 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
       <GeometricNeptune />
 
       <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
-        {/* LEFT TRACE LINE */}
         <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
           <motion.div
             style={{ height: fillHeight }}
@@ -73,11 +72,36 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
                     : "cursor-default"
                 }`}
               >
-                {/* Horizontal Hardware Connector */}
-                <div className="hidden md:block absolute top-1/2 -left-[4rem] w-[4rem] h-px bg-slate-800 group-hover:bg-[#3B82F6] transition-colors duration-500 -translate-y-1/2 z-0" />
-                <div className="hidden md:block absolute top-1/2 -left-[4rem] w-2 h-2 rounded-sm bg-[#020617] border border-slate-800 group-hover:border-[#3B82F6] transition-colors duration-500 -translate-x-[4px] -translate-y-[4px] z-10" />
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
+                  className="absolute inset-0 pointer-events-none z-0 hidden md:block"
+                >
+                  <motion.div 
+                    variants={{
+                      hidden: { backgroundColor: "#020617", borderColor: "#1e293b" },
+                      visible: { backgroundColor: "#3B82F6", borderColor: "#3B82F6", transition: { duration: 0.1 } }
+                    }}
+                    className="absolute top-1/2 -left-[4rem] w-2 h-2 rounded-sm -translate-x-[4px] -translate-y-[4px] z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
+                  />
+                  <div className="absolute top-1/2 -left-[4rem] w-[4rem] h-px bg-slate-800 -translate-y-[0.5px]">
+                    <motion.div
+                      variants={{ hidden: { scaleX: 0 }, visible: { scaleX: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.1 } } }}
+                      className="w-full h-full bg-[#3B82F6] origin-left shadow-[0_0_10px_#3B82F6]"
+                    />
+                  </div>
+                </motion.div>
 
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#F97316] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
+                  className="absolute left-0 top-0 bottom-0 w-[2px] hidden md:block pointer-events-none"
+                >
+                  <motion.div variants={{ hidden: { scaleY: 0 }, visible: { scaleY: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.5 } } }} className="absolute left-0 top-0 bottom-[50%] w-full bg-[#3B82F6] origin-bottom shadow-[0_0_10px_#3B82F6]" />
+                  <motion.div variants={{ hidden: { scaleY: 0 }, visible: { scaleY: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.5 } } }} className="absolute left-0 top-[50%] bottom-0 w-full bg-[#3B82F6] origin-top shadow-[0_0_10px_#3B82F6]" />
+                </motion.div>
 
                 <div className="md:col-span-6 pl-6">
                   <h4 className="text-xl font-space font-bold text-slate-200 mb-2 group-hover:text-[#F97316] transition-colors">
