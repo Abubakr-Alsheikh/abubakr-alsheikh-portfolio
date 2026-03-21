@@ -3,41 +3,7 @@
 import { useState, FormEvent, useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Send, TerminalSquare, CheckCircle2 } from "lucide-react";
-
-const PlanetCurvature = () => (
-  <div className="absolute bottom-0 left-0 right-0 w-full h-[50vh] overflow-hidden pointer-events-none z-0 flex justify-center items-end">
-    <svg
-      viewBox="0 0 100 20"
-      className="w-[150%] min-w-[1200px] h-auto"
-      preserveAspectRatio="none"
-    >
-      <path
-        d="M0,20 Q50,0 100,20 Z"
-        fill="#020617"
-        stroke="#1E293B"
-        strokeWidth="0.1"
-      />
-      <motion.path
-        d="M0,20 Q50,0 100,20"
-        fill="none"
-        stroke="#F97316"
-        strokeWidth="0.15"
-        initial={{ pathLength: 0, opacity: 0 }}
-        whileInView={{ pathLength: 1, opacity: 1 }}
-        transition={{ duration: 2, ease: "easeInOut" }}
-        className="drop-shadow-[0_-5px_15px_rgba(249,115,22,0.4)]"
-      />
-      <path
-        d="M0,20 Q50,2 100,20"
-        fill="none"
-        stroke="#3B82F6"
-        strokeWidth="0.05"
-        strokeDasharray="1 3"
-        opacity="0.3"
-      />
-    </svg>
-  </div>
-);
+import PlanetCurvature from "@/components/visuals/PlanetCurvature";
 
 export default function Horizon() {
   const [formState, setFormState] = useState<"idle" | "submitting" | "success">(
@@ -51,7 +17,6 @@ export default function Horizon() {
   });
   const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
-  // The line fills completely to 100%, plunging directly into the bottom footer
   const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   const handleSubmit = (e: FormEvent) => {
@@ -68,26 +33,19 @@ export default function Horizon() {
     >
       <PlanetCurvature />
 
-      {/* Main Content Area (Relative for the Trace Line) */}
       <div className="w-full max-w-7xl mx-auto relative pt-32 pb-32 px-6 md:px-12 flex-1 flex flex-col justify-center">
-        {/* CENTER TRACE LINE - Final Grounding Sequence */}
-        {/* Note: It goes exactly from top-0 to bottom-0 of THIS container */}
         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0">
           <motion.div
             style={{ height: fillHeight }}
             className="w-full bg-[#F97316] origin-top relative shadow-[0_0_15px_#F97316]"
           >
-            {/* The Data Packet perfectly fixed to the tip */}
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#F97316] rounded-full flex items-center justify-center shadow-[0_0_10px_#F97316]">
               <div className="w-1 h-1 bg-white rounded-full" />
             </div>
           </motion.div>
         </div>
 
-        {/* Content Split: Left Text, Right Form */}
-        {/* FIX: Set md:gap-24 explicitly. This means the gap is 6rem. Half of 6rem is 3rem. */}
         <div className="relative z-10 w-full grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-center">
-          {/* Left Side: Call to Action */}
           <div className="flex flex-col pr-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -123,17 +81,14 @@ export default function Horizon() {
             </motion.p>
           </div>
 
-          {/* Right Side: The Terminal Form */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             className="w-full relative group"
           >
-            {/* FIX: Perfect Math Connector. Gap is 24 (6rem). So the left edge is EXACTLY 3rem from the center line. */}
             <div className="hidden md:block absolute top-[50%] -left-[3rem] w-[3rem] h-px bg-slate-800 group-hover:bg-[#F97316] transition-colors duration-500 z-0" />
 
-            {/* FIX: Hardware node sits EXACTLY on the intersection of the center trace line */}
             <div className="hidden md:block absolute top-[50%] -left-[3rem] w-2 h-2 rounded-sm bg-[#020617] border border-slate-800 group-hover:border-[#F97316] transition-colors duration-500 -translate-x-[4px] -translate-y-[3.5px] z-10" />
 
             <div className="bg-[#020617] border border-slate-800 p-8 relative z-10 group-hover:border-[#F97316]/50 transition-colors duration-500">
@@ -202,16 +157,12 @@ export default function Horizon() {
         </div>
       </div>
 
-      {/* PREMIUM FOOTER / GROUND STATION */}
-      {/* Sits completely flush with the bottom of the container above it */}
       <div className="w-full border-t border-slate-800 bg-[#020617]/90 backdrop-blur-md relative z-30">
-        {/* The Hardware Grounding Port (The trace line physically drops directly into this socket) */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-3 bg-[#020617] border border-slate-800 hidden md:flex items-center justify-center">
           <div className="w-3 h-1 bg-[#F97316] shadow-[0_0_10px_#F97316]" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Left Side: System Status */}
           <div className="flex items-center gap-3">
             <span className="w-2 h-2 rounded-full bg-[#F97316] animate-pulse shadow-[0_0_8px_#F97316]" />
             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
@@ -219,7 +170,6 @@ export default function Horizon() {
             </span>
           </div>
 
-          {/* Right Side: Telemetry Tags */}
           <div className="flex items-center gap-4 text-[10px] font-mono text-slate-600 uppercase tracking-widest">
             <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair hidden sm:block">
               [ REACT_CORE ]
