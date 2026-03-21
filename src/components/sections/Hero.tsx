@@ -35,6 +35,7 @@ export default function Hero({
       transition: { staggerChildren: 0.15, delayChildren: 0.2 },
     },
   };
+
   const textVars = {
     hidden: { opacity: 0, y: 50 },
     show: {
@@ -45,7 +46,7 @@ export default function Hero({
   };
 
   const fluidTextClass =
-    "text-[clamp(4rem,9vw,11rem)] font-bold tracking-tighter font-space leading-[0.85]";
+    "text-[clamp(4.5rem,11vw,13rem)] font-bold tracking-tighter font-space leading-[0.82]";
 
   return (
     <section
@@ -61,7 +62,7 @@ export default function Hero({
           variants={containerVars}
           initial="hidden"
           animate="show"
-          className="flex flex-col flex-1 mt-4 mb-8"
+          className="flex flex-col md:flex-1 mt-4 mb-8"
         >
           <motion.div
             variants={textVars}
@@ -73,7 +74,7 @@ export default function Hero({
             </span>
           </motion.div>
 
-          <div className="overflow-hidden pb-2 w-full">
+          <div className="overflow-hidden pb-5 w-full">
             <motion.h1
               variants={textVars}
               className={`${fluidTextClass} text-slate-100`}
@@ -81,7 +82,7 @@ export default function Hero({
               {data.title1}
             </motion.h1>
           </div>
-          <div className="overflow-hidden pb-2 w-full">
+          <div className="overflow-hidden pb-5 w-full">
             <motion.h1
               variants={textVars}
               className={`${fluidTextClass} text-slate-600`}
@@ -100,7 +101,7 @@ export default function Hero({
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 w-full relative pb-24">
-          <div className="absolute left-[50%] top-[24px] bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0">
+          <div className="absolute left-[50%] top-[32px] bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0">
             <motion.div
               style={{ height: fillHeight }}
               className="w-full bg-[#F97316] origin-top relative shadow-[0_0_15px_#F97316]"
@@ -110,9 +111,11 @@ export default function Hero({
               </div>
             </motion.div>
           </div>
+
           <div className="hidden md:block"></div>
+
           <div className="relative flex justify-start pl-0 md:pl-16">
-            <div className="absolute top-[24px] left-0 w-16 h-px bg-slate-800/50 hidden md:block z-0">
+            <div className="absolute top-[32px] left-0 w-16 h-px bg-slate-800/50 hidden md:block z-0">
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
@@ -121,18 +124,20 @@ export default function Hero({
               />
             </div>
 
-            <div className="absolute top-[24px] left-0 w-2 h-2 -translate-x-[4px] -translate-y-[3.5px] bg-[#020617] border border-[#F97316] rounded-sm hidden md:block z-10" />
+            <div className="absolute top-[32px] left-0 w-2 h-2 -translate-x-[4px] -translate-y-[3.5px] bg-[#020617] border border-[#F97316] rounded-sm hidden md:block z-10" />
 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="max-w-md relative pl-6 border-l-2 border-[#F97316] group bg-[#020617]/50 backdrop-blur-sm pt-1"
+              className="max-w-lg relative p-6 md:p-8 border border-white/5 border-l-2 border-l-[#F97316] group bg-[#020617]/40 backdrop-blur-xl "
             >
-              <div className="absolute top-[20px] -left-[6px] w-2.5 h-2.5 bg-[#020617] border border-[#F97316] group-hover:bg-[#F97316] transition-colors" />
+              <div className="absolute top-[27px] -left-[6px] w-2.5 h-2.5 bg-[#020617] border border-[#F97316] group-hover:bg-[#F97316] transition-colors" />
 
-              <p className="text-slate-400 text-base md:text-lg leading-relaxed font-mono font-light text-balance mb-6">
-                <span className="text-slate-200 font-bold">Hello there!</span>{" "}
+              <p className="text-slate-300 text-base md:text-lg leading-relaxed font-mono font-light text-balance mb-8">
+                <span className="text-white font-bold tracking-tight">
+                  System Online.
+                </span>{" "}
                 <br />
                 {data.description}
               </p>
@@ -143,7 +148,7 @@ export default function Hero({
                     .getElementById("about")
                     ?.scrollIntoView({ behavior: "smooth" })
                 }
-                className="flex items-center gap-3 text-slate-300 hover:text-[#F97316] font-mono text-xs tracking-widest uppercase transition-colors group/btn"
+                className="flex items-center gap-3 text-slate-400 hover:text-[#F97316] font-mono text-xs tracking-widest uppercase transition-colors group/btn"
               >
                 <span>{data.primaryAction}</span>
                 <MoveDownRight className="w-4 h-4 group-hover/btn:translate-x-1 group-hover/btn:translate-y-1 transition-transform" />
