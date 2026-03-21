@@ -87,11 +87,42 @@ export default function Horizon() {
             viewport={{ once: true }}
             className="w-full relative group"
           >
-            <div className="hidden md:block absolute top-[50%] -left-[3rem] w-[3rem] h-px bg-slate-800 group-hover:bg-[#F97316] transition-colors duration-500 z-0" />
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
+              className="absolute inset-0 pointer-events-none z-0 hidden md:block"
+            >
+              <motion.div 
+                variants={{
+                  hidden: { backgroundColor: "#020617", borderColor: "#1e293b" },
+                  visible: { backgroundColor: "#F97316", borderColor: "#F97316", transition: { duration: 0.1 } }
+                }}
+                className="absolute top-[50%] -left-[3rem] w-2 h-2 rounded-sm -translate-x-[4px] -translate-y-[3.5px] z-10 shadow-[0_0_10px_rgba(249,115,22,0.5)]" 
+              />
+              <div className="absolute top-[50%] -left-[3rem] w-[3rem] h-px bg-slate-800">
+                <motion.div
+                  variants={{
+                    hidden: { scaleX: 0 },
+                    visible: { scaleX: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.1 } }
+                  }}
+                  className="w-full h-full bg-[#F97316] origin-left shadow-[0_0_10px_#F97316]"
+                />
+              </div>
+            </motion.div>
 
-            <div className="hidden md:block absolute top-[50%] -left-[3rem] w-2 h-2 rounded-sm bg-[#020617] border border-slate-800 group-hover:border-[#F97316] transition-colors duration-500 -translate-x-[4px] -translate-y-[3.5px] z-10" />
+            <div className="bg-[#020617] border border-slate-800 p-8 relative z-10 group-hover:border-[#F97316]/50 transition-colors duration-500 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
+              
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
+                className="absolute inset-0 pointer-events-none hidden md:block"
+              >
+                <motion.div variants={{ hidden: { scaleY: 0 }, visible: { scaleY: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.5 } } }} className="absolute left-[-1px] top-0 bottom-[50%] w-[2px] bg-[#F97316] origin-bottom shadow-[0_0_15px_#F97316]" />
+                <motion.div variants={{ hidden: { scaleY: 0 }, visible: { scaleY: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.5 } } }} className="absolute left-[-1px] top-[50%] bottom-0 w-[2px] bg-[#F97316] origin-top shadow-[0_0_15px_#F97316]" />
+              </motion.div>
 
-            <div className="bg-[#020617] border border-slate-800 p-8 relative z-10 group-hover:border-[#F97316]/50 transition-colors duration-500">
               <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#F97316]" />
               <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-[#F97316]" />
               <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-[#F97316]" />
