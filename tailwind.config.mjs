@@ -21,6 +21,16 @@ const config = {
         space: ["var(--font-space)"],
         mono: ["var(--font-mono)"],
       },
+      animation: {
+        "spin-slow": "spin 150s linear infinite",
+        "spin-slower": "spin 200s linear infinite",
+        "spin-reverse": "spin-reverse 250s linear infinite",
+      },
+      keyframes: {
+        "spin-reverse": {
+          to: { transform: "rotate(-360deg)" },
+        },
+      },
       colors: {
         space: "#020617",
         azure: "#3B82F6",
