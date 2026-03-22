@@ -14,7 +14,10 @@ import Horizon from "@/components/sections/Horizon";
 
 import BackgroundEnv from "@/components/shared/BackgroundEnv";
 import TelemetryNav from "@/components/shared/TelemetryNav";
-import { BranchCenterToLeft, BranchLeftToCenter } from "@/components/shared/TraceRouters";
+import {
+  BranchCenterToLeft,
+  BranchLeftToCenter,
+} from "@/components/shared/TraceRouters";
 import DeepSpaceEnvironment from "@/components/visuals/DeepSpaceEnvironment";
 import SystemBootSequence from "@/components/shared/SystemBootSequence";
 
@@ -44,23 +47,25 @@ export default function Home() {
       </AnimatePresence>
 
       <main className="relative flex flex-col items-center w-full max-w-full min-h-screen overflow-x-clip selection:bg-[#3B82F6]/30 selection:text-[#3B82F6]">
-        
         <BackgroundEnv />
         <DeepSpaceEnvironment />
         <TelemetryNav />
 
         <div className="w-full max-w-full relative z-10 flex flex-col">
           <Hero data={portfolioData.hero} isBooting={isBooting} />
-          
+
           <About data={portfolioData.about} />
           <BranchCenterToLeft />
-          
+
           <Projects data={portfolioData.topProjects} />
           <Archive projects={portfolioData.archiveProjects} />
           <Journey data={portfolioData.journey} />
           <BranchLeftToCenter />
-          
-          <Engine skills={portfolioData.skills} certs={portfolioData.certifications} />
+
+          <Engine
+            skills={portfolioData.skills}
+            certs={portfolioData.certifications}
+          />
           <Horizon />
         </div>
       </main>

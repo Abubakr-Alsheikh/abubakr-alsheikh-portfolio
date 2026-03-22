@@ -5,21 +5,22 @@ import "./globals.css";
 import LenisProvider from "@/components/shared/LenisProvider";
 import CursorAura from "@/components/shared/CursorAura";
 
-const spaceGrotesk = Space_Grotesk({ 
-  subsets: ["latin"], 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
   variable: "--font-space",
-  display: 'swap',
+  display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({ 
-  subsets: ["latin"], 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
   variable: "--font-mono",
-  display: 'swap',
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Abubakr Alsheikh | Full-Stack Architect",
-  description: "Transforming complex ideas into high-performance, intelligent digital products.",
+  description:
+    "Transforming complex ideas into high-performance, intelligent digital products.",
 };
 
 export default function RootLayout({
@@ -28,13 +29,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth overflow-x-clip max-w-full">
+    <html lang="en" className="dark scroll-smooth max-w-full">
       <body
         className={cn(
           "min-h-screen antialiased text-slate-200 overflow-x-clip max-w-full",
           "bg-[#020617] selection:bg-orange-500/30 selection:text-orange-200",
           spaceGrotesk.variable,
-          jetbrainsMono.variable
+          jetbrainsMono.variable,
         )}
       >
         <CursorAura />
