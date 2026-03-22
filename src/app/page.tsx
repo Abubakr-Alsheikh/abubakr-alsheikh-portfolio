@@ -52,7 +52,7 @@ export default function Home() {
         <TelemetryNav />
 
         <div className="w-full max-w-full relative z-10 flex flex-col">
-          <Hero data={portfolioData.hero} isBooting={isBooting} />
+          <Hero data={portfolioData.hero} contact={portfolioData.contact} isBooting={isBooting} />
 
           <About data={portfolioData.about} />
           <BranchCenterToLeft />
@@ -66,7 +66,7 @@ export default function Home() {
             skills={portfolioData.skills}
             certs={portfolioData.certifications}
           />
-          <Horizon />
+          <Horizon contact={portfolioData.contact} />
         </div>
       </main>
     </>

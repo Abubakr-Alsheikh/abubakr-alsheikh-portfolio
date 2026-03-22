@@ -1,12 +1,24 @@
 "use client";
 
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { MoveDownRight } from "lucide-react";
+import { MoveDownRight, Download, Github, Linkedin } from "lucide-react";
 import { useRef } from "react";
 import GeometricPlanet from "@/components/visuals/GeometricPlanet";
 
+const getIcon = (iconName: string) => {
+  switch (iconName) {
+    case "github":
+      return <Github className="w-4 h-4" />;
+    case "linkedin":
+      return <Linkedin className="w-4 h-4" />;
+    default:
+      return null;
+  }
+};
+
 export default function Hero({
   data,
+  contact,
   isBooting,
 }: {
   data: {
@@ -16,6 +28,12 @@ export default function Hero({
     title3: string;
     description: string;
     primaryAction: string;
+  };
+  contact: {
+    email: string;
+    location: string;
+    resumeLink: string;
+    socials: Array<{ name: string; url: string; icon: string }>;
   };
   isBooting: boolean;
 }) {
@@ -142,17 +160,44 @@ export default function Hero({
                 {data.description}
               </p>
 
-              <button
-                onClick={() =>
-                  document
-                    .getElementById("about")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="flex items-center gap-3 text-slate-400 hover:text-[#F97316] font-mono text-xs tracking-widest uppercase transition-colors group/btn"
-              >
-                <span>{data.primaryAction}</span>
-                <MoveDownRight className="w-4 h-4 group-hover/btn:translate-x-1 group-hover/btn:translate-y-1 transition-transform" />
-              </button>
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  onClick={() =>
+                    document
+                      .getElementById("about")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
+                  className="flex items-center gap-2 px-4 py-2 bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316] hover:text-[#020617] font-mono text-xs tracking-widest uppercase transition-all group/btn"
+                >
+                  <span>{data.primaryAction}</span>
+                  <MoveDownRight className="w-3 h-3 group-hover/btn:translate-x-1 group-hover/btn:translate-y-1 transition-transform" />
+                </button>
+
+                <a
+                  href={contact.resumeLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#020617] border border-slate-700 text-slate-300 hover:border-[#3B82F6] hover:text-[#3B82F6] font-mono text-xs tracking-widest uppercase transition-all group/resume"
+                >
+                  <Download className="w-3 h-3 group-hover/resume:-translate-y-0.5 transition-transform" />
+                  <span>EXTRACT_SPECS</span>
+                </a>
+
+                <div className="flex items-center gap-2 ml-auto">
+                  {contact.socials.map((social, idx) => (
+                    <a
+                      key={idx}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-slate-800 text-slate-500 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors group/social"
+                      title={social.name}
+                    >
+                      {getIcon(social.icon)}
+                    </a>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>

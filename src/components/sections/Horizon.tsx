@@ -2,10 +2,38 @@
 
 import { useState, FormEvent, useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { Send, TerminalSquare, CheckCircle2 } from "lucide-react";
+import {
+  Send,
+  TerminalSquare,
+  CheckCircle2,
+  Mail,
+  MapPin,
+  Github,
+  Linkedin,
+} from "lucide-react";
 import PlanetCurvature from "@/components/visuals/PlanetCurvature";
 
-export default function Horizon() {
+const getIcon = (iconName: string) => {
+  switch (iconName) {
+    case "github":
+      return <Github className="w-4 h-4" />;
+    case "linkedin":
+      return <Linkedin className="w-4 h-4" />;
+    default:
+      return null;
+  }
+};
+
+export default function Horizon({
+  contact,
+}: {
+  contact: {
+    email: string;
+    location: string;
+    resumeLink: string;
+    socials: Array<{ name: string; url: string; icon: string }>;
+  };
+}) {
   const [formState, setFormState] = useState<"idle" | "submitting" | "success">(
     "idle",
   );
@@ -73,12 +101,50 @@ export default function Horizon() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-sm md:text-base text-slate-400 font-mono font-light leading-relaxed max-w-md border-l-2 border-[#3B82F6] pl-6"
+              className="text-sm md:text-base text-slate-400 font-mono font-light leading-relaxed max-w-md border-l-2 border-[#3B82F6] pl-6 mb-12"
             >
               The descent is complete. The architecture is reviewed. If you need
               a scalable Django backend or a fluid Next.js frontend—transmit
               your payload.
             </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="flex flex-col gap-6 pl-6 border-l-2 border-slate-800"
+            >
+              <div className="flex items-center gap-4 text-slate-400 group">
+                <div className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-slate-800 group-hover:border-[#3B82F6] group-hover:text-[#3B82F6] transition-colors">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-mono text-slate-600 tracking-widest uppercase">
+                    DIRECT_LINE
+                  </span>
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="text-xs font-mono tracking-widest text-slate-300 hover:text-[#3B82F6] transition-colors"
+                  >
+                    {contact.email}
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 text-slate-400 group">
+                <div className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-slate-800 group-hover:border-[#F97316] group-hover:text-[#F97316] transition-colors">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-mono text-slate-600 tracking-widest uppercase">
+                    COORDINATES
+                  </span>
+                  <span className="text-xs font-mono tracking-widest text-slate-300">
+                    {contact.location}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
           <motion.div
@@ -93,18 +159,32 @@ export default function Horizon() {
               viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
               className="absolute inset-0 pointer-events-none z-0 hidden md:block"
             >
-              <motion.div 
+              <motion.div
                 variants={{
-                  hidden: { backgroundColor: "#020617", borderColor: "#1e293b" },
-                  visible: { backgroundColor: "#F97316", borderColor: "#F97316", transition: { duration: 0.1 } }
+                  hidden: {
+                    backgroundColor: "#020617",
+                    borderColor: "#1e293b",
+                  },
+                  visible: {
+                    backgroundColor: "#F97316",
+                    borderColor: "#F97316",
+                    transition: { duration: 0.1 },
+                  },
                 }}
-                className="absolute top-[50%] -left-[3rem] w-2 h-2 rounded-sm -translate-x-[4px] -translate-y-[3.5px] z-10 shadow-[0_0_10px_rgba(249,115,22,0.5)]" 
+                className="absolute top-[50%] -left-[3rem] w-2 h-2 rounded-sm -translate-x-[4px] -translate-y-[3.5px] z-10 shadow-[0_0_10px_rgba(249,115,22,0.5)]"
               />
               <div className="absolute top-[50%] -left-[3rem] w-[3rem] h-px bg-slate-800">
                 <motion.div
                   variants={{
                     hidden: { scaleX: 0 },
-                    visible: { scaleX: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.1 } }
+                    visible: {
+                      scaleX: 1,
+                      transition: {
+                        duration: 0.4,
+                        ease: "easeOut",
+                        delay: 0.1,
+                      },
+                    },
                   }}
                   className="w-full h-full bg-[#F97316] origin-left shadow-[0_0_10px_#F97316]"
                 />
@@ -112,15 +192,40 @@ export default function Horizon() {
             </motion.div>
 
             <div className="bg-[#020617] border border-slate-800 p-8 relative z-10 group-hover:border-[#F97316]/50 transition-colors duration-500 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
-              
               <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
                 className="absolute inset-0 pointer-events-none hidden md:block"
               >
-                <motion.div variants={{ hidden: { scaleY: 0 }, visible: { scaleY: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.5 } } }} className="absolute left-[-1px] top-0 bottom-[50%] w-[2px] bg-[#F97316] origin-bottom shadow-[0_0_15px_#F97316]" />
-                <motion.div variants={{ hidden: { scaleY: 0 }, visible: { scaleY: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.5 } } }} className="absolute left-[-1px] top-[50%] bottom-0 w-[2px] bg-[#F97316] origin-top shadow-[0_0_15px_#F97316]" />
+                <motion.div
+                  variants={{
+                    hidden: { scaleY: 0 },
+                    visible: {
+                      scaleY: 1,
+                      transition: {
+                        duration: 0.4,
+                        ease: "easeOut",
+                        delay: 0.5,
+                      },
+                    },
+                  }}
+                  className="absolute left-[-1px] top-0 bottom-[50%] w-[2px] bg-[#F97316] origin-bottom shadow-[0_0_15px_#F97316]"
+                />
+                <motion.div
+                  variants={{
+                    hidden: { scaleY: 0 },
+                    visible: {
+                      scaleY: 1,
+                      transition: {
+                        duration: 0.4,
+                        ease: "easeOut",
+                        delay: 0.5,
+                      },
+                    },
+                  }}
+                  className="absolute left-[-1px] top-[50%] bottom-0 w-[2px] bg-[#F97316] origin-top shadow-[0_0_15px_#F97316]"
+                />
               </motion.div>
 
               <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#F97316]" />
@@ -201,16 +306,48 @@ export default function Horizon() {
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-[10px] font-mono text-slate-600 uppercase tracking-widest">
-            <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair hidden sm:block">
-              [ REACT_CORE ]
-            </span>
-            <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair">
-              [ NEXT.JS_ENGINE ]
-            </span>
-            <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair hidden md:block">
-              [ ORBITAL_STABLE ]
-            </span>
+          <div className="flex items-center gap-6 text-[10px] font-mono text-slate-600 uppercase tracking-widest">
+            <div className="hidden md:flex items-center gap-4 border-r border-slate-800 pr-6">
+              <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair">
+                [ NEXT.JS_ENGINE ]
+              </span>
+              <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair">
+                [ ORBITAL_STABLE ]
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+              {contact.socials.map((social: any, idx: number) => (
+                <a
+                  key={idx}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-2 text-[10px] font-mono tracking-[0.2em] text-slate-500 hover:text-[#F97316] transition-all duration-300"
+                  title={social.name}
+                >
+                  {/* Opening Bracket - Static Slate to Active Orange */}
+                  <span className="text-slate-800 group-hover:text-[#F97316] transition-colors duration-300">
+                    [
+                  </span>
+
+                  {/* Social Name */}
+                  <span className="group-hover:text-slate-200 transition-colors duration-300">
+                    {social.name}
+                  </span>
+
+                  {/* Social Icon - Scaled down slightly for visual balance */}
+                  <span className="w-3 h-3 flex items-center justify-center opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                    {getIcon(social.icon)}
+                  </span>
+
+                  {/* Closing Bracket */}
+                  <span className="text-slate-800 group-hover:text-[#F97316] transition-colors duration-300">
+                    ]
+                  </span>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>

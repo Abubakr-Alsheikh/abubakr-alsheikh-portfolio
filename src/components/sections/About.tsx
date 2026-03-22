@@ -50,7 +50,7 @@ export default function About({
           {/* ⚡ THE FOOLPROOF STICKY FIX */}
           {/* self-start prevents the grid from stretching this column to 100% height */}
           {/* It is now a tight box that will slide cleanly down the grid parent track */}
-          <div className="sticky top-[20vh] self-start flex flex-col pr-8 z-10">
+          <div className="md:sticky top-[20vh] self-start flex flex-col pr-8 z-10">
             {/* ⚡ THE SLIDING ELEVATOR CONNECTION */}
             <motion.div
               initial="hidden"

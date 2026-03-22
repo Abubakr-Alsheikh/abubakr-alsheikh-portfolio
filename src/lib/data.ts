@@ -5,8 +5,9 @@ import { archiveProjectsData } from "./data/archiveProjects";
 import { journeyData } from "./data/journey";
 import { skillsData } from "./data/skills";
 import { certificationsData } from "./data/certifications";
+import { contactData } from "./data/contact";
 
-export { heroData, aboutData, topProjectsData, archiveProjectsData, journeyData, skillsData, certificationsData };
+export { heroData, aboutData, topProjectsData, archiveProjectsData, journeyData, skillsData, certificationsData, contactData };
 
 export const portfolioData = {
   hero: heroData,
@@ -16,4 +17,5 @@ export const portfolioData = {
   journey: journeyData,
   skills: skillsData,
   certifications: certificationsData,
+  contact: contactData,
 };
