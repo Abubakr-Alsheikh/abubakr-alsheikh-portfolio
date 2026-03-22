@@ -47,7 +47,7 @@ export default function Hero({
   };
 
   const fluidTextClass =
-    "text-[clamp(4.5rem,11vw,13rem)] font-bold tracking-tighter font-space leading-[0.82]";
+    "text-[clamp(3.9rem,11vw,13rem)] font-bold tracking-tighter font-space leading-[0.82]";
 
   return (
     <section
