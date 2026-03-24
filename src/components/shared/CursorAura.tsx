@@ -36,10 +36,10 @@ const CursorAura = () => {
       style={{
         left: smoothMouse.x,
         top: smoothMouse.y,
+        background: "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(249,115,22,0) 70%)"
       }}
       className={cn(
-        "pointer-events-none fixed z-50 h-[250px] w-[250px] rounded-full",
-        "bg-accent/10 blur-3xl" // Soft orange glow with heavy blur
+        "pointer-events-none fixed z-50 h-[250px] w-[250px] rounded-full"
       )}
     />
   );

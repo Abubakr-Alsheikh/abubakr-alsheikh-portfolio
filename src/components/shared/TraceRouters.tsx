@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
 export const BranchCenterToLeft = () => {
@@ -9,19 +9,15 @@ export const BranchCenterToLeft = () => {
     target: ref,
     offset: ["start center", "end center"],
   });
-  const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
-  // FIX 1: We start at 0.20 instead of 0.00.
-  // This forces the router to wait for the previous section's spring to catch up and hit the junction box.
-  // FIX 2: We use "height/width" percentages instead of "scale" so we can attach an undistorted traveling dot!
-  const height1 = useTransform(smooth, [0.2, 0.45], ["0%", "100%"]);
-  const width2 = useTransform(smooth, [0.45, 0.75], ["0%", "100%"]);
-  const height3 = useTransform(smooth, [0.75, 1.0], ["0%", "100%"]);
+  const height1 = useTransform(scrollYProgress, [0.2, 0.45], ["0%", "100%"]);
+  const width2 = useTransform(scrollYProgress, [0.45, 0.75], ["0%", "100%"]);
+  const height3 = useTransform(scrollYProgress, [0.75, 1.0], ["0%", "100%"]);
 
   // Opacity controls to seamlessly hand off the Data Packet dot at the 90-degree corners
-  const dot1Opacity = useTransform(smooth, [0.2, 0.449, 0.45], [1, 1, 0]);
-  const dot2Opacity = useTransform(smooth, [0.45, 0.749, 0.75], [1, 1, 0]);
-  const dot3Opacity = useTransform(smooth, [0.75, 1.0], [1, 1]);
+  const dot1Opacity = useTransform(scrollYProgress, [0.2, 0.449, 0.45], [1, 1, 0]);
+  const dot2Opacity = useTransform(scrollYProgress, [0.45, 0.749, 0.75], [1, 1, 0]);
+  const dot3Opacity = useTransform(scrollYProgress, [0.75, 1.0], [1, 1]);
 
   return (
     <div
@@ -91,15 +87,15 @@ export const BranchLeftToCenter = () => {
     target: ref,
     offset: ["start center", "end center"],
   });
-  const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
-  const height1 = useTransform(smooth, [0.2, 0.45], ["0%", "100%"]);
-  const width2 = useTransform(smooth, [0.45, 0.75], ["0%", "100%"]);
-  const height3 = useTransform(smooth, [0.75, 1.0], ["0%", "100%"]);
+  const height1 = useTransform(scrollYProgress, [0.2, 0.45], ["0%", "100%"]);
+  const width2 = useTransform(scrollYProgress, [0.45, 0.75], ["0%", "100%"]);
+  const height3 = useTransform(scrollYProgress, [0.75, 1.0], ["0%", "100%"]);
 
-  const dot1Opacity = useTransform(smooth, [0.2, 0.449, 0.45], [1, 1, 0]);
-  const dot2Opacity = useTransform(smooth, [0.45, 0.749, 0.75], [1, 1, 0]);
-  const dot3Opacity = useTransform(smooth, [0.75, 1.0], [1, 1]);
+  // Opacity controls to seamlessly hand off the Data Packet dot at the 90-degree corners
+  const dot1Opacity = useTransform(scrollYProgress, [0.2, 0.449, 0.45], [1, 1, 0]);
+  const dot2Opacity = useTransform(scrollYProgress, [0.45, 0.749, 0.75], [1, 1, 0]);
+  const dot3Opacity = useTransform(scrollYProgress, [0.75, 1.0], [1, 1]);
 
   return (
     <div

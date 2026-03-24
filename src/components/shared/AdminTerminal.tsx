@@ -67,7 +67,7 @@ export default function AdminTerminal({ isOpen, onClose }: AdminTerminalProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: "-10%" }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed inset-0 z-[100] bg-[#020617]/95 backdrop-blur-xl border-b border-[#3B82F6]/30 font-mono text-[#3B82F6] p-4 md:p-8 flex flex-col"
+          className="fixed inset-0 z-[100] bg-[#020617] border-b border-[#3B82F6]/30 font-mono text-[#3B82F6] p-4 md:p-8 flex flex-col"
         >
           <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] pointer-events-none opacity-20 z-0" />
           

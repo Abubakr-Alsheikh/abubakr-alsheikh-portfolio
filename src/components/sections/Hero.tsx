@@ -84,7 +84,7 @@ export default function Hero({
         >
           <motion.div
             variants={textVars}
-            className="flex items-center gap-3 mb-10 w-fit border border-slate-800 px-4 py-2 rounded-sm bg-[#020617]/50 backdrop-blur-md"
+            className="flex items-center gap-3 mb-10 w-fit border border-slate-800 px-4 py-2 rounded-sm bg-[#020617] border-[#020617]/50"
           >
             <span className="w-1.5 h-1.5 bg-[#3B82F6] animate-pulse rounded-sm" />
             <span className="text-[10px] md:text-xs font-mono text-slate-400 uppercase tracking-widest">
@@ -148,7 +148,7 @@ export default function Hero({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: isBooting ? 0 : 1, x: isBooting ? 20 : 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="max-w-lg relative p-6 md:p-8 border border-white/5 border-l-2 border-l-[#F97316] group bg-[#020617]/40 backdrop-blur-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] transform-gpu"
+              className="max-w-lg relative p-6 md:p-8 border border-white/5 border-l-2 border-l-[#F97316] group bg-[#020617] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] transform-gpu"
             >
               <div className="absolute top-[27px] -left-[6px] w-2.5 h-2.5 bg-[#020617] border border-[#F97316] group-hover:bg-[#F97316] transition-colors" />
 

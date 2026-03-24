@@ -293,7 +293,7 @@ export default function Horizon({
         </div>
       </div>
 
-      <div className="w-full border-t border-slate-800 bg-[#020617]/90 backdrop-blur-md relative z-30">
+      <div className="w-full border-t border-slate-800 bg-[#020617] relative z-30">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-3 bg-[#020617] border border-slate-800 hidden md:flex items-center justify-center">
           <div className="w-3 h-1 bg-[#F97316] shadow-[0_0_10px_#F97316]" />
         </div>

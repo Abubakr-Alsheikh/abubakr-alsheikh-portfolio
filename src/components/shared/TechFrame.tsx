@@ -31,7 +31,7 @@ export default function TechFrame({ children, className, accentColor = "text-sla
         <circle cx="12" cy="12" r="2" fill="currentColor" />
       </svg>
 
-      <div className="relative w-full h-full bg-[#020617]/40 backdrop-blur-md border border-slate-800/40 p-6 z-0 overflow-hidden">
+      <div className="relative w-full h-full bg-[#020617] border border-slate-800/40 p-6 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_4px] pointer-events-none opacity-20" />
         <div className="relative z-10">
           {children}

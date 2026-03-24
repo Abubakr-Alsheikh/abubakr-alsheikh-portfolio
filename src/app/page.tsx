@@ -47,12 +47,16 @@ export default function Home() {
       </AnimatePresence>
 
       <main className="relative flex flex-col items-center w-full max-w-full min-h-screen overflow-x-clip selection:bg-[#3B82F6]/30 selection:text-[#3B82F6]">
-        <BackgroundEnv />
+        {/* <BackgroundEnv /> */}
         <DeepSpaceEnvironment />
         <TelemetryNav />
 
         <div className="w-full max-w-full relative z-10 flex flex-col">
-          <Hero data={portfolioData.hero} contact={portfolioData.contact} isBooting={isBooting} />
+          <Hero
+            data={portfolioData.hero}
+            contact={portfolioData.contact}
+            isBooting={isBooting}
+          />
 
           <About data={portfolioData.about} />
           <BranchCenterToLeft />

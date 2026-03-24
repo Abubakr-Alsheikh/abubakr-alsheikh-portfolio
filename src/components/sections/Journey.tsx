@@ -77,7 +77,7 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
                   </div>
                 </motion.div>
 
-                <div className="relative border border-slate-800 bg-[#020617]/40 backdrop-blur-md p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]">
+                <div className="relative border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]">
                   
                   <motion.div
                     initial="hidden"

@@ -6,42 +6,23 @@ import {
   useVelocity,
   useTransform,
   useSpring,
-  useMotionValue,
   AnimatePresence,
 } from "framer-motion";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import AdminTerminal from "./AdminTerminal";
 
 const NetworkGraph = () => {
   const [points, setPoints] = useState<number[]>(Array(20).fill(5));
-  const mouseSpeed = useMotionValue(0);
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      const speed = Math.abs(e.movementX) + Math.abs(e.movementY);
-      mouseSpeed.set(speed);
-    },
-    [mouseSpeed],
-  );
 
   useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
     const interval = setInterval(() => {
-      const currentSpeed = mouseSpeed.get();
-      const newPoint = Math.min(
-        20,
-        Math.max(2, currentSpeed / 5 + Math.random() * 4),
-      );
+      const newPoint = Math.min(20, Math.max(2, Math.random() * 8 + 2));
       setPoints((prev) => [...prev.slice(1), newPoint]);
-      mouseSpeed.set(currentSpeed * 0.5);
-    }, 100);
+    }, 250);
 
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      clearInterval(interval);
-    };
-  }, [handleMouseMove, mouseSpeed]);
+    return () => clearInterval(interval);
+  }, []);
 
   const pointsString =
     points.map((p, i) => `${i * 4},${24 - p}`).join(" ") + ` 76,24 0,24`;
@@ -159,7 +140,7 @@ export default function TelemetryNav() {
         <div className="max-w-7xl mx-auto flex items-start justify-between">
           <button
             onClick={() => setIsTerminalOpen(true)}
-            className="pointer-events-auto flex items-center gap-3 md:gap-4 bg-[#020617]/50 backdrop-blur-xl border border-slate-800/60 p-2 md:p-3 rounded-2xl shadow-2xl group transition-all duration-300 hover:border-[#3B82F6]/50 hover:bg-[#020617]/70"
+            className="pointer-events-auto flex items-center gap-3 md:gap-4 bg-[#020617] border border-slate-800/60 p-2 md:p-3 rounded-2xl shadow-2xl group transition-all duration-300 hover:border-[#3B82F6]/50 hover:bg-[#020617]/70"
           >
             <div className="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
               <Image
@@ -181,7 +162,7 @@ export default function TelemetryNav() {
 
           <div className="pointer-events-auto flex flex-col items-end">
             {/* FIX: Removed cursor-pointer and onClick from this parent wrapper */}
-            <div className="flex flex-col bg-[#020617]/50 backdrop-blur-xl border border-slate-800/60 rounded-2xl shadow-2xl overflow-hidden hover:border-[#F97316]/40 transition-colors">
+            <div className="flex flex-col bg-[#020617] border border-slate-800/60 rounded-2xl shadow-2xl overflow-hidden hover:border-[#F97316]/40 transition-colors">
               {/* FIX: Moved onClick and cursor-pointer to this header ONLY. Now clicks on links won't conflict with the wrapper. */}
               <div
                 onClick={() => setIsMenuOpen(!isMenuOpen)}

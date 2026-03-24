@@ -112,7 +112,7 @@ export default function Engine({
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="relative w-full mb-32 flex flex-col z-10 bg-[#020617]/80 backdrop-blur-sm border-y border-slate-800"
+          className="relative w-full mb-32 flex flex-col z-10 bg-[#020617] border-y border-slate-800"
         >
           <DataStream items={skills.backend} speed={35} />
           <DataStream items={skills.frontend} speed={40} reverse={true} />
