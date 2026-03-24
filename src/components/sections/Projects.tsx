@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowUpRight, Github, Rocket } from "lucide-react";
 import { useRef } from "react";
 import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholder";
+import QaderVisual from "@/components/visuals/QaderVisual";
 
 type Project = {
   id: string;
@@ -23,7 +24,11 @@ export default function Projects({ data }: { data: Project[] }) {
   const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
 
   return (
-    <section id="projects" ref={sectionRef} className="relative w-full flex justify-center z-20">
+    <section
+      id="projects"
+      ref={sectionRef}
+      className="relative w-full flex justify-center z-20"
+    >
       <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
         <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
           <motion.div
@@ -64,29 +69,42 @@ export default function Projects({ data }: { data: Project[] }) {
                   viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
                   className="absolute inset-0 pointer-events-none z-0 hidden md:block"
                 >
-                  <motion.div 
+                  <motion.div
                     variants={{
-                      hidden: { backgroundColor: "#020617", borderColor: "#1e293b" },
-                      visible: { backgroundColor: "#3B82F6", borderColor: "#3B82F6", transition: { duration: 0.1 } }
+                      hidden: {
+                        backgroundColor: "#020617",
+                        borderColor: "#1e293b",
+                      },
+                      visible: {
+                        backgroundColor: "#3B82F6",
+                        borderColor: "#3B82F6",
+                        transition: { duration: 0.1 },
+                      },
                     }}
-                    className="absolute top-[40px] -left-[4rem] w-2 h-2 rounded-sm -translate-x-[4px] -translate-y-[3.5px] z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
+                    className="absolute top-[40px] -left-[4rem] w-2 h-2 rounded-sm -translate-x-[4px] -translate-y-[3.5px] z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                   />
-                  
+
                   <div className="absolute top-[40px] -left-[4rem] w-[4rem] h-px bg-slate-800">
                     <motion.div
                       variants={{
                         hidden: { scaleX: 0 },
-                        visible: { scaleX: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.1 } }
+                        visible: {
+                          scaleX: 1,
+                          transition: {
+                            duration: 0.4,
+                            ease: "easeOut",
+                            delay: 0.1,
+                          },
+                        },
                       }}
                       className="w-full h-full bg-[#3B82F6] origin-left shadow-[0_0_10px_#3B82F6]"
                     />
                   </div>
                 </motion.div>
-                
+
                 <div className="absolute left-[-28px] top-[40px] w-2 h-2 rounded-full bg-[#020617] border border-[#3B82F6] md:hidden z-10" />
 
                 <div className="xl:col-span-5 flex flex-col relative z-10 order-2 xl:order-1 border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300">
-                  
                   <motion.div
                     initial="hidden"
                     whileInView="visible"
@@ -94,11 +112,31 @@ export default function Projects({ data }: { data: Project[] }) {
                     className="absolute inset-0 pointer-events-none hidden md:block"
                   >
                     <motion.div
-                      variants={{ hidden: { scaleY: 0 }, visible: { scaleY: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.5 } } }}
+                      variants={{
+                        hidden: { scaleY: 0 },
+                        visible: {
+                          scaleY: 1,
+                          transition: {
+                            duration: 0.4,
+                            ease: "easeOut",
+                            delay: 0.5,
+                          },
+                        },
+                      }}
                       className="absolute left-[-1px] top-0 bottom-[calc(100%-40px)] w-[2px] bg-[#3B82F6] origin-bottom shadow-[0_0_15px_#3B82F6]"
                     />
                     <motion.div
-                      variants={{ hidden: { scaleY: 0 }, visible: { scaleY: 1, transition: { duration: 0.4, ease: "easeOut", delay: 0.5 } } }}
+                      variants={{
+                        hidden: { scaleY: 0 },
+                        visible: {
+                          scaleY: 1,
+                          transition: {
+                            duration: 0.4,
+                            ease: "easeOut",
+                            delay: 0.5,
+                          },
+                        },
+                      }}
                       className="absolute left-[-1px] top-[40px] bottom-0 w-[2px] bg-[#3B82F6] origin-top shadow-[0_0_15px_#3B82F6]"
                     />
                   </motion.div>
@@ -146,10 +184,14 @@ export default function Projects({ data }: { data: Project[] }) {
                 </div>
 
                 <div className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-1 xl:order-2">
-                  <SystemWindowPlaceholder
-                    index={index}
-                    title={project.title}
-                  />
+                  {project.id === "SYS.MOD_01" ? (
+                    <QaderVisual />
+                  ) : (
+                    <SystemWindowPlaceholder
+                      index={index}
+                      title={project.title}
+                    />
+                  )}
                 </div>
               </motion.div>
             ))}
