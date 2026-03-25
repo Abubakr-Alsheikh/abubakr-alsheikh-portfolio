@@ -6,6 +6,7 @@ import { useRef } from "react";
 import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholder";
 import QaderVisual from "@/components/visuals/QaderVisual";
 import MaxCLIVisual from "../visuals/MaxCLIVisual";
+import NanoMangaVisual from "../visuals/NanoMangaVisual";
 
 type Project = {
   id: string;
@@ -185,10 +186,13 @@ export default function Projects({ data }: { data: Project[] }) {
                 </div>
 
                 <div className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-1 xl:order-2">
+                  {/* Conditional Visual Rendering based on Project ID */}
                   {project.id === "SYS.MOD_01" ? (
                     <QaderVisual />
                   ) : project.id === "SYS.MOD_02" ? (
                     <MaxCLIVisual />
+                  ) : project.id === "SYS.MOD_03" ? (
+                    <NanoMangaVisual />
                   ) : (
                     <SystemWindowPlaceholder
                       index={index}
