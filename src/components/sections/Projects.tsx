@@ -5,6 +5,7 @@ import { ArrowUpRight, Github, Rocket } from "lucide-react";
 import { useRef } from "react";
 import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholder";
 import QaderVisual from "@/components/visuals/QaderVisual";
+import MaxCLIVisual from "../visuals/MaxCLIVisual";
 
 type Project = {
   id: string;
@@ -186,6 +187,8 @@ export default function Projects({ data }: { data: Project[] }) {
                 <div className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-1 xl:order-2">
                   {project.id === "SYS.MOD_01" ? (
                     <QaderVisual />
+                  ) : project.id === "SYS.MOD_02" ? (
+                    <MaxCLIVisual />
                   ) : (
                     <SystemWindowPlaceholder
                       index={index}

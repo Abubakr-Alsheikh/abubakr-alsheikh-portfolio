@@ -11,7 +11,7 @@ export const topProjectsData = [
     id: "SYS.MOD_02",
     title: "Max CLI: Developer Tool",
     description:
-      "Architected and published a modular, open-source CLI to PyPI for automating complex developer workflows. Engineered an extensible custom plugin system and established a robust CI/CD pipeline utilizing GitHub Actions.",
+      "Developed and published a modular, open-source CLI to PyPI for automating complex developer workflows. Engineered an extensible custom plugin system and established a robust CI/CD pipeline utilizing GitHub Actions.",
     stack: ["Python", "Typer", "FFmpeg", "Pytest", "GitHub Actions"],
     link: "https://github.com/Abubakr-Alsheikh/max-cli",
   },
