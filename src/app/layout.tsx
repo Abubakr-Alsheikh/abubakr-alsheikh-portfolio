@@ -18,9 +18,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Abubakr Alsheikh | Full-Stack Architect",
+  title: "Abubakr Alsheikh | Software Engineer",
   description:
-    "Transforming complex ideas into high-performance, intelligent digital products.",
+    "Systems-focused Software Engineer specializing in scalable backend infrastructure and robust full-stack applications.",
 };
 
 export default function RootLayout({

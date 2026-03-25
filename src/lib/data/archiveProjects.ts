@@ -2,7 +2,7 @@ export const archiveProjectsData = [
   {
     title: "Ghosn (غصن) - AI Smart Farming",
     description:
-      "Responsive UI for complex environmental data processing and live AI chat interaction to generate personalized cultivation plans.",
+      "Developed a responsive UI for complex environmental data processing, integrating an API layer to consume RESTful endpoints from a .NET backend with live chat capabilities.",
     stack: ["React", "Material-UI", ".NET", "Axios"],
     link: "https://ghosn-samacode.netlify.app/",
   },

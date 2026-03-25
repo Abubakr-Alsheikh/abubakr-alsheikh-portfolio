@@ -1,26 +1,26 @@
 export const journeyData = [
   {
     date: "AUG 2024 — PRESENT",
-    title: "Freelance Architect",
-    subtitle: "Khamsat // Independent Development",
+    title: "Full-Stack Developer",
+    subtitle: "Khamsat // Freelance",
     description:
-      "Architecting and deploying end-to-end full-stack solutions including e-commerce engines and Learning Management Systems. Managing the complete lifecycle from secure RESTful API design to VPS production deployment.",
-    tags: ["Next.js", "Django", "VPS Deployment", "System Architecture"],
+      "Developing and deploying a diverse range of full-stack applications, including e-commerce platforms and Learning Management Systems. Managing the complete lifecycle from secure RESTful API design to VPS production environments.",
+    tags: ["Next.js", "Django (DRF)", "VPS Deployment", "System Design"],
   },
   {
     date: "DEC 2023 — PRESENT",
     title: "IT Engineering (B.Sc.)",
     subtitle: "Aleppo University // System Design Focus",
     description:
-      "Deepening theoretical knowledge in algorithms, advanced software architecture, and complex system design methodologies.",
-    tags: ["Software Architecture", "Advanced Algorithms", "Computer Networks"],
+      "Deepening theoretical knowledge in algorithms, advanced software engineering methodologies, and complex system design.",
+    tags: ["Software Engineering", "Advanced Algorithms", "Computer Networks"],
   },
   {
     date: "OCT 2021 — PRESENT",
     title: "IT Engineering (B.Sc.)",
     subtitle: "Syrian Virtual University // Concurrent Degree",
     description:
-      "Pursuing a second simultaneous Bachelor's degree, proving an exceptional capacity for high-volume academic processing and time management.",
+      "Pursuing a second simultaneous Bachelor's degree, demonstrating an exceptional capacity for high-volume academic processing and time management.",
     tags: ["Data Structures", "Operating Systems", "Mathematics"],
   },
   {

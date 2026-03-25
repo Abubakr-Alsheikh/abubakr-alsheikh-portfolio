@@ -4,6 +4,6 @@ export const heroData = {
   title2: "systems &",
   title3: "interfaces.",
   description:
-    "I am Abubakr Alsheikh. A Full-Stack Developer specializing in end-to-end architecture. I design secure Django backends and build responsive, type-safe Next.js frontends to deliver software that solves real problems.",
+    "I am Abubakr Alsheikh, a Systems-focused Software Engineer. I design secure Django APIs, build robust developer tooling, and establish responsive, type-safe Next.js frontends to deliver production-ready software solutions.",
   primaryAction: "View my work",
 };
