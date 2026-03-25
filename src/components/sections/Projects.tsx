@@ -7,6 +7,7 @@ import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholde
 import QaderVisual from "@/components/visuals/QaderVisual";
 import MaxCLIVisual from "../visuals/MaxCLIVisual";
 import NanoMangaVisual from "../visuals/NanoMangaVisual";
+import SchoolManagementVisual from "../visuals/SchoolManagementVisual";
 
 type Project = {
   id: string;
@@ -193,6 +194,8 @@ export default function Projects({ data }: { data: Project[] }) {
                     <MaxCLIVisual />
                   ) : project.id === "SYS.MOD_03" ? (
                     <NanoMangaVisual />
+                  ) : project.id === "SYS.MOD_04" ? (
+                    <SchoolManagementVisual />
                   ) : (
                     <SystemWindowPlaceholder
                       index={index}
