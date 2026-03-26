@@ -33,6 +33,7 @@ export default function Projects({ data }: { data: Project[] }) {
       className="relative w-full flex justify-center z-20"
     >
       <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
+        {/* VERTICAL TRACE LINE */}
         <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
           <motion.div
             style={{ height: fillHeight }}
@@ -45,6 +46,7 @@ export default function Projects({ data }: { data: Project[] }) {
         </div>
 
         <div className="pl-6 md:pl-[8rem] pr-6 md:pr-12 relative z-10">
+          {/* Section Header */}
           <div className="mb-24">
             <div className="flex items-center gap-3 mb-6">
               <Rocket className="w-5 h-5 text-[#3B82F6]" />
@@ -66,6 +68,7 @@ export default function Projects({ data }: { data: Project[] }) {
                 viewport={{ once: true }}
                 className="relative grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 group"
               >
+                {/* HORIZONTAL CONNECTION LINE (Trace Line to Card) */}
                 <motion.div
                   initial="hidden"
                   whileInView="visible"
@@ -86,7 +89,6 @@ export default function Projects({ data }: { data: Project[] }) {
                     }}
                     className="absolute top-[40px] -left-[4rem] w-2 h-2 rounded-sm -translate-x-[4px] -translate-y-[3.5px] z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                   />
-
                   <div className="absolute top-[40px] -left-[4rem] w-[4rem] h-px bg-slate-800">
                     <motion.div
                       variants={{
@@ -105,9 +107,11 @@ export default function Projects({ data }: { data: Project[] }) {
                   </div>
                 </motion.div>
 
+                {/* Mobile Trace Point */}
                 <div className="absolute left-[-28px] top-[40px] w-2 h-2 rounded-full bg-[#020617] border border-[#3B82F6] md:hidden z-10" />
 
-                <div className="xl:col-span-5 flex flex-col relative z-10 order-2 xl:order-1 border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300">
+                {/* PROJECT DETAILS (ORDER 1: Top on Mobile, Left on Desktop) */}
+                <div className="xl:col-span-5 flex flex-col relative z-10 order-1 border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300">
                   <motion.div
                     initial="hidden"
                     whileInView="visible"
@@ -150,7 +154,7 @@ export default function Projects({ data }: { data: Project[] }) {
                   <span className="text-[10px] font-mono text-[#3B82F6] mb-6 tracking-widest uppercase block border-b border-slate-800/50 pb-4">
                     {project.id}
                   </span>
-                  <h3 className="text-3xl md:text-4xl font-space font-bold text-slate-100 mb-6 tracking-tight leading-tight group-hover:text-[#3B82F6]">
+                  <h3 className="text-3xl md:text-4xl font-space font-bold text-slate-100 mb-6 tracking-tight leading-tight group-hover:text-[#3B82F6] transition-colors">
                     {project.title}
                   </h3>
                   <p className="text-slate-400 text-sm md:text-base leading-relaxed font-mono font-light mb-8">
@@ -177,17 +181,19 @@ export default function Projects({ data }: { data: Project[] }) {
                         href={project.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-slate-300 hover:text-[#3B82F6] group/link"
+                        className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-slate-300 hover:text-[#3B82F6] group/link transition-colors"
                       >
-                        <Github className="w-4 h-4" /> <span>Execute Code</span>
+                        <Github className="w-4 h-4" />{" "}
+                        <span>Execute_Source</span>
                         <ArrowUpRight className="w-3 h-3 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
                       </a>
                     )}
                   </div>
                 </div>
 
-                <div className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-1 xl:order-2">
-                  {/* Conditional Visual Rendering based on Project ID */}
+                {/* PROJECT VISUAL (ORDER 2: Bottom on Mobile, Right on Desktop) */}
+                <div className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-2">
+                  {/* Visual Selection Logic */}
                   {project.id === "SYS.MOD_01" ? (
                     <QaderVisual />
                   ) : project.id === "SYS.MOD_02" ? (
