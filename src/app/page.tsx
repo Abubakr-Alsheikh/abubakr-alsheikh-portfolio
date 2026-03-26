@@ -69,7 +69,9 @@ export default function Home() {
           <Engine
             skills={portfolioData.skills}
             certs={portfolioData.certifications}
+            badges={portfolioData.badges}
           />
+
           <Horizon contact={portfolioData.contact} />
         </div>
       </main>

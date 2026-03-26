@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { ShieldCheck, Cpu } from "lucide-react";
+import { ShieldCheck, Cpu, ExternalLink, Hexagon } from "lucide-react";
 import { useRef } from "react";
+import Image from "next/image";
 import GeometricPulsar from "@/components/visuals/GeometricPulsar";
 
 type Skills = {
@@ -15,6 +16,15 @@ type Cert = {
   issuer: string;
   title: string;
   date: string;
+  verifyLink?: string;
+  inProgress?: boolean; // Added inProgress flag
+};
+
+type Badge = {
+  title: string;
+  image: string;
+  url: string;
+  inProgress: boolean;
 };
 
 const DataStream = ({
@@ -48,12 +58,84 @@ const DataStream = ({
   );
 };
 
+const BadgeMarquee = ({ badges }: { badges: Badge[] }) => {
+  const duplicatedBadges = [...badges, ...badges, ...badges];
+
+  return (
+    <div className="w-full relative py-12 mb-20 border-y border-slate-800/50 bg-[#020617]/50 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px)] bg-[size:40px_100%] opacity-20 pointer-events-none" />
+
+      <motion.div
+        animate={{ x: ["0%", "-33.33%"] }}
+        transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+        className="flex shrink-0 items-center gap-12 px-12"
+      >
+        {duplicatedBadges.map((badge, idx) => (
+          <div
+            key={idx}
+            className="relative group shrink-0 w-[180px] h-[180px] flex items-center justify-center"
+          >
+            <div
+              className={`absolute inset-0 border border-slate-800 transition-colors duration-500 ${badge.inProgress ? "group-hover:border-[#3B82F6]" : "group-hover:border-[#F97316]"}`}
+            />
+            <div
+              className={`absolute -top-1 -left-1 w-2 h-2 ${badge.inProgress ? "bg-[#3B82F6]/50" : "bg-[#F97316]/50"} opacity-0 group-hover:opacity-100 transition-opacity`}
+            />
+            <div
+              className={`absolute -bottom-1 -right-1 w-2 h-2 ${badge.inProgress ? "bg-[#3B82F6]/50" : "bg-[#F97316]/50"} opacity-0 group-hover:opacity-100 transition-opacity`}
+            />
+
+            {badge.inProgress ? (
+              <div className="relative w-[140px] h-[140px] flex items-center justify-center opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-80 transition-all duration-500">
+                <Image
+                  src={badge.image}
+                  alt={badge.title}
+                  width={140}
+                  height={140}
+                  className="relative z-10"
+                />
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#020617]/70 backdrop-blur-[2px] border border-[#3B82F6]">
+                  <span className="text-[10px] font-mono text-[#3B82F6] font-bold tracking-widest uppercase animate-pulse">
+                    In_Progress
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <a
+                href={badge.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative w-[140px] h-[140px] flex items-center justify-center opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 z-10"
+              >
+                <Image
+                  src={badge.image}
+                  alt={badge.title}
+                  width={140}
+                  height={140}
+                />
+              </a>
+            )}
+
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest bg-[#020617] px-2 py-1 border border-slate-800">
+                {badge.title}
+              </span>
+            </div>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
 export default function Engine({
   skills,
   certs,
+  badges,
 }: {
   skills: Skills;
   certs: Cert[];
+  badges: Badge[];
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -72,15 +154,13 @@ export default function Engine({
     >
       <GeometricPulsar />
 
-      {/* PADDING MOVED HERE. No gaps. */}
       <div className="w-full max-w-7xl relative pt-32 pb-32 px-6 md:px-12 flex flex-col items-center">
-        {/* CENTER TRACE LINE (Slices through the exact middle) */}
+        {/* CENTER TRACE LINE */}
         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0">
           <motion.div
             style={{ height: fillHeight }}
             className="w-full bg-[#F97316] origin-top relative shadow-[0_0_15px_#F97316]"
           >
-            {/* The Data Packet perfectly fixed to the tip */}
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#F97316] rounded-full flex items-center justify-center shadow-[0_0_10px_#F97316]">
               <div className="w-1 h-1 bg-white rounded-full" />
             </div>
@@ -93,9 +173,9 @@ export default function Engine({
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-20 w-1/2 pr-12 text-right"
+            className="mb-20 w-full md:w-1/2 md:pr-12 md:text-right"
           >
-            <div className="flex items-center justify-end gap-3 mb-6">
+            <div className="flex items-center md:justify-end gap-3 mb-6">
               <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">
                 System Specifications
               </span>
@@ -107,19 +187,30 @@ export default function Engine({
           </motion.div>
         </div>
 
-        {/* Full-width scrolling ribbons crossing over/under the center line */}
+        {/* Tech Ribbons */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="relative w-full mb-32 flex flex-col z-10 bg-[#020617] border-y border-slate-800"
+          className="relative w-full mb-20 flex flex-col z-10 bg-[#020617] border-y border-slate-800"
         >
           <DataStream items={skills.backend} speed={35} />
           <DataStream items={skills.frontend} speed={40} reverse={true} />
           <DataStream items={skills.devops} speed={45} />
         </motion.div>
 
-        {/* Certifications Matrix */}
+        {/* Moving Badges Stream */}
+        <div className="w-full relative z-10">
+          <div className="flex items-center gap-3 mb-6 px-4">
+            <Hexagon className="w-4 h-4 text-[#F97316]" />
+            <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest">
+              Active Modules // Credential Stream
+            </h3>
+          </div>
+          <BadgeMarquee badges={badges} />
+        </div>
+
+        {/* Text-Based Certifications Matrix */}
         <div className="w-full relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-800 pb-4">
             <h3 className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest flex items-center gap-3">
@@ -135,13 +226,20 @@ export default function Engine({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.05 }}
-                className="group relative flex flex-col p-6 bg-[#020617] border border-slate-800 hover:border-[#F97316] transition-colors duration-300"
+                className={`group relative flex flex-col p-6 bg-[#020617] border border-slate-800 transition-colors duration-300 ${cert.inProgress ? "hover:border-[#3B82F6]" : "hover:border-[#F97316]"}`}
               >
-                <div className="absolute top-1 left-1 w-1 h-1 bg-slate-800 group-hover:bg-[#F97316]" />
-                <div className="absolute bottom-1 right-1 w-1 h-1 bg-slate-800 group-hover:bg-[#F97316]" />
+                {/* Hardware Corners */}
+                <div
+                  className={`absolute top-1 left-1 w-1 h-1 bg-slate-800 ${cert.inProgress ? "group-hover:bg-[#3B82F6]" : "group-hover:bg-[#F97316]"}`}
+                />
+                <div
+                  className={`absolute bottom-1 right-1 w-1 h-1 bg-slate-800 ${cert.inProgress ? "group-hover:bg-[#3B82F6]" : "group-hover:bg-[#F97316]"}`}
+                />
 
                 <div className="flex justify-between items-start mb-6">
-                  <span className="text-[10px] font-mono text-[#F97316] tracking-widest uppercase bg-[#F97316]/10 px-2 py-1 border border-[#F97316]/20">
+                  <span
+                    className={`text-[10px] font-mono tracking-widest uppercase px-2 py-1 border ${cert.inProgress ? "text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20" : "text-[#F97316] bg-[#F97316]/10 border-[#F97316]/20"}`}
+                  >
                     {cert.issuer}
                   </span>
                   <span className="text-[10px] font-mono text-slate-500">
@@ -149,15 +247,47 @@ export default function Engine({
                   </span>
                 </div>
 
-                <h4 className="text-lg font-space font-bold text-slate-200 leading-tight mb-8 group-hover:text-[#F97316] transition-colors">
+                <h4
+                  className={`text-lg font-space font-bold text-slate-200 leading-tight mb-8 transition-colors ${cert.inProgress ? "group-hover:text-[#3B82F6]" : "group-hover:text-[#F97316]"}`}
+                >
                   {cert.title}
                 </h4>
 
-                <div className="mt-auto flex items-center gap-2 pt-4 border-t border-slate-800/50">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                    Status: Verified
-                  </span>
+                <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-800/50">
+                  <div className="flex items-center gap-2">
+                    {cert.inProgress ? (
+                      <>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                        <span className="text-[10px] font-mono text-[#3B82F6] font-bold uppercase tracking-widest">
+                          In Progress
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                          Verified
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  {cert.verifyLink && (
+                    <a
+                      href={cert.verifyLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-2 transition-colors group/link ${
+                        cert.inProgress
+                          ? "text-slate-500 hover:text-[#3B82F6]"
+                          : "text-slate-500 hover:text-[#F97316]"
+                      }`}
+                    >
+                      <span className="text-[10px] font-mono uppercase tracking-[0.2em]">
+                        Verify_Credential
+                      </span>
+                      <ExternalLink className="w-3 h-3 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
+                    </a>
+                  )}
                 </div>
               </motion.div>
             ))}
