@@ -172,7 +172,7 @@ export default function QaderVisual() {
         </svg>
 
         {/* 4. HUD Telemetry Panels */}
-        <div className="absolute top-4 left-4 z-20 flex flex-col gap-4 w-[200px] lg:w-[250px] pointer-events-none hidden sm:flex">
+        <div className="absolute top-4 left-4 z-20 flex flex-col gap-4 w-[200px] lg:w-[250px] pointer-events-none flex">
           <div className="border border-slate-800 bg-[#020617]/80 p-3 backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-2 border-b border-slate-800 pb-2">
               <Terminal className="w-3 h-3 text-[#3B82F6]" />
@@ -195,7 +195,7 @@ export default function QaderVisual() {
           </div>
         </div>
 
-        <div className="absolute top-4 right-4 z-20 flex flex-col gap-4 w-[160px] lg:w-[200px] pointer-events-none hidden sm:flex">
+        <div className="absolute top-4 right-4 z-20 flex flex-col gap-4 w-[160px] lg:w-[200px] pointer-events-none flex">
           <div className="border border-slate-800 bg-[#020617]/80 p-3 backdrop-blur-sm">
             <div className="text-[10px] text-slate-500 tracking-widest mb-2 border-b border-slate-800 pb-2">
               SYSTEM_METRICS
@@ -231,7 +231,7 @@ export default function QaderVisual() {
             NEXT.JS CLIENT
           </span>
 
-          <div className="mt-4 lg:mt-6 border border-slate-800 bg-[#020617] p-2 text-[7px] lg:text-[8px] text-slate-400 w-28 lg:w-32 hidden md:block">
+          <div className="mt-4 lg:mt-6 border border-slate-800 bg-[#020617] p-2 text-[7px] lg:text-[8px] text-slate-400 w-28 lg:w-32 block">
             <div className="flex items-center gap-1 text-emerald-500 mb-1">
               <ShieldCheck className="w-3 h-3" /> JWT Valid
             </div>

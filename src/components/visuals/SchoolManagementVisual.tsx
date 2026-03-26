@@ -154,7 +154,7 @@ export default function SchoolManagementVisual() {
         </svg>
 
         {/* 4. LEFT: Windows Forms UI Wireframe */}
-        <div className="absolute left-[5%] md:left-[10%] top-1/3 -translate-y-1/2 z-20 w-[55%] max-w-[340px] hidden sm:block">
+        <div className="absolute left-[5%] md:left-[10%] top-1/3 -translate-y-1/2 z-20 w-[55%] max-w-[340px] block">
           <div className="border border-slate-700 bg-[#020617]/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col h-[220px]">
             {/* WinForms Title Bar */}
             <div className="h-6 border-b border-slate-700 flex items-center px-2 bg-[#1e293b]/50 justify-between">
