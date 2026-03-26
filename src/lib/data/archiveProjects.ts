@@ -4,7 +4,7 @@ export const archiveProjectsData = [
     description:
       "Developed a responsive UI for complex environmental data processing, integrating an API layer to consume RESTful endpoints from a .NET backend with live chat capabilities.",
     stack: ["React", "Material-UI", ".NET", "Axios"],
-    link: "https://ghosn-samacode.netlify.app/",
+    link: "https://github.com/Abubakr-Alsheikh/Ghosn",
   },
   {
     title: "PromptCraft: Dungeon Delver",
