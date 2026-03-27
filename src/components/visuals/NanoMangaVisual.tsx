@@ -236,7 +236,7 @@ export default function NanoMangaVisual() {
         </svg>
 
         {/* 4. LEFT TEXT LOGS (Art Director Terminal) */}
-        <div className="absolute top-4 left-4 z-20 flex flex-col gap-4 w-[220px] lg:w-[280px] pointer-events-none hidden md:flex">
+        <div className="absolute top-4 left-4 z-20 flex flex-col gap-4 w-[220px] lg:w-[280px] pointer-events-none flex">
           <div className="border border-[#F97316]/30 bg-[#020617]/90 backdrop-blur-sm p-3">
             <div className="flex items-center gap-2 mb-2 border-b border-slate-800 pb-2">
               <Terminal className="w-3 h-3 text-[#F97316]" />
