@@ -74,7 +74,7 @@ const BadgeMarquee = ({ badges }: { badges: Badge[] }) => {
       */}
       <motion.div
         animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 25, ease: "linear", repeat: Infinity }}
+        transition={{ duration: 30, ease: "linear", repeat: Infinity }}
         className="flex shrink-0 items-center w-max gap-6 md:gap-12 pr-6 md:pr-12"
       >
         {duplicatedBadges.map((badge, idx) => (
