@@ -17,7 +17,7 @@ export const skillsData = {
     "Python",
     "Django",
     "C# / .NET",
-    "Node.js",
+    "Node.js / Express.js",
     "PHP",
     "OOP Principles",
     "AI Integration",
