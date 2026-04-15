@@ -1,6 +1,6 @@
 export const aboutData = {
   manifesto:
-    "I don't just write code; I engineer scalable infrastructure. My foundation is built on relentless learning and an uncompromising drive for delivering maintainable, production-ready systems.",
+    "I don't just write code; I engineer scalable infrastructure. My foundation is built on relentless learning and an uncompromising drive for delivering maintainable, production-ready systems regardless of the underlying stack.",
   capabilities: [
     {
       id: "01 // PROCESSING_CAPACITY",
@@ -13,16 +13,16 @@ export const aboutData = {
     {
       id: "02 // BACKEND_INFRASTRUCTURE",
       title: "Backend Intelligence",
-      subtitle: "Django • REST • Local & Cloud LLMs",
+      subtitle: "System Architecture • RESTful APIs • AI Integration",
       description:
-        "Building resilient server-side foundations. I design secure RESTful APIs, manage complex relational databases, and seamlessly integrate AI models directly into production environments.",
+        "Building resilient server-side foundations. I design secure, scalable APIs, architect complex relational databases, and seamlessly integrate LLMs into production environments, adapting to the optimal backend ecosystem for the task.",
     },
     {
       id: "03 // FRONTEND_ENGINE",
       title: "Fluid Interfaces",
-      subtitle: "Next.js • TypeScript • Tailwind",
+      subtitle: "Modern Frameworks • Type-Safe UI • State Management",
       description:
-        "Treating the UI as a high-performance engine. I deliver clean, type-safe, and highly maintainable frontends that feel native, responsive, and structurally sound.",
+        "Treating the UI as a high-performance engine. I deliver clean, responsive, and highly maintainable frontends that bridge complex backend logic with seamless, accessible user experiences.",
     },
     {
       id: "04 // TELEMETRY",

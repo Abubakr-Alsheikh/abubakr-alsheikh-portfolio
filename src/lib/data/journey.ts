@@ -4,8 +4,8 @@ export const journeyData = [
     title: "Full-Stack Developer",
     subtitle: "Khamsat // Freelance",
     description:
-      "Developing and deploying a diverse range of full-stack applications, including e-commerce platforms and Learning Management Systems. Managing the complete lifecycle from secure RESTful API design to VPS production environments.",
-    tags: ["Next.js", "Django (DRF)", "VPS Deployment", "System Design"],
+      "Engineered and deployed a diverse portfolio of full-stack applications by evaluating project requirements and selecting the optimal technology stack. Managed the complete lifecycle from API architecture to VPS production deployments.",
+    tags: ["System Architecture", "API Design", "VPS Deployment", "Full-Stack"],
   },
   {
     date: "DEC 2023 — PRESENT",

@@ -2,7 +2,7 @@ export const archiveProjectsData = [
   {
     title: "Ghosn (غصن) - AI Smart Farming",
     description:
-      "Developed a responsive UI for complex environmental data processing, integrating an API layer to consume RESTful endpoints from a .NET backend with live chat capabilities.",
+      "Bridged diverse technology ecosystems by developing a responsive UI that consumes RESTful endpoints from a decoupled .NET backend with live chat capabilities.",
     stack: ["React", "Material-UI", ".NET", "Axios"],
     link: "https://github.com/Abubakr-Alsheikh/Ghosn",
   },
@@ -16,49 +16,49 @@ export const archiveProjectsData = [
   {
     title: "Advanced Telegram Bot Platform",
     description:
-      "Modular async system using OpenAI for personalized feedback, automated content deployment via CLI, and dynamic PDF/video generation.",
+      "Modular asynchronous system using OpenAI for personalized feedback, automated content deployment via CLI, and dynamic PDF/video generation.",
     stack: ["Python", "Asyncio", "OpenAI", "SQLite", "Pandas"],
     link: "#",
   },
   {
     title: "IntelliDo: AI To-Do App",
     description:
-      "AI-driven task management application integrated with the Gemini API for intelligent task suggestions from user-provided text or media.",
+      "AI-driven task management application integrating LLM APIs for intelligent task extraction and suggestions from user-provided text or media.",
     stack: ["React", "Django RF", "Material UI", "Redux Toolkit"],
     link: "https://github.com/Abubakr-Alsheikh/intellido",
   },
   {
     title: "Screen Scene: Movie Discovery",
     description:
-      "Interactive movie website featuring TMDB API integration, robust search functionality, and local storage data optimization.",
+      "Interactive movie website featuring third-party API integration, robust search functionality, and client-side data optimization.",
     stack: ["Django", "Tailwind CSS", "JavaScript", "TMDB API"],
     link: "https://github.com/Abubakr-Alsheikh/e-commerce-website/tree/main/screen_scene",
   },
   {
     title: "AskVid: Video AI Chat",
     description:
-      "Summarization, transcription, and interactive question-answering for video/audio content using AssemblyAI and the Google Gemini API.",
+      "Summarization, transcription, and interactive question-answering architecture for video/audio content utilizing advanced AI models.",
     stack: ["Django", "Python", "AssemblyAI", "Gemini API"],
     link: "https://github.com/Abubakr-Alsheikh/e-commerce-website/tree/main/ask_yourtube",
   },
   {
     title: "E-Commerce Backend",
     description:
-      "Secure cart and order management system featuring user authentication, coupon logic, and an autocomplete-enabled search bar.",
+      "Secure cart and order management system featuring user authentication, custom coupon logic, and optimized search capabilities.",
     stack: ["Django", "Python", "Bootstrap"],
     link: "https://github.com/Abubakr-Alsheikh/e-commerce-website",
   },
   {
     title: "Book Inventory System",
     description:
-      "Responsive online book inventory system implementing full CRUD operations and secure user authentication.",
+      "Responsive inventory management system implementing full CRUD operations, data normalization, and secure role-based access.",
     stack: ["ASP.NET", "C#", "MS SQL Server", "Bootstrap"],
     link: "https://github.com/Abubakr-Alsheikh/online-book-inventory-system",
   },
   {
     title: "Sama Media Dynamic Website",
     description:
-      "Responsive portfolio layout and custom control panel for efficient content management for a graphic design company.",
+      "Responsive portfolio layout and custom administrative control panel for efficient content management operations.",
     stack: ["PHP", "MySQL", "HTML", "JavaScript"],
     link: "https://github.com/Abubakr-Alsheikh/sama-media-website",
   },

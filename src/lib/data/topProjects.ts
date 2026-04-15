@@ -3,7 +3,7 @@ export const topProjectsData = [
     id: "SYS.MOD_01",
     title: "Qader Platform (LMS)",
     description:
-      "Engineered a scalable Django backend featuring a modular multi-app structure and versioned RESTful API. Established a modern, type-safe Next.js frontend with robust i18n support and integrated asynchronous task processing via Celery.",
+      "Architected a highly scalable, modular backend infrastructure featuring versioned RESTful APIs. Established a modern, type-safe frontend with robust i18n support, engineered for production-grade reliability using asynchronous task processing.",
     stack: ["Django", "Next.js", "Celery", "PostgreSQL", "WebSockets"],
     link: "#",
   },
@@ -11,7 +11,7 @@ export const topProjectsData = [
     id: "SYS.MOD_02",
     title: "Max CLI: Developer Tool",
     description:
-      "Developed and published a modular, open-source CLI to PyPI for automating complex developer workflows. Created an extensible custom plugin system and established a robust CI/CD pipeline utilizing GitHub Actions for automated Pytest workflows.",
+      "Designed and published an open-source, framework-agnostic CLI for automating complex developer workflows. Created an extensible custom plugin system and established a robust CI/CD pipeline utilizing GitHub Actions for automated testing.",
     stack: ["Python", "Typer", "FFmpeg", "Pytest", "GitHub Actions"],
     link: "https://github.com/Abubakr-Alsheikh/max-cli",
   },
@@ -19,7 +19,7 @@ export const topProjectsData = [
     id: "SYS.MOD_03",
     title: "NanoManga Studio",
     description:
-      "Built an interactive, AI-driven web application enabling users to generate cohesive multi-page manga stories. Designed a multi-modal prompting system with 'visual memory' using Google Gemini to maintain strict visual and narrative consistency.",
+      "Built an interactive, AI-driven web application capable of dynamically generating cohesive multi-page assets. Engineered a complex multi-modal prompting architecture with 'visual memory' to maintain strict data and narrative consistency.",
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Gemini API"],
     link: "https://github.com/Abubakr-Alsheikh/nanomanga-studio",
   },
@@ -27,7 +27,7 @@ export const topProjectsData = [
     id: "SYS.MOD_04",
     title: "School Management System",
     description:
-      "Constructed a comprehensive desktop application for full-lifecycle school administration. Designed and integrated a robust Oracle database using custom SQL scripts for strict data validation alongside stateful UI components.",
+      "Developed a comprehensive administrative desktop application managing complex operational schedules. Designed and normalized a robust relational database schema utilizing custom SQL scripts for strict data validation alongside stateful UI components.",
     stack: ["C#", "Windows Forms", "Oracle Database", "SQL"],
     link: "https://github.com/Abubakr-Alsheikh/school-management-system",
   },
