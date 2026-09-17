@@ -5,6 +5,7 @@ import { ArrowRight, Database, ExternalLink } from "lucide-react";
 import { useRef } from "react";
 import GeometricNeptune from "@/components/visuals/GeometricNeptune";
 import { useTraceFill } from "@/hooks/useTraceFill";
+import TracePacket from "@/components/shared/TracePacket";
 
 type ArchiveProject = {
   title: string;
@@ -37,12 +38,11 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
             style={{ height: fill }}
             className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]"
           >
-            <motion.div
-              style={{ opacity: packetOpacity }}
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]"
-            >
-              <div className="w-1 h-1 bg-white rounded-full" />
-            </motion.div>
+            <TracePacket
+              opacity={packetOpacity}
+              label="ARCHIVE"
+              tone="blue"
+            />
           </motion.div>
         </div>
 

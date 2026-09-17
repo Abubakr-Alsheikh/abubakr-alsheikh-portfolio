@@ -14,6 +14,7 @@ import Horizon from "@/components/sections/Horizon";
 
 import TelemetryNav from "@/components/shared/TelemetryNav";
 import GLoadWarning from "@/components/shared/GLoadWarning";
+import CompileStream from "@/components/shared/CompileStream";
 import {
   BranchCenterToLeft,
   BranchLeftToCenter,
@@ -52,6 +53,7 @@ export default function Home() {
         <DeepSpaceEnvironment />
         <TelemetryNav />
         <GLoadWarning />
+        <CompileStream />
 
         <TraceField>
           <div className="w-full max-w-full relative z-10 flex flex-col">

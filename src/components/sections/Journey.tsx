@@ -5,6 +5,7 @@ import { Terminal } from "lucide-react";
 import { useRef } from "react";
 import GeometricMars from "@/components/visuals/GeometricMars";
 import { useTraceFill } from "@/hooks/useTraceFill";
+import TracePacket from "@/components/shared/TracePacket";
 
 type JourneyItem = {
   date: string;
@@ -34,12 +35,11 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
           className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0"
         >
           <motion.div style={{ height: fill }} className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]">
-            <motion.div
-              style={{ opacity: packetOpacity }}
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]"
-            >
-              <div className="w-1 h-1 bg-white rounded-full" />
-            </motion.div>
+            <TracePacket
+              opacity={packetOpacity}
+              label="JOURNEY"
+              tone="blue"
+            />
           </motion.div>
         </div>
 

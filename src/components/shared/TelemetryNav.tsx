@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import AdminTerminal from "./AdminTerminal";
+import AdminTerminal, { TerminalHint } from "./AdminTerminal";
 
 const NetworkGraph = () => {
   const [points, setPoints] = useState<number[]>(Array(20).fill(5));
@@ -240,8 +240,14 @@ export default function TelemetryNav() {
         </div>
       </motion.header>
 
+      <TerminalHint
+        isOpen={isTerminalOpen}
+        onOpen={() => setIsTerminalOpen(true)}
+      />
+
       <AdminTerminal
         isOpen={isTerminalOpen}
+        onOpen={() => setIsTerminalOpen(true)}
         onClose={() => setIsTerminalOpen(false)}
       />
     </>

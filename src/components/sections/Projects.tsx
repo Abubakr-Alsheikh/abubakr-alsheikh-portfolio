@@ -9,6 +9,9 @@ import MaxCLIVisual from "../visuals/MaxCLIVisual";
 import NanoMangaVisual from "../visuals/NanoMangaVisual";
 import SchoolManagementVisual from "../visuals/SchoolManagementVisual";
 import { useTraceFill } from "@/hooks/useTraceFill";
+import TracePacket from "@/components/shared/TracePacket";
+import CodeDiff from "@/components/visuals/CodeDiff";
+import type { ProjectDiffLine } from "@/lib/data/topProjects";
 
 type Project = {
   id: string;
@@ -16,6 +19,8 @@ type Project = {
   description: string;
   stack: string[];
   link: string;
+  codeFile: string;
+  codeDiff: ProjectDiffLine[];
 };
 
 export default function Projects({ data }: { data: Project[] }) {
@@ -37,12 +42,11 @@ export default function Projects({ data }: { data: Project[] }) {
             style={{ height: fill }}
             className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]"
           >
-            <motion.div
-              style={{ opacity: packetOpacity }}
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]"
-            >
-              <div className="w-1 h-1 bg-white rounded-full" />
-            </motion.div>
+            <TracePacket
+              opacity={packetOpacity}
+              label="PROJECTS"
+              tone="blue"
+            />
           </motion.div>
         </div>
 
@@ -178,6 +182,8 @@ export default function Projects({ data }: { data: Project[] }) {
                       </span>
                     ))}
                   </div>
+
+                  <CodeDiff file={project.codeFile} lines={project.codeDiff} />
 
                   <div className="flex items-center gap-6 mt-auto">
                     {project.link !== "#" && (

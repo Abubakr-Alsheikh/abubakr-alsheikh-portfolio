@@ -5,6 +5,7 @@ import { MoveDownRight, Download, Github, Linkedin } from "lucide-react";
 import { useRef } from "react";
 import GeometricPlanet from "@/components/visuals/GeometricPlanet";
 import { useTraceFill } from "@/hooks/useTraceFill";
+import TracePacket from "@/components/shared/TracePacket";
 
 const getIcon = (iconName: string) => {
   switch (iconName) {
@@ -120,12 +121,11 @@ export default function Hero({
               style={{ height: fill }}
               className="w-full bg-[#F97316] origin-top relative shadow-[0_0_15px_#F97316]"
             >
-              <motion.div
-                style={{ opacity: packetOpacity }}
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#F97316] rounded-full flex items-center justify-center z-50 shadow-[0_0_10px_#F97316]"
-              >
-                <div className="w-1 h-1 bg-white rounded-full" />
-              </motion.div>
+              <TracePacket
+                opacity={packetOpacity}
+                label="HERO.INIT"
+                tone="orange"
+              />
             </motion.div>
           </div>
 
