@@ -36,7 +36,7 @@ src/
 │   ├── shared/           # HUD Telemetry, Navigation, & Circuit Routing
 │   ├── ui/               # Primitive Radix/Shadcn UI components
 │   └── visuals/          # Complex SVG/Canvas Aerospace environments
-├── hooks/                # HUD state logic (Scroll Velocity, Boot Sequences)
+├── hooks/                # HUD state logic (Trace Continuity, Scroll Velocity, Boot)
 ├── lib/                  
 │   ├── data/             # Centralized source of truth for all content
 │   └── utils.ts          # Tailwind merging & logic helpers
@@ -53,6 +53,11 @@ src/
   - **Space Grotesk**: For massive, heavy geometric headers (`tracking-tighter`).
   - **JetBrains Mono**: For all data, labels, and paragraph readouts.
 - **Circuit Trace Lines**: Sections must be interconnected by an unbroken vertical line. Use `BranchCenterToLeft` and `BranchLeftToCenter` routers for 90-degree transitions.
+- **Trace Continuity Contract**: Never hand-roll a scroll-linked trace rail. Wrap the page column in `<TraceField>` (`src/components/shared/TraceField.tsx`) and drive every rail through `useTraceFill(railRef)` (`src/hooks/useTraceFill.ts`). Three rules make the page read as one line, and breaking any one of them tears it:
+  1. The ref goes on the **rail element**, not on the `<section>`. A section's `pt-`/`pb-` would otherwise offset the rail from the scroll range driving it.
+  2. **Smooth once, in the field.** `TraceField` publishes a single spring-smoothed front (`TRACE_SPRING`) for the whole page. A rail must never add a `useSpring` of its own — thirteen independent springs are thirteen chances to fall out of phase.
+  3. **Clamp after the shared front, never before.** Each rail converts that one front into its own local fill and clamps the result. Smoothing a per-section `scrollYProgress` and clamping first (the pre-2026-09 pattern) lets the rail above settle towards "full" while the rail below has already started, and the difference opens a hole at the seam as wide as the current scroll velocity. Clamping a shared front cannot do that, however far behind the scroll the smoothing lags — which is precisely why the easing is allowed to be generous.
+- **The Front Must Reach The End**: The front is the viewport centre line, except over the final half-viewport of scroll, where `traceFront()` ramps it to 2x. Without that ramp the centre line tops out at `documentHeight - viewportHeight / 2` and the last rail is stranded permanently part-drawn no matter how far you scroll. Any new full-bleed section at the foot of the page inherits this for free; do not re-derive it.
 
 ### Technical Standards
 
@@ -92,7 +97,8 @@ src/
 
 - **Complex HUD Logic**: `src/components/shared/TelemetryNav.tsx` (Velocity tracking & SVG graphs).
 - **Physics Environment**: `src/components/visuals/DeepSpaceEnvironment.tsx` (Canvas parallax).
-- **Circuit Routing**: `src/components/shared/TraceRouters.tsx` (How sections connect).
+- **Circuit Routing**: `src/components/shared/TraceRouters.tsx` (90-degree column changes, built on one parametrised `Branch`).
+- **Trace Continuity**: `src/components/shared/TraceField.tsx` (One smoothed front for the page) and `src/hooks/useTraceFill.ts` (How a rail consumes it).
 - **Technical Visuals**: `src/components/visuals/QaderVisual.tsx` (SVG pipeline animation).
 
 ## 8. Escalation & Discovery
@@ -161,6 +167,10 @@ Before writing a single line of code, you must ensure you have the **Full Contex
 
 If the vertical trace line (`GlobalTraceLine` or section traces) appears broken:
 
+- **A gap that only appears while scrolling, and closes when you stop** is always smoothing applied before a clamp. Either the rail is not driven by `useTraceFill`, or a rail grew its own `useSpring` instead of reading the shared front. See the Trace Continuity Contract in §4.
+- **The line stops short of the footer** means the front is capped at the viewport centre. Check that `traceFront()` still applies its end-of-page ramp and that `TraceField` is measuring `runway` (`scrollHeight - innerHeight`) rather than assuming it.
+- **A gap that is there at rest** is geometry: the rail above does not end on the pixel where the next one starts. Rails must span `top-0 bottom-0` of a container whose box equals the section box, and stacked rails must share a column (`left-1/2 -translate-x-1/2`, or `left-[4rem]`).
+- **A stall at a 90-degree corner is intentional.** The router entry drop is centre-tracked 1:1, then the front dwells ~31px on the junction box while the lateral run draws, and the exit drop runs ~1.5x to land exactly on the seam below. Retiming it (`CORNER`/`RUN` in `TraceRouters.tsx`) is fine; making the legs non-sequential is not, because that is what opens a real hole.
 - Check if the parent section has `overflow-hidden` (it shouldn't, use `overflow-x-clip`).
 - Check if the section has `relative` positioning.
 - Ensure the `max-w-7xl` container has the correct `px-6 md:px-12` padding to align with the Navbar.
@@ -213,9 +223,10 @@ Before declaring a task "Complete," the agent must verify:
 
 1. [ ] **Pixel-Perfect Alignment**: Does the UI line up with the `GlobalTraceLine`?
 2. [ ] **Typographic Consistency**: Are all labels in `JetBrains Mono` and headers in `Space Grotesk`?
-3. [ ] **Interactive Responsiveness**: Does the `TelemetryNav` menu close cleanly on mobile clicks?
-4. [ ] **Color Fidelity**: Are we using `#F97316` for active states and `#3B82F6` for orbital/cold states?
-5. [ ] **Code Cleanliness**: Is the code free of "AI Slop" (generic names, soft shadows, unnecessary divs)?
+3. [ ] **Trace Continuity**: Scroll the full page. Is there exactly one lit data packet, sitting on the viewport centre line, with no hole at any section seam?
+4. [ ] **Interactive Responsiveness**: Does the `TelemetryNav` menu close cleanly on mobile clicks?
+5. [ ] **Color Fidelity**: Are we using `#F97316` for active states and `#3B82F6` for orbital/cold states?
+6. [ ] **Code Cleanliness**: Is the code free of "AI Slop" (generic names, soft shadows, unnecessary divs)?
 
 ## 21. The Living Manifest Protocol (Self-Evolution)
 

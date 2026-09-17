@@ -21,6 +21,19 @@ export default function DeepSpaceEnvironment() {
     setCanvasSize();
     window.addEventListener("resize", setCanvasSize);
 
+    // Respect system motion preferences: static starfield fallback
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    // SCROLL TELEMETRY: smoothed velocity drives warp streaks
+    let lastScroll = window.scrollY;
+    let velocity = 0;
+    let idleDrift = 0;
+    const WARP_GAIN = 3.2; // streak length per px/frame of velocity, per depth unit
+    const WARP_MAX = 140; // hard cap so violent flicks don't smear the viewport
+    const IDLE_SPEED = 0.35; // constant cruise speed (px/frame) when not scrolling
+
     // 2. Generate stars with a 'parallax' multiplier
     const stars = Array.from({ length: 600 }).map(() => ({
       x: Math.random() * canvas.width,
@@ -52,6 +65,11 @@ export default function DeepSpaceEnvironment() {
 
       // Grab the current scroll position for our math
       const currentScroll = window.scrollY;
+      const rawDelta = currentScroll - lastScroll;
+      lastScroll = currentScroll;
+      // Lerp toward raw delta: mechanical response without jitter
+      velocity += (rawDelta - velocity) * 0.12;
+      if (!reduceMotion) idleDrift += IDLE_SPEED;
 
       // --- RENDER STARS ---
       stars.forEach((star) => {
@@ -65,14 +83,37 @@ export default function DeepSpaceEnvironment() {
           star.speed = Math.abs(star.speed);
         }
 
-        // INFINITE WRAP MATH: Move star up based on scroll, teleport to bottom if it goes off screen
-        let drawY = (star.y - currentScroll * star.parallax) % canvas.height;
+        // INFINITE WRAP MATH: scroll + idle cruise move the starfield,
+        // teleport to bottom if it goes off screen
+        let drawY =
+          (star.y -
+            currentScroll * star.parallax -
+            idleDrift * star.parallax) %
+          canvas.height;
         if (drawY < 0) drawY += canvas.height; // Handle negative modulo in JS
 
-        ctx.beginPath();
-        ctx.arc(star.x, drawY, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
-        ctx.fill();
+        // WARP STREAKS: stretch the dot into a motion line when velocity spikes.
+        // Negative sign keeps streak direction aligned with apparent star travel.
+        const streak = reduceMotion
+          ? 0
+          : Math.max(
+              -WARP_MAX,
+              Math.min(WARP_MAX, -velocity * star.parallax * WARP_GAIN),
+            );
+
+        if (Math.abs(streak) > 1.5) {
+          ctx.beginPath();
+          ctx.moveTo(star.x, drawY);
+          ctx.lineTo(star.x, drawY + streak);
+          ctx.strokeStyle = `rgba(255, 255, 255, ${star.alpha * 0.9})`;
+          ctx.lineWidth = Math.max(star.radius, 0.5);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(star.x, drawY, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+          ctx.fill();
+        }
       });
 
       // --- RENDER METEORS ---

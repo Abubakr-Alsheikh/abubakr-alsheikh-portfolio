@@ -1,10 +1,11 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { ShieldCheck, Cpu, ExternalLink, Hexagon } from "lucide-react";
 import { useRef } from "react";
 import Image from "next/image";
 import GeometricPulsar from "@/components/visuals/GeometricPulsar";
+import { useTraceFill } from "@/hooks/useTraceFill";
 
 type Skills = {
   frontend: string[];
@@ -146,32 +147,31 @@ export default function Engine({
   certs: Cert[];
   badges: Badge[];
 }) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start center", "end center"],
-  });
-  const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
+  const traceRef = useRef<HTMLDivElement>(null);
+  const { fill, packetOpacity } = useTraceFill(traceRef);
 
   return (
     <section
       id="engine"
-      ref={sectionRef}
       className="relative w-full flex justify-center z-20 overflow-hidden"
     >
       <GeometricPulsar />
 
       <div className="w-full max-w-7xl relative pt-32 pb-32 px-6 md:px-12 flex flex-col items-center">
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0">
+        <div
+          ref={traceRef}
+          className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0"
+        >
           <motion.div
-            style={{ height: fillHeight }}
+            style={{ height: fill }}
             className="w-full bg-[#F97316] origin-top relative shadow-[0_0_15px_#F97316]"
           >
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#F97316] rounded-full flex items-center justify-center shadow-[0_0_10px_#F97316]">
+            <motion.div
+              style={{ opacity: packetOpacity }}
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#F97316] rounded-full flex items-center justify-center shadow-[0_0_10px_#F97316]"
+            >
               <div className="w-1 h-1 bg-white rounded-full" />
-            </div>
+            </motion.div>
           </motion.div>
         </div>
 

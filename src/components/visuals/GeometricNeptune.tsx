@@ -2,7 +2,7 @@
 
 export default function GeometricNeptune() {
   return (
-    <div className="absolute bottom-[-10%] right-[-60%] md:right-[-40%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.25] pointer-events-none z-0">
+    <div className="absolute bottom-[-10%] right-[-50%] md:right-[-28%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.45] pointer-events-none z-0">
       <svg viewBox="0 0 200 200" className="w-full h-full stroke-[#3B82F6] fill-none">
         <g transform="translate(100, 100)">
           <circle cx="0" cy="0" r="25" strokeWidth="0.5" className="stroke-slate-500" />
