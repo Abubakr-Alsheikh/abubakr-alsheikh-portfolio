@@ -72,7 +72,9 @@ const TracePacket = React.memo(
           <div className="w-[3px] h-[3px] bg-white" />
         </div>
 
-        <div className="absolute left-4 hidden md:flex items-center gap-1.5 whitespace-nowrap">
+        {/* Payload reads to the left of the node, so it never runs into the
+            content column the rail is drawn beside. */}
+        <div className="absolute right-4 hidden md:flex items-center justify-end gap-1.5 whitespace-nowrap">
           <span
             className={`font-mono text-[8px] tracking-[0.2em] ${t.text} tabular-nums`}
           >
