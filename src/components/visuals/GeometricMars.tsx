@@ -2,7 +2,7 @@
 
 export default function GeometricMars() {
   return (
-    <div className="absolute top-[10%] right-[-60%] md:right-[-40%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.2] pointer-events-none z-0">
+    <div className="absolute top-[12%] right-[-45%] md:right-[-28%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.45] pointer-events-none z-0">
       <svg
         viewBox="0 0 200 200"
         className="w-full h-full stroke-[#F97316] fill-none"

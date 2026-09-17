@@ -2,7 +2,7 @@
 
 export default function GeometricJupiter() {
   return (
-    <div className="absolute top-[5%] left-[-60%] md:left-[-45%] w-[180%] md:w-[140%] max-w-[2000px] aspect-square opacity-[0.15] pointer-events-none z-0">
+    <div className="absolute top-[5%] left-[-55%] md:left-[-32%] w-[180%] md:w-[140%] max-w-[2000px] aspect-square opacity-[0.4] pointer-events-none z-0">
       <svg viewBox="0 0 200 200" className="w-full h-full stroke-[#F97316] fill-none">
         <g transform="translate(100, 100) rotate(10)">
           <circle cx="0" cy="0" r="45" strokeWidth="0.4" className="stroke-slate-500" />
