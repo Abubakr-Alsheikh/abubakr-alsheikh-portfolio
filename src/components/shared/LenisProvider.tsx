@@ -1,15 +1,22 @@
 "use client";
 
 import useLenis from "@/hooks/useLenis";
-import { ReactNode } from "react";
+import type Lenis from "lenis";
+import { createContext, useContext, type ReactNode } from "react";
+
+/**
+ * Publishes the page's Lenis instance so navigation can scroll through the same
+ * engine the wheel does. `null` until Lenis has mounted, and on the server —
+ * callers fall back to a native jump rather than assuming it exists.
+ */
+const LenisContext = createContext<Lenis | null>(null);
+
+export const useLenisInstance = () => useContext(LenisContext);
 
 const LenisProvider = ({ children }: { children: ReactNode }) => {
-  // Call the hook to initialize and manage the Lenis instance
-  useLenis();
+  const lenis = useLenis();
 
-  // This component doesn't render any of its own DOM elements,
-  // it just provides the Lenis context via the hook.
-  return <>{children}</>;
+  return <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>;
 };
 
 export default LenisProvider;
