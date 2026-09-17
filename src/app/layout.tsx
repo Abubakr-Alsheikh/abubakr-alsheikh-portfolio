@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import LenisProvider from "@/components/shared/LenisProvider";
 import CursorAura from "@/components/shared/CursorAura";
+import CockpitCanopy from "@/components/shared/CockpitCanopy";
+import TargetReticle from "@/components/shared/TargetReticle";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -146,6 +148,8 @@ export default function RootLayout({
         />
 
         <CursorAura />
+        <CockpitCanopy />
+        <TargetReticle />
         <LenisProvider>{children}</LenisProvider>
       </body>
     </html>

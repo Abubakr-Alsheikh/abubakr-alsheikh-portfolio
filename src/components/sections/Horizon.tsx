@@ -316,7 +316,7 @@ export default function Horizon({
             </div>
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
-              {contact.socials.map((social: any, idx: number) => (
+              {contact.socials.map((social: { name: string; url: string; icon: string }, idx: number) => (
                 <a
                   key={idx}
                   href={social.url}

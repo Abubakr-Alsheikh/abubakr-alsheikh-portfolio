@@ -161,6 +161,7 @@ export default function Hero({
 
               <div className="flex flex-wrap items-center gap-4">
                 <button
+                  data-hud-target="HERO.PRIMARY_ACTION"
                   onClick={() =>
                     document
                       .getElementById("about")
@@ -173,6 +174,7 @@ export default function Hero({
                 </button>
 
                 <a
+                  data-hud-target="HERO.EXTRACT_SPECS"
                   href={contact.resumeLink}
                   target="_blank"
                   rel="noopener noreferrer"

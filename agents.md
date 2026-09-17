@@ -52,6 +52,8 @@ src/
 - **Typography**:
   - **Space Grotesk**: For massive, heavy geometric headers (`tracking-tighter`).
   - **JetBrains Mono**: For all data, labels, and paragraph readouts.
+- **Cockpit Canopy Layer**: The viewport is viewed through a hardware HUD glass (`src/components/shared/CockpitCanopy.tsx`) at `z-40`. All canopy layers are `pointer-events-none`. The vignette and chromatic edge are the only permitted soft gradients in the project because they are lens artifacts, not decorative blobs. The scanline drift is a CSS keyframe (`.hud-scanlines` in `globals.css`), never a JS timer writing React state — a timer there repaints the whole overlay dozens of times a second. Two further rules hold the canopy together: **(a) never stretch a square `viewBox` across the viewport** — `preserveAspectRatio="none"` on a `0 0 100 100` frame turns a 7-unit bracket arm into 179px horizontally and 100px vertically at 2560x1440, so every frame piece is a fixed-pixel SVG anchored to an edge or a CSS box in percentages; **(b) the canopy is scroll-aware but render-free** — the altitude ladders, their markers and the velocity-driven chrome brightness all ride motion values, and the single live readout (`AltitudeReadout`) is its own memoised component quantised to its rendered precision. The ladder scale matches `TelemetryNav`'s ALTITUDE so the two HUDs never disagree.
+- **Interactive Target Reticle**: Interactive elements opt into mouse-tracking lock by adding `data-hud-target="<SHORT.LABEL>"` (e.g., `data-hud-target="HERO.PRIMARY_ACTION"`, `data-hud-target="PROJ.01"`). The reticle lives at `z-[60]`.
 - **Circuit Trace Lines**: Sections must be interconnected by an unbroken vertical line. Use `BranchCenterToLeft` and `BranchLeftToCenter` routers for 90-degree transitions.
 - **Trace Continuity Contract**: Never hand-roll a scroll-linked trace rail. Wrap the page column in `<TraceField>` (`src/components/shared/TraceField.tsx`) and drive every rail through `useTraceFill(railRef)` (`src/hooks/useTraceFill.ts`). Three rules make the page read as one line, and breaking any one of them tears it:
   1. The ref goes on the **rail element**, not on the `<section>`. A section's `pt-`/`pb-` would otherwise offset the rail from the scroll range driving it.
@@ -100,6 +102,9 @@ src/
 - **Circuit Routing**: `src/components/shared/TraceRouters.tsx` (90-degree column changes, built on one parametrised `Branch`).
 - **Trace Continuity**: `src/components/shared/TraceField.tsx` (One smoothed front for the page) and `src/hooks/useTraceFill.ts` (How a rail consumes it).
 - **Technical Visuals**: `src/components/visuals/QaderVisual.tsx` (SVG pipeline animation).
+- **Cockpit Canopy**: `src/components/shared/CockpitCanopy.tsx` (Viewport-glass overlay: chamfered corner plates, scroll-driven altitude ladders, hull tick, scanlines, vignette).
+- **Target Reticle**: `src/components/shared/TargetReticle.tsx` (Mouse-tracking reticle with bounding-box lock on `data-hud-target` elements).
+- **G-Load Warning**: `src/components/shared/GLoadWarning.tsx` (Scroll-velocity warning strip with hysteresis).
 
 ## 8. Escalation & Discovery
 

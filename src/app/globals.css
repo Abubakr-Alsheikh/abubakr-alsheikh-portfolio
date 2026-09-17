@@ -192,3 +192,28 @@
   mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
 }
+
+/*
+  Cockpit Canopy: scanline drift.
+  Driven by CSS so the canopy never re-renders — a JS timer setting state
+  here would repaint the whole overlay dozens of times a second.
+  60px = 20 scanline bands at 3px, so the loop is seamless.
+*/
+@keyframes hud-scanline-drift {
+  from {
+    background-position-y: 0px;
+  }
+  to {
+    background-position-y: 60px;
+  }
+}
+
+.hud-scanlines {
+  animation: hud-scanline-drift 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-scanlines {
+    animation: none;
+  }
+}

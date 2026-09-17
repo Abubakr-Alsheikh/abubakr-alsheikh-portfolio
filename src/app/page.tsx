@@ -12,8 +12,8 @@ import Journey from "@/components/sections/Journey";
 import Engine from "@/components/sections/Engine";
 import Horizon from "@/components/sections/Horizon";
 
-import BackgroundEnv from "@/components/shared/BackgroundEnv";
 import TelemetryNav from "@/components/shared/TelemetryNav";
+import GLoadWarning from "@/components/shared/GLoadWarning";
 import {
   BranchCenterToLeft,
   BranchLeftToCenter,
@@ -51,6 +51,7 @@ export default function Home() {
         {/* <BackgroundEnv /> */}
         <DeepSpaceEnvironment />
         <TelemetryNav />
+        <GLoadWarning />
 
         <TraceField>
           <div className="w-full max-w-full relative z-10 flex flex-col">

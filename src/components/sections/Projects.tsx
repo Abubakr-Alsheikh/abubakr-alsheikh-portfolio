@@ -112,7 +112,10 @@ export default function Projects({ data }: { data: Project[] }) {
                 <div className="absolute left-[-28px] top-[40px] w-2 h-2 rounded-full bg-[#020617] border border-[#3B82F6] md:hidden z-10" />
 
                 {/* PROJECT DETAILS (ORDER 1: Top on Mobile, Left on Desktop) */}
-                <div className="xl:col-span-5 flex flex-col relative z-10 order-1 border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300">
+                <div
+                  data-hud-target={`PROJ.${String(index + 1).padStart(2, "0")}`}
+                  className="xl:col-span-5 flex flex-col relative z-10 order-1 border border-slate-800 bg-[#020617] p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300"
+                >
                   <motion.div
                     initial="hidden"
                     whileInView="visible"
