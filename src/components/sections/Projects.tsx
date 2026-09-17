@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowUpRight, Github, Rocket } from "lucide-react";
 import { useRef } from "react";
 import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholder";
@@ -8,6 +8,7 @@ import QaderVisual from "@/components/visuals/QaderVisual";
 import MaxCLIVisual from "../visuals/MaxCLIVisual";
 import NanoMangaVisual from "../visuals/NanoMangaVisual";
 import SchoolManagementVisual from "../visuals/SchoolManagementVisual";
+import { useTraceFill } from "@/hooks/useTraceFill";
 
 type Project = {
   id: string;
@@ -18,30 +19,30 @@ type Project = {
 };
 
 export default function Projects({ data }: { data: Project[] }) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start center", "end center"],
-  });
-  const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
+  const traceRef = useRef<HTMLDivElement>(null);
+  const { fill, packetOpacity } = useTraceFill(traceRef);
 
   return (
     <section
       id="projects"
-      ref={sectionRef}
       className="relative w-full flex justify-center z-20"
     >
       <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
         {/* VERTICAL TRACE LINE */}
-        <div className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0">
+        <div
+          ref={traceRef}
+          className="absolute left-[4rem] top-0 bottom-0 w-px bg-slate-800/50 hidden md:block z-0"
+        >
           <motion.div
-            style={{ height: fillHeight }}
+            style={{ height: fill }}
             className="w-full bg-[#3B82F6] origin-top relative shadow-[0_0_15px_#3B82F6]"
           >
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]">
+            <motion.div
+              style={{ opacity: packetOpacity }}
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#3B82F6] rounded-full flex items-center justify-center shadow-[0_0_10px_#3B82F6]"
+            >
               <div className="w-1 h-1 bg-white rounded-full" />
-            </div>
+            </motion.div>
           </motion.div>
         </div>
 
