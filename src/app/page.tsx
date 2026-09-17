@@ -19,6 +19,7 @@ import {
   BranchLeftToCenter,
 } from "@/components/shared/TraceRouters";
 import DeepSpaceEnvironment from "@/components/visuals/DeepSpaceEnvironment";
+import TraceField from "@/components/shared/TraceField";
 import SystemBootSequence from "@/components/shared/SystemBootSequence";
 
 export default function Home() {
@@ -51,29 +52,31 @@ export default function Home() {
         <DeepSpaceEnvironment />
         <TelemetryNav />
 
-        <div className="w-full max-w-full relative z-10 flex flex-col">
-          <Hero
-            data={portfolioData.hero}
-            contact={portfolioData.contact}
-            isBooting={isBooting}
-          />
+        <TraceField>
+          <div className="w-full max-w-full relative z-10 flex flex-col">
+            <Hero
+              data={portfolioData.hero}
+              contact={portfolioData.contact}
+              isBooting={isBooting}
+            />
 
-          <About data={portfolioData.about} />
-          <BranchCenterToLeft />
+            <About data={portfolioData.about} />
+            <BranchCenterToLeft />
 
-          <Projects data={portfolioData.topProjects} />
-          <Archive projects={portfolioData.archiveProjects} />
-          <Journey data={portfolioData.journey} />
-          <BranchLeftToCenter />
+            <Projects data={portfolioData.topProjects} />
+            <Archive projects={portfolioData.archiveProjects} />
+            <Journey data={portfolioData.journey} />
+            <BranchLeftToCenter />
 
-          <Engine
-            skills={portfolioData.skills}
-            certs={portfolioData.certifications}
-            badges={portfolioData.badges}
-          />
+            <Engine
+              skills={portfolioData.skills}
+              certs={portfolioData.certifications}
+              badges={portfolioData.badges}
+            />
 
-          <Horizon contact={portfolioData.contact} />
-        </div>
+            <Horizon contact={portfolioData.contact} />
+          </div>
+        </TraceField>
       </main>
     </>
   );

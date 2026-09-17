@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useTransform } from "framer-motion";
 import { useRef } from "react";
 import GeometricJupiter from "@/components/visuals/GeometricJupiter";
+import { useTraceFill } from "@/hooks/useTraceFill";
 
 type Capability = {
   id: string;
@@ -17,32 +18,36 @@ export default function About({
 }: {
   data: { manifesto: string; capabilities: Capability[] };
 }) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start center", "end center"],
-  });
-  const smooth = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const fillHeight = useTransform(smooth, [0, 1], ["0%", "100%"]);
+  const traceRef = useRef<HTMLDivElement>(null);
+  const { fill, progress, packetOpacity } = useTraceFill(traceRef);
+  // FLY-BY PARALLAX: Jupiter drifts upward as the section passes through center
+  const jupiterDrift = useTransform(progress, [0, 1], [60, -60]);
 
   return (
     <section
       id="about"
-      ref={sectionRef}
       className="relative w-full flex justify-center bg-transparent z-20"
     >
-      <GeometricJupiter />
+      <motion.div style={{ y: jupiterDrift }} className="absolute inset-0 pointer-events-none">
+        <GeometricJupiter />
+      </motion.div>
 
       <div className="w-full max-w-7xl relative pt-32 pb-16 px-6 md:px-12">
         {/* CENTER TRACE LINE */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0">
+        <div
+          ref={traceRef}
+          className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0"
+        >
           <motion.div
-            style={{ height: fillHeight }}
+            style={{ height: fill }}
             className="w-full bg-[#F97316] origin-top relative shadow-[0_0_15px_#F97316]"
           >
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#F97316] rounded-full flex items-center justify-center shadow-[0_0_10px_#F97316]">
+            <motion.div
+              style={{ opacity: packetOpacity }}
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#020617] border-2 border-[#F97316] rounded-full flex items-center justify-center shadow-[0_0_10px_#F97316]"
+            >
               <div className="w-1 h-1 bg-white rounded-full" />
-            </div>
+            </motion.div>
           </motion.div>
         </div>
 
@@ -125,7 +130,7 @@ export default function About({
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
-                className="relative p-8 bg-[#020617] border border-slate-800 group hover:border-[#F97316]/50 transition-colors"
+                className="relative p-8 bg-[#020617]/85 backdrop-blur-sm border border-slate-800 group hover:border-[#F97316]/50 transition-colors"
               >
                 {/* ⚡ HARDWARE CIRCUIT TRIGGER FOR RIGHT CARDS */}
                 <motion.div
