@@ -15,6 +15,8 @@ import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 import DecryptText from "@/components/shared/DecryptText";
 import { useLenisInstance } from "@/components/shared/LenisProvider";
+import HeroTelemetry from "@/components/shared/HeroTelemetry";
+import type { heroData } from "@/lib/data/hero";
 
 /** How far Saturn leans against the cursor, in px, edge to edge. */
 const PARALLAX_X = 36;
@@ -38,14 +40,7 @@ export default function Hero({
   contact,
   isBooting,
 }: {
-  data: {
-    status: string;
-    title1: string;
-    title2: string;
-    title3: string;
-    description: string;
-    primaryAction: string;
-  };
+  data: typeof heroData;
   contact: {
     email: string;
     location: string;
@@ -143,9 +138,9 @@ export default function Hero({
         >
           <motion.div
             variants={textVars}
-            className="flex items-center gap-3 mb-10 w-fit border border-slate-800 px-4 py-2 rounded-sm bg-[#020617] border-[#020617]/50"
+            className="flex items-center gap-3 mb-10 w-fit border border-slate-800 px-4 py-2 bg-[#020617] border-[#020617]/50"
           >
-            <span className="w-1.5 h-1.5 bg-[#3B82F6] animate-pulse rounded-sm" />
+            <span className="w-1.5 h-1.5 bg-[#3B82F6] animate-pulse" />
             <span className="text-[10px] md:text-xs font-mono text-slate-400 uppercase tracking-widest">
               {data.status}
             </span>
@@ -215,9 +210,34 @@ export default function Hero({
             </motion.div>
           </div>
 
-          <div className="hidden md:block"></div>
+          {/* Telemetry: branches off the trace on the left, lower than the
+              card, so the two read as taps on one bus rather than a pair. The
+              wide gap leaves room for the trace packet's label, which rides
+              down the left of the trace. */}
+          <div className="order-2 md:order-1 relative flex items-start justify-start md:justify-end mt-6 md:mt-40 md:pr-24 lg:pr-36">
+            <div className="absolute top-[32px] right-0 md:w-24 lg:w-36 h-px bg-slate-800/50 hidden md:block z-0">
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: isBooting ? 0 : 1 }}
+                transition={{ duration: 1.2, ease: "easeInOut", delay: 1.3 }}
+                className="w-full h-full bg-[#F97316] origin-right shadow-[0_0_10px_#F97316]"
+              />
+            </div>
+            <div className="absolute top-[32px] right-0 w-2 h-2 translate-x-[4px] -translate-y-[3.5px] bg-[#020617] border border-[#F97316] hidden md:block z-10" />
 
-          <div className="relative flex justify-start pl-0 md:pl-16">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: isBooting ? 0 : 1, x: isBooting ? -20 : 0 }}
+              transition={{ duration: 0.8, delay: 1.1 }}
+              className="w-full max-w-xs"
+            >
+              <HeroTelemetry data={data.telemetry} />
+            </motion.div>
+          </div>
+
+          {/* items-start: without it the card stretches to the height of the
+              offset telemetry column and grows an empty band at the bottom. */}
+          <div className="order-1 md:order-2 relative flex items-start justify-start pl-0 md:pl-16">
             <div className="absolute top-[32px] left-0 w-16 h-px bg-slate-800/50 hidden md:block z-0">
               <motion.div
                 initial={{ scaleX: 0 }}
@@ -227,58 +247,96 @@ export default function Hero({
               />
             </div>
 
-            <div className="absolute top-[32px] left-0 w-2 h-2 -translate-x-[4px] -translate-y-[3.5px] bg-[#020617] border border-[#F97316] rounded-sm hidden md:block z-10" />
+            <div className="absolute top-[32px] left-0 w-2 h-2 -translate-x-[4px] -translate-y-[3.5px] bg-[#020617] border border-[#F97316] hidden md:block z-10" />
 
             <motion.div
+              data-hud-target="HERO.PROFILE"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: isBooting ? 0 : 1, x: isBooting ? 20 : 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="max-w-lg relative p-6 md:p-8 border border-white/5 border-l-2 border-l-[#F97316] group bg-[#020617] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] transform-gpu"
+              className="max-w-lg w-full relative border border-white/5 border-l-2 border-l-[#F97316] group bg-[#020617] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] transform-gpu"
             >
               <div className="absolute top-[27px] -left-[6px] w-2.5 h-2.5 bg-[#020617] border border-[#F97316] group-hover:bg-[#F97316] transition-colors" />
 
-              <p className="text-slate-300 text-base md:text-lg leading-relaxed font-mono font-light text-balance mb-8">
-                <span className="text-white font-bold tracking-tight">
-                  System Online.
-                </span>{" "}
-                <br />
-                {data.description}
-              </p>
+              {/* Panel header, in the same idiom as the nav and boot plates. */}
+              <div className="flex justify-between items-center gap-4 px-6 lg:px-8 py-2.5 border-b border-slate-800 font-mono text-[9px] tracking-widest uppercase">
+                <span className="text-slate-500">Operator.Profile</span>
+                <span className="flex items-center gap-2 text-[#3B82F6]">
+                  <span aria-hidden="true" className="hud-blink w-1.5 h-1.5 bg-[#3B82F6]" />
+                  Online
+                </span>
+              </div>
 
-              <div className="flex flex-wrap items-center gap-4">
-                <button
-                  data-hud-target="HERO.PRIMARY_ACTION"
-                  onClick={scrollToWork}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316] hover:text-[#020617] font-mono text-xs tracking-widest uppercase transition-all group/btn"
-                >
-                  <span>{data.primaryAction}</span>
-                  <MoveDownRight className="w-3 h-3 group-hover/btn:translate-x-1 group-hover/btn:translate-y-1 transition-transform" />
-                </button>
+              <div className="p-6 lg:p-8">
+                <p className="font-space text-xl md:text-2xl font-medium tracking-tight leading-snug text-slate-100 text-balance mb-6">
+                  {data.lead}
+                </p>
 
-                <a
-                  data-hud-target="HERO.EXTRACT_SPECS"
-                  href={contact.resumeLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-[#020617] border border-slate-700 text-slate-300 hover:border-[#3B82F6] hover:text-[#3B82F6] font-mono text-xs tracking-widest uppercase transition-all group/resume"
-                >
-                  <Download className="w-3 h-3 group-hover/resume:-translate-y-0.5 transition-transform" />
-                  <span>EXTRACT_SPECS</span>
-                </a>
-
-                <div className="flex items-center gap-2 ml-auto">
-                  {contact.socials.map((social, idx) => (
-                    <a
-                      key={idx}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-slate-800 text-slate-500 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors group/social"
-                      title={social.name}
+                {/* How the work gets done, as a spec table. Each row decodes
+                    in turn once the card is on screen, carrying on from the
+                    headline. Word by word, so a narrow card wraps the line
+                    instead of clipping it. */}
+                <ul className="mb-8 border-t border-slate-800/70">
+                  {data.specs.map((spec, i) => (
+                    <li
+                      key={spec.sys}
+                      className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-3 py-2.5 border-b border-slate-800/70 font-mono text-[11px] md:text-xs tracking-wider"
                     >
-                      {getIcon(social.icon)}
-                    </a>
+                      <span className="flex items-center gap-2 text-slate-500 tracking-widest">
+                        <span aria-hidden="true" className="w-1 h-1 bg-[#F97316]" />
+                        {spec.sys}
+                      </span>
+                      <span className="flex flex-wrap gap-x-[0.6em] text-slate-200">
+                        {spec.label.split(" ").map((word, j) => (
+                          <DecryptText
+                            key={j}
+                            text={word}
+                            active={!isBooting}
+                            delay={1000 + i * 220 + j * 40}
+                            duration={450}
+                          />
+                        ))}
+                      </span>
+                    </li>
                   ))}
+                </ul>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    data-hud-target="HERO.PRIMARY_ACTION"
+                    onClick={scrollToWork}
+                    className="h-9 flex items-center gap-2 px-4 bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316] hover:text-[#020617] font-mono text-xs tracking-widest uppercase transition-all group/btn"
+                  >
+                    <span>{data.primaryAction}</span>
+                    <MoveDownRight className="w-3 h-3 group-hover/btn:translate-x-1 group-hover/btn:translate-y-1 transition-transform" />
+                  </button>
+
+                  <a
+                    data-hud-target="HERO.EXTRACT_SPECS"
+                    href={contact.resumeLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-9 flex items-center gap-2 px-4 bg-[#020617] border border-slate-700 text-slate-300 hover:border-[#3B82F6] hover:text-[#3B82F6] font-mono text-xs tracking-widest uppercase transition-all group/resume"
+                  >
+                    <Download className="w-3 h-3 group-hover/resume:-translate-y-0.5 transition-transform" />
+                    <span>EXTRACT_SPECS</span>
+                  </a>
+
+                  <div className="flex items-center gap-2 ml-auto">
+                    {contact.socials.map((social, idx) => (
+                      <a
+                        key={idx}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={social.name}
+                        className="w-9 h-9 flex items-center justify-center bg-[#020617] border border-slate-800 text-slate-500 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors group/social"
+                        title={social.name}
+                      >
+                        {getIcon(social.icon)}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
             </motion.div>

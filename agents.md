@@ -115,6 +115,7 @@ src/
 - **Cockpit Canopy**: `src/components/shared/CockpitCanopy.tsx` (Viewport-glass overlay: chamfered corner plates, scroll-driven altitude ladders, hull tick, scanlines, vignette).
 - **Target Reticle**: `src/components/shared/TargetReticle.tsx` (Mouse-tracking reticle with bounding-box lock on `data-hud-target` elements).
 - **G-Load Warning**: `src/components/shared/GLoadWarning.tsx` (Scroll-velocity warning strip with hysteresis).
+- **Hero Telemetry**: `src/components/shared/HeroTelemetry.tsx` (Local-time instrument tapping the hero trace: live clock plus a 24-hour track. The hero must not repeat what later sections say. Rank, degrees, grades and skill lists belong to About and Engine, and the hero card states approach, not tools. `heroData.status` is the page's single availability signal. The clock renders same-width placeholders until mount, so it causes neither a hydration mismatch nor a shift.)
 - **Launch Sequence**: `src/components/shared/SystemBootSequence.tsx` (Boot screen as SELF_TEST → NAV_LOCK → IGNITION → WARP, stages keyed by progress in `bootSequence.ts`). Its `WarpField.tsx` is a forward-flight starfield where cruise and warp are the same code at different speeds, and `NavGlobe.tsx` spins a `sphere.ts` wireframe by writing `d` through refs from a rAF loop, never through React state.
 
 ## 8. Escalation & Discovery
