@@ -29,3 +29,33 @@ export const postChecks: PostCheck[] = [
 
 /** Cells in the memory map strip filled during the POST. */
 export const MEMORY_CELLS = 32;
+
+/**
+ * The launch sequence the boot screen walks through, keyed by the progress
+ * percentage each stage starts at. The self test resolves inside the first
+ * stage; the last one is the warp jump that hands the page over.
+ */
+export interface LaunchStage {
+  id: "post" | "nav" | "ignition" | "warp";
+  label: string;
+  /** Status line shown in the panel header while the stage runs. */
+  status: string;
+  from: number;
+}
+
+export const launchStages: LaunchStage[] = [
+  { id: "post", label: "Self_Test", status: "Power_On_Self_Test", from: 0 },
+  { id: "nav", label: "Nav_Lock", status: "Nav_Lock // Acquiring", from: 60 },
+  { id: "ignition", label: "Ignition", status: "Ignition // Main_Engine", from: 86 },
+  { id: "warp", label: "Warp", status: "Warp // Engaged", from: 100 },
+];
+
+/**
+ * What the nav globe locks onto during the second stage. Real coordinates
+ * (the Orion Nebula), so the readout is a fix rather than noise.
+ */
+export const navTarget = {
+  name: "M42 // ORION",
+  ra: "05h 35m 17s",
+  dec: "-05° 23′ 28″",
+};

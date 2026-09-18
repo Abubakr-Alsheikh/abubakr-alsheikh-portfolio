@@ -340,6 +340,13 @@ export interface WireframeSpec {
   samples?: number;
   /** Polar radius as a fraction of the equatorial one. */
   polar?: number;
+  /** Rotates the meridians about the axis, in radians. Drives a spinning globe. */
+  spin?: number;
+  /**
+   * Draw only the first N meridians, keeping the spacing of all `meridians`.
+   * Lets a cage assemble line by line without the lines shuffling apart.
+   */
+  drawn?: number;
 }
 
 /**
@@ -356,6 +363,8 @@ export function wireframe({
   parallels,
   samples = 160,
   polar = 1,
+  spin = 0,
+  drawn = meridians,
 }: WireframeSpec): { front: string; back: string } {
   const a = normalize(axis);
   const u = perpendicular(a);
@@ -365,8 +374,8 @@ export function wireframe({
   const front: string[] = [];
   const back: string[] = [];
 
-  for (let i = 0; i < meridians; i++) {
-    const lon = (i / meridians) * Math.PI;
+  for (let i = 0; i < Math.min(drawn, meridians); i++) {
+    const lon = spin + (i / meridians) * Math.PI;
     // Normal of a meridian plane is perpendicular to the polar axis.
     const normal = add(scale(u, Math.cos(lon)), scale(v, Math.sin(lon)));
     const paths = projectCircle(

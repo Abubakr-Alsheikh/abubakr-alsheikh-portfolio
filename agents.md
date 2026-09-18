@@ -39,7 +39,7 @@ src/
 ├── hooks/                # HUD state logic (Trace Continuity, Scroll Velocity, Boot)
 ├── lib/                  
 │   ├── data/             # Centralized source of truth for all content
-│   │                     #   incl. buildLog.ts (scroll stream) and bootSequence.ts (POST)
+│   │                     #   incl. buildLog.ts (scroll stream) and bootSequence.ts (POST + launch stages)
 │   └── utils.ts          # Tailwind merging & logic helpers
 └── public/               # Static hardware assets & optimized fonts
 ```
@@ -115,6 +115,7 @@ src/
 - **Cockpit Canopy**: `src/components/shared/CockpitCanopy.tsx` (Viewport-glass overlay: chamfered corner plates, scroll-driven altitude ladders, hull tick, scanlines, vignette).
 - **Target Reticle**: `src/components/shared/TargetReticle.tsx` (Mouse-tracking reticle with bounding-box lock on `data-hud-target` elements).
 - **G-Load Warning**: `src/components/shared/GLoadWarning.tsx` (Scroll-velocity warning strip with hysteresis).
+- **Launch Sequence**: `src/components/shared/SystemBootSequence.tsx` (Boot screen as SELF_TEST → NAV_LOCK → IGNITION → WARP, stages keyed by progress in `bootSequence.ts`). Its `WarpField.tsx` is a forward-flight starfield where cruise and warp are the same code at different speeds, and `NavGlobe.tsx` spins a `sphere.ts` wireframe by writing `d` through refs from a rAF loop, never through React state.
 
 ## 8. Escalation & Discovery
 
@@ -199,6 +200,7 @@ High-fidelity HUDs with SVGs and Canvas can become sluggish. Maintain 60FPS at a
 - **Hero Saturn Is Pinned In Pixels Vertically**: its centre is `md:top-[355px]`, not a percentage. The hero's height is set by its content, so a percentage slid the planet — and the ring scale bar with it — down into the headline on wide screens. The headline sits a fixed distance from the top, so the planet must too. Re-check 1280, 1440 and 1920 after moving either.
 - **No SVG Filters On Animated SVGs**: A `<filter>` (blur, glow) inside an SVG that also carries SMIL animation re-runs over the whole SVG every frame the animation ticks. On the full-bleed planets that starved the starfield canvas of frame time and made the stars stutter. Fake a glow with a wide, faint stroke underneath instead.
 - **Canvas Must Be DPR-Aware**: Size the backing store to `devicePixelRatio` (capped at 2) and `setTransform` the context back to CSS pixels. A canvas drawn at CSS resolution is upscaled by the browser and every star goes soft on a scaled display. Inside a hot draw loop, set alpha through `globalAlpha` rather than building an `rgba(...)` string per element.
+- **Batch Canvas Strokes**: In a loop drawing hundreds of segments, bucket them by colour and alpha and issue one `beginPath`/`stroke` per bucket (`WarpField.tsx`: 3 tints × 4 brightness levels = 12 strokes a frame). One `stroke()` per element is the cost that shows up first.
 - **Canvas Lifecycle**: The `DeepSpaceEnvironment.tsx` uses `requestAnimationFrame`. Always ensure a cleanup function is present to `cancelAnimationFrame` on unmount to prevent memory leaks.
 - **Component Memoization**: Use `React.memo` for static background visuals or heavy SVG components that do not rely on scroll state to prevent unnecessary re-renders.
 - **Dynamic Imports**: For heavy visual modules (e.g., `GeometricJupiter.tsx`), use `next/dynamic` with `{ ssr: false }` to reduce initial bundle size and ensure hydration matches.
