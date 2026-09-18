@@ -17,8 +17,8 @@ import {
  * log does not repeat work it has already done.
  *
  * Sits bottom-left, inset past the canopy's altitude ladder and clear of the
- * G-load strip (bottom-centre) and the terminal hint (bottom-right). Desktop
- * only: at phone width it would fight the content.
+ * G-load strip (bottom-centre). Desktop only: at phone width it would fight
+ * the content.
  */
 
 /** Lines kept on screen. Older lines fall off the top. */

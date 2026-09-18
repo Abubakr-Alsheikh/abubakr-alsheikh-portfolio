@@ -217,3 +217,27 @@
     animation: none;
   }
 }
+
+/*
+  Terminal caret blink. `steps` makes it a hard on/off like a real cursor
+  rather than the soft fade of animate-pulse.
+*/
+@keyframes hud-blink {
+  0%,
+  100% {
+    visibility: visible;
+  }
+  50% {
+    visibility: hidden;
+  }
+}
+
+.hud-blink {
+  animation: hud-blink 1.05s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-blink {
+    animation: none;
+  }
+}

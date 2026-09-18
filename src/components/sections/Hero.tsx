@@ -1,11 +1,26 @@
 "use client";
 
-import { motion } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { MoveDownRight, Download, Github, Linkedin } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import GeometricPlanet from "@/components/visuals/GeometricPlanet";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
+import DecryptText from "@/components/shared/DecryptText";
+import { useLenisInstance } from "@/components/shared/LenisProvider";
+
+/** How far Saturn leans against the cursor, in px, edge to edge. */
+const PARALLAX_X = 36;
+const PARALLAX_Y = 24;
+/** Heavy and slow: a planet should lag the eye, not chase it. */
+const PARALLAX_SPRING = { damping: 40, stiffness: 90, mass: 1.2 };
 
 const getIcon = (iconName: string) => {
   switch (iconName) {
@@ -41,6 +56,47 @@ export default function Hero({
 }) {
   const traceRef = useRef<HTMLDivElement>(null);
   const { fill, packetOpacity } = useTraceFill(traceRef);
+  const lenis = useLenisInstance();
+  const reduce = useReducedMotion();
+
+  // The caret appears once the last headline line has finished decoding.
+  const [decoded, setDecoded] = useState(false);
+
+  // DEPTH PARALLAX: Saturn leans against the cursor on a soft spring, and
+  // sinks and recedes as the hero scrolls away. All motion values - the
+  // section never re-renders for either.
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const leanX = useSpring(pointerX, PARALLAX_SPRING);
+  const leanY = useSpring(pointerY, PARALLAX_SPRING);
+  const { scrollY } = useScroll();
+  const sink = useTransform(scrollY, [0, 900], [0, 220]);
+  const recede = useTransform(scrollY, [0, 900], [1, 0.9]);
+  const planetY = useTransform<number, number>(
+    [leanY, sink],
+    ([lean, drop]) => lean + drop,
+  );
+
+  useEffect(() => {
+    if (reduce || !window.matchMedia("(pointer: fine)").matches) return;
+
+    const onMove = (e: PointerEvent) => {
+      // Opposite to the cursor: the far object moves against the eye.
+      pointerX.set((e.clientX / window.innerWidth - 0.5) * -PARALLAX_X);
+      pointerY.set((e.clientY / window.innerHeight - 0.5) * -PARALLAX_Y);
+    };
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [reduce, pointerX, pointerY]);
+
+  const scrollToWork = () => {
+    const el = document.getElementById("about");
+    if (!el) return;
+    // Through Lenis: a native smooth scroll animates against it.
+    if (lenis) lenis.scrollTo(el);
+    else el.scrollIntoView({ block: "start" });
+  };
 
   const containerVars = {
     hidden: { opacity: 0 },
@@ -67,7 +123,16 @@ export default function Hero({
       id="hero"
       className="relative w-full flex justify-center min-h-[100dvh] z-10"
     >
-      <GeometricPlanet />
+      <motion.div
+        style={
+          reduce
+            ? undefined
+            : { x: leanX, y: planetY, scale: recede, transformOrigin: "88% 34%" }
+        }
+        className="absolute inset-0 pointer-events-none"
+      >
+        <GeometricPlanet ready={!isBooting} />
+      </motion.div>
 
       <div className="w-full max-w-7xl relative flex flex-col px-6 md:px-12 pt-32 pb-0 z-10">
         <motion.div
@@ -91,7 +156,11 @@ export default function Hero({
               variants={textVars}
               className={`${fluidTextClass} text-slate-100`}
             >
-              {data.title1}
+              <DecryptText
+                text={data.title1}
+                active={!isBooting}
+                delay={350}
+              />
             </motion.h1>
           </div>
           <div className="overflow-hidden pb-5 w-full">
@@ -99,7 +168,11 @@ export default function Hero({
               variants={textVars}
               className={`${fluidTextClass} text-slate-600`}
             >
-              {data.title2}
+              <DecryptText
+                text={data.title2}
+                active={!isBooting}
+                delay={500}
+              />
             </motion.h1>
           </div>
           <div className="overflow-hidden pb-2 w-full">
@@ -107,7 +180,20 @@ export default function Hero({
               variants={textVars}
               className={`${fluidTextClass} text-[#3B82F6]`}
             >
-              {data.title3}
+              <DecryptText
+                text={data.title3}
+                active={!isBooting}
+                delay={650}
+                onDone={() => setDecoded(true)}
+              />
+              {/* Terminal caret. Present from the start and only revealed,
+                  so it never shifts the line. */}
+              <span
+                aria-hidden="true"
+                className={`hud-blink ml-[0.06em] inline-block h-[0.68em] w-[0.1em] bg-[#F97316] align-baseline shadow-[0_0_15px_#F97316] ${
+                  decoded ? "opacity-100" : "opacity-0"
+                }`}
+              />
             </motion.h1>
           </div>
         </motion.div>
@@ -162,11 +248,7 @@ export default function Hero({
               <div className="flex flex-wrap items-center gap-4">
                 <button
                   data-hud-target="HERO.PRIMARY_ACTION"
-                  onClick={() =>
-                    document
-                      .getElementById("about")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
+                  onClick={scrollToWork}
                   className="flex items-center gap-2 px-4 py-2 bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316] hover:text-[#020617] font-mono text-xs tracking-widest uppercase transition-all group/btn"
                 >
                   <span>{data.primaryAction}</span>

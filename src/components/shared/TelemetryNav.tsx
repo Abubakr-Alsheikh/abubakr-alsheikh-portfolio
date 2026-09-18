@@ -10,8 +10,8 @@ import {
 } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
-import AdminTerminal, { TerminalHint } from "./AdminTerminal";
+import { Menu, TerminalSquare, X } from "lucide-react";
+import AdminTerminal from "./AdminTerminal";
 import { useLenisInstance } from "./LenisProvider";
 
 /**
@@ -210,7 +210,7 @@ export default function TelemetryNav() {
       >
         <div className="max-w-7xl mx-auto flex items-start justify-between gap-4">
           {/* Brand returns to the top of the page. It used to open the
-              terminal, which the prompt bottom-right now does properly. */}
+              terminal, which now has its own button on this bar. */}
           <button
             onClick={() => scrollToSection("hero")}
             aria-label="Back to top"
@@ -289,6 +289,16 @@ export default function TelemetryNav() {
                 </div>
 
                 <button
+                  onClick={() => setIsTerminalOpen(true)}
+                  aria-label="Open root terminal (backtick)"
+                  title="Root terminal  [ ` ]"
+                  className="flex items-center gap-1.5 border border-slate-800 px-2 py-1.5 font-mono text-[9px] uppercase tracking-widest text-slate-500 transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6]"
+                >
+                  <TerminalSquare className="h-3.5 w-3.5" />
+                  <span className="hidden xl:inline">`</span>
+                </button>
+
+                <button
                   onClick={() => setIsMenuOpen((open) => !open)}
                   aria-expanded={isMenuOpen}
                   aria-controls="hud-menu"
@@ -349,11 +359,6 @@ export default function TelemetryNav() {
           </div>
         </div>
       </motion.header>
-
-      <TerminalHint
-        isOpen={isTerminalOpen}
-        onOpen={() => setIsTerminalOpen(true)}
-      />
 
       <AdminTerminal
         isOpen={isTerminalOpen}

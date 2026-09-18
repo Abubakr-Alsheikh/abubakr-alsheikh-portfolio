@@ -8,8 +8,8 @@ import { TerminalSquare, X } from "lucide-react";
  * The root terminal, docked as a drawer rather than a full-screen takeover.
  *
  * A drawer keeps the page visible behind it, which is the point: commands read
- * as operating the HUD you are looking at. `TerminalHint` is the always-present
- * affordance bottom-right — without it nobody discovers the terminal at all.
+ * as operating the HUD you are looking at. It opens from the terminal button on
+ * the nav bar, or from anywhere with the backtick key.
  */
 
 interface AdminTerminalProps {
@@ -173,37 +173,6 @@ export default function AdminTerminal({
             </form>
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
-/**
- * The docked prompt. Bottom-right, inset past the canopy's right ladder and
- * clear of the build stream (bottom-left) and the G-load strip (bottom-centre).
- */
-export function TerminalHint({
-  isOpen,
-  onOpen,
-}: {
-  isOpen: boolean;
-  onOpen: () => void;
-}) {
-  return (
-    <AnimatePresence>
-      {!isOpen && (
-        <motion.button
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
-          transition={{ duration: 0.25 }}
-          onClick={onOpen}
-          className="fixed bottom-10 right-28 z-[60] hidden lg:flex items-center gap-2 border border-slate-800 bg-[#020617]/90 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-slate-500 transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6]"
-        >
-          <span className="h-1 w-1 bg-[#F97316]" />
-          root@arch:~#
-          <span className="text-slate-700">press `</span>
-        </motion.button>
       )}
     </AnimatePresence>
   );
