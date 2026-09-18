@@ -1,9 +1,8 @@
 "use client";
 
-import { motion, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Terminal } from "lucide-react";
 import { useRef } from "react";
-import GeometricMars from "@/components/visuals/GeometricMars";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 
@@ -17,16 +16,10 @@ type JourneyItem = {
 
 export default function Journey({ data }: { data: JourneyItem[] }) {
   const traceRef = useRef<HTMLDivElement>(null);
-  const { fill, progress, packetOpacity } = useTraceFill(traceRef);
-  // FLY-BY PARALLAX: Mars drifts upward as the section passes through center
-  const marsDrift = useTransform(progress, [0, 1], [60, -60]);
+  const { fill, packetOpacity } = useTraceFill(traceRef);
 
   return (
     <section id="journey" className="relative w-full flex justify-center z-20">
-      
-      <motion.div style={{ y: marsDrift }} className="absolute inset-0 pointer-events-none">
-        <GeometricMars />
-      </motion.div>
 
       <div className="w-full max-w-7xl mx-auto relative pt-16 pb-16">
         

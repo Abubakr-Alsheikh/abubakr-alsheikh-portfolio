@@ -1,32 +1,45 @@
 "use client";
 
+import GeometricSphere from "./GeometricSphere";
+
+/**
+ * About: a gas giant. Heavy on parallels and light on meridians, so the cage
+ * reads as banding rather than as a globe grid, and lit from the left to throw
+ * the terminator across the visible face.
+ */
 export default function GeometricJupiter() {
   return (
-    <div className="absolute top-[5%] left-[-55%] md:left-[-32%] w-[180%] md:w-[140%] max-w-[2000px] aspect-square opacity-[0.4] pointer-events-none z-0">
-      <svg viewBox="0 0 200 200" className="w-full h-full stroke-[#F97316] fill-none">
-        <g transform="translate(100, 100) rotate(10)">
-          <circle cx="0" cy="0" r="45" strokeWidth="0.4" className="stroke-slate-500" />
-          <path d="M -39 -22 Q 0 -15 39 -22" strokeWidth="0.3" strokeDasharray="2 2" className="stroke-slate-400" />
-          <path d="M -44 -8 Q 0 0 44 -8" strokeWidth="0.5" className="stroke-[#F97316]" />
-          <path d="M -44 10 Q 0 18 44 10" strokeWidth="0.3" strokeDasharray="1 3" className="stroke-slate-400" />
-          <path d="M -35 28 Q 0 35 35 28" strokeWidth="0.4" className="stroke-[#F97316]" />
-          
-          <g className="stroke-[#3B82F6] fill-[#020617]">
-            <circle cx="0" cy="0" r="1.5" strokeWidth="0.5">
-              <animate attributeName="cx" values="-70;-20;60;30;-40;-70" dur="25s" repeatCount="indefinite" />
-              <animate attributeName="cy" values="-40;-60;-10;50;30;-40" dur="25s" repeatCount="indefinite" />
-            </circle>
-            
-            <circle cx="0" cy="0" r="1" strokeWidth="0.5">
-              <animate attributeName="cx" values="40;60;10;-50;-30;40" dur="18s" repeatCount="indefinite" />
-              <animate attributeName="cy" values="20;-20;-40;-10;30;20" dur="18s" repeatCount="indefinite" />
-            </circle>
-
-            <circle cx="0" cy="0" r="2" strokeWidth="0.3" className="stroke-slate-400">
-              <animate attributeName="cx" values="0;-80;-40;80;50;0" dur="35s" repeatCount="indefinite" />
-              <animate attributeName="cy" values="70;20;-50;-30;40;70" dur="35s" repeatCount="indefinite" />
-            </circle>
-          </g>
+    <div className="absolute top-[5%] left-[-55%] md:left-[-32%] w-[180%] md:w-[140%] max-w-[2000px] aspect-square opacity-[0.62] pointer-events-none z-0">
+      <svg viewBox="0 0 200 200" className="w-full h-full" aria-hidden="true">
+        <g transform="translate(100, 100)">
+          <GeometricSphere
+            id="about-jupiter"
+            radius={45}
+            tiltDeg={12}
+            leanDeg={16}
+            polar={0.935}
+            meridians={6}
+            parallels={13}
+            sunTiltDeg={-68}
+            sunLeanDeg={18}
+            accent="#F97316"
+            grid="#64748B"
+            glow
+            rings={[
+              {
+                distance: 1.5,
+                tiltDeg: 12,
+                leanDeg: 16,
+                width: 0.8,
+                dash: "1 5",
+                flowSeconds: 70,
+                tone: "#F97316",
+              },
+            ]}
+            moons={[
+              { ring: 0, periodSeconds: 150, size: 1.3, tone: "#3B82F6" },
+            ]}
+          />
         </g>
       </svg>
     </div>

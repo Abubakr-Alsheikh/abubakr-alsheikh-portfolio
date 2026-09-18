@@ -1,78 +1,49 @@
 "use client";
 
+import GeometricSphere from "./GeometricSphere";
+
+/**
+ * Engine: a surveyed world. Keeps the HUD crosshairs and the tracking ring of
+ * the original, but the body underneath is now real geometry.
+ */
 export default function GeometricMars() {
   return (
-    <div className="absolute top-[12%] right-[-45%] md:right-[-28%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.45] pointer-events-none z-0">
-      <svg
-        viewBox="0 0 200 200"
-        className="w-full h-full stroke-[#F97316] fill-none"
-      >
+    <div className="absolute top-[-6%] right-[-60%] md:right-[-38%] w-[200%] md:w-[130%] max-w-[2400px] aspect-square opacity-[0.7] pointer-events-none z-0">
+      <svg viewBox="0 0 200 200" className="w-full h-full" aria-hidden="true">
         <g transform="translate(100, 100)">
-          {/* 1. FIXED: Sleek, trimmed HUD Crosshairs that hug the planet instead of cutting across the screen */}
+          {/* Survey crosshairs, trimmed so they hug the body. */}
           <path
             d="M -55 0 L -45 0 M 45 0 L 55 0 M 0 -55 L 0 -45 M 0 45 L 0 55"
-            strokeWidth="0.4"
-            className="stroke-slate-500"
+            fill="none"
+            stroke="#64748B"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
           />
 
-          {/* Planet Core */}
-          <circle
-            cx="0"
-            cy="0"
-            r="35"
-            strokeWidth="0.4"
-            className="stroke-slate-500"
+          <GeometricSphere
+            id="journey-mars"
+            radius={35}
+            tiltDeg={-14}
+            leanDeg={20}
+            meridians={10}
+            parallels={9}
+            sunTiltDeg={48}
+            sunLeanDeg={-12}
+            accent="#F97316"
+            grid="#64748B"
+            glow
+            rings={[
+              {
+                distance: 2,
+                tiltDeg: -14,
+                leanDeg: 20,
+                width: 0.8,
+                dash: "2 6",
+                flowSeconds: 60,
+              },
+            ]}
+            moons={[{ ring: 0, periodSeconds: 150, size: 2.2 }]}
           />
-
-          {/* Topographical Latitude Lines */}
-          <path
-            d="M -32 -15 Q 0 -5 32 -15"
-            strokeWidth="0.3"
-            className="stroke-slate-600"
-          />
-          <path
-            d="M -35 0 Q 0 10 35 0"
-            strokeWidth="0.5"
-            className="stroke-[#F97316]"
-          />
-          <path
-            d="M -32 15 Q 0 25 32 15"
-            strokeWidth="0.3"
-            className="stroke-slate-600"
-          />
-
-          {/* 2. FIXED: Grouped Animation & Sleek Satellite Node */}
-          <g>
-            {/* A single hardware-accelerated rotation command for the entire outer ring system */}
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              from="0 0 0"
-              to="360 0 0"
-              dur="150s"
-              repeatCount="indefinite"
-            />
-
-            {/* The Tracking Ring */}
-            <circle
-              cx="0"
-              cy="0"
-              r="70"
-              strokeWidth="0.2"
-              strokeDasharray="2 6"
-              className="stroke-[#F97316]"
-            />
-
-            {/* The Sleek Satellite Node (Replaced the blocky square) */}
-            <circle
-              cx="0"
-              cy="-70"
-              r="2.5"
-              strokeWidth="0.5"
-              className="stroke-[#F97316] fill-[#020617]"
-            />
-            <circle cx="0" cy="-70" r="0.5" className="fill-[#F97316]" />
-          </g>
         </g>
       </svg>
     </div>

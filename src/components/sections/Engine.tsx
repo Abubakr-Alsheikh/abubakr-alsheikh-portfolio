@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ShieldCheck, Cpu, ExternalLink, Hexagon } from "lucide-react";
 import { useRef } from "react";
 import Image from "next/image";
-import GeometricPulsar from "@/components/visuals/GeometricPulsar";
+import GeometricMars from "@/components/visuals/GeometricMars";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 
@@ -156,7 +156,7 @@ export default function Engine({
       id="engine"
       className="relative w-full flex justify-center z-20 overflow-hidden"
     >
-      <GeometricPulsar />
+      <GeometricMars />
 
       <div className="w-full max-w-7xl relative pt-32 pb-32 px-6 md:px-12 flex flex-col items-center">
         <div
