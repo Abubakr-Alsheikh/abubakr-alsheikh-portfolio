@@ -4,6 +4,8 @@ import { motion, useTransform } from "framer-motion";
 import { ArrowRight, Database, ExternalLink } from "lucide-react";
 import { useRef } from "react";
 import GeometricNeptune from "@/components/visuals/GeometricNeptune";
+import PlanetTag from "@/components/visuals/PlanetTag";
+import { planetNotes } from "@/lib/data/planets";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 
@@ -51,12 +53,20 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-12"
+            className="relative mb-12 flex justify-between items-end gap-8"
           >
             <h3 className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest flex items-center gap-3">
               <Database className="w-4 h-4" />
               System Logs // Legacy Architectures
             </h3>
+            {/* The rows below span the column, so the only open space near
+                Neptune is here, beside the header. */}
+            <PlanetTag
+              note={planetNotes.neptune}
+              planet="neptune"
+              align="right"
+              className="relative"
+            />
           </motion.div>
 
           <div className="flex flex-col border-t-2 border-slate-800">

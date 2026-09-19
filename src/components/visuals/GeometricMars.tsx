@@ -9,7 +9,13 @@ import GeometricSphere from "./GeometricSphere";
 export default function GeometricMars() {
   return (
     <div className="absolute top-[-6%] right-[-60%] md:right-[-38%] w-[200%] md:w-[130%] max-w-[2400px] aspect-square opacity-[0.7] pointer-events-none z-0">
-      <svg viewBox="0 0 200 200" className="w-full h-full" aria-hidden="true">
+      {/* data-planet: PlanetTag finds the body by it to aim its leader. */}
+      <svg
+        viewBox="0 0 200 200"
+        className="w-full h-full"
+        aria-hidden="true"
+        data-planet="mars"
+      >
         <g transform="translate(100, 100)">
           {/* Survey crosshairs, trimmed so they hug the body. */}
           <path

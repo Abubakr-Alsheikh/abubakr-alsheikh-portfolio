@@ -10,7 +10,13 @@ import GeometricSphere from "./GeometricSphere";
 export default function GeometricNeptune() {
   return (
     <div className="absolute bottom-[-10%] right-[-50%] md:right-[-28%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.65] pointer-events-none z-0">
-      <svg viewBox="0 0 200 200" className="w-full h-full" aria-hidden="true">
+      {/* data-planet: PlanetTag finds the body by it to aim its leader. */}
+      <svg
+        viewBox="0 0 200 200"
+        className="w-full h-full"
+        aria-hidden="true"
+        data-planet="neptune"
+      >
         <g transform="translate(100, 100)">
           <GeometricSphere
             id="archive-neptune"

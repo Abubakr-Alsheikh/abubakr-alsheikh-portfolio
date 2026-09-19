@@ -3,6 +3,8 @@
 import { motion, useTransform } from "framer-motion";
 import { useRef } from "react";
 import GeometricJupiter from "@/components/visuals/GeometricJupiter";
+import PlanetTag from "@/components/visuals/PlanetTag";
+import { planetNotes } from "@/lib/data/planets";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 
@@ -120,6 +122,13 @@ export default function About({
                 {data.manifesto}
               </p>
             </div>
+
+            {/* Rides the sticky column, so it stays on screen with the copy. */}
+            <PlanetTag
+              note={planetNotes.jupiter}
+              planet="jupiter"
+              className="relative mt-16 ml-6 self-start"
+            />
           </div>
 
           {/* RIGHT COLUMN: CAPABILITY CARDS */}

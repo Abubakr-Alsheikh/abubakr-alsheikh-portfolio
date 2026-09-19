@@ -10,7 +10,13 @@ import GeometricSphere from "./GeometricSphere";
 export default function GeometricJupiter() {
   return (
     <div className="absolute top-[5%] left-[-55%] md:left-[-32%] w-[180%] md:w-[140%] max-w-[2000px] aspect-square opacity-[0.62] pointer-events-none z-0">
-      <svg viewBox="0 0 200 200" className="w-full h-full" aria-hidden="true">
+      {/* data-planet: PlanetTag finds the body by it to aim its leader. */}
+      <svg
+        viewBox="0 0 200 200"
+        className="w-full h-full"
+        aria-hidden="true"
+        data-planet="jupiter"
+      >
         <g transform="translate(100, 100)">
           <GeometricSphere
             id="about-jupiter"

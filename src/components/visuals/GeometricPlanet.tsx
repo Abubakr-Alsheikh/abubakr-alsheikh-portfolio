@@ -4,6 +4,7 @@ import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import GeometricSphere from "./GeometricSphere";
 import { axisFrom, circlePoints, flatten } from "@/lib/sphere";
+import { planetNotes } from "@/lib/data/planets";
 
 /**
  * Hero: Saturn.
@@ -261,7 +262,7 @@ function SaturnAnnotations({ ready }: { ready: boolean }) {
           letterSpacing="0.14"
           className="font-mono"
         >
-          TGT · SATURN
+          {`TGT · ${planetNotes.saturn.name}`}
         </text>
         <text
           x={spec2.x}
@@ -273,9 +274,24 @@ function SaturnAnnotations({ ready }: { ready: boolean }) {
           letterSpacing="0.1"
           className="font-mono"
         >
-          9.58 AU · TILT 26.7° · 146 MOONS
+          {planetNotes.saturn.facts}
         </text>
       </motion.g>
+
+      {/* What the body stands for, under the rule, as on the other planets. */}
+      <motion.text
+        x={spec.x}
+        y={underline + 1.05}
+        textAnchor="end"
+        dominantBaseline="middle"
+        fontSize={TEXT_SPEC * 0.8}
+        fill="#3B82F6"
+        letterSpacing="0.1"
+        className="font-mono"
+        {...reveal(10)}
+      >
+        {planetNotes.saturn.meaning}
+      </motion.text>
     </g>
   );
 }

@@ -5,6 +5,8 @@ import { ShieldCheck, Cpu, ExternalLink, Hexagon } from "lucide-react";
 import { useRef } from "react";
 import Image from "next/image";
 import GeometricMars from "@/components/visuals/GeometricMars";
+import PlanetTag from "@/components/visuals/PlanetTag";
+import { planetNotes } from "@/lib/data/planets";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 
@@ -216,10 +218,16 @@ export default function Engine({
         </div>
 
         <div className="w-full relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-800 pb-4">
+          <div className="relative flex flex-col md:flex-row justify-between items-end mb-12 border-b border-slate-800 pb-4">
             <h3 className="text-xs font-mono text-[#3B82F6] uppercase tracking-widest flex items-center gap-3">
               <ShieldCheck className="w-4 h-4" /> Compliance Matrix
             </h3>
+            <PlanetTag
+              note={planetNotes.mars}
+              planet="mars"
+              align="right"
+              className="relative"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -7,6 +7,8 @@ import {
   projectCircle,
   type Vec3,
 } from "@/lib/sphere";
+import { planetNotes } from "@/lib/data/planets";
+import PlanetCallout from "./PlanetCallout";
 
 /**
  * A black hole, drawn the way the planets are: projected line work, no blur.
@@ -351,6 +353,16 @@ export default function GeometricBlackHole({
           </path>
         ) : null;
       })}
+
+      {/* Below and right of the shadow, clear of the contact form. */}
+      <PlanetCallout
+        note={planetNotes.blackHole}
+        radius={R}
+        angleDeg={60}
+        reach={9}
+        run={22}
+        size={0.82}
+      />
 
       {/* Infalling matter. */}
       {INFALL.map((p, i) => (
