@@ -8,6 +8,7 @@ import GeometricMars from "@/components/visuals/GeometricMars";
 import PlanetTag from "@/components/visuals/PlanetTag";
 import { planetNotes } from "@/lib/data/planets";
 import { useTraceFill } from "@/hooks/useTraceFill";
+import { useOffscreen } from "@/hooks/useOffscreen";
 import TracePacket from "@/components/shared/TracePacket";
 
 type Skills = {
@@ -43,10 +44,11 @@ const DataStream = ({
   const duplicatedItems = [...items, ...items, ...items];
   return (
     <div className="relative flex w-full overflow-hidden py-4 group border-y border-slate-800/50 bg-[#020617] [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-      <motion.div
-        animate={{ x: reverse ? ["-33.33%", "0%"] : ["0%", "-33.33%"] }}
-        transition={{ duration: speed, ease: "linear", repeat: Infinity }}
-        className="flex shrink-0 gap-8 pr-8"
+      {/* CSS, not framer: a transform keyframe runs on the compositor, where
+          a JS loop wrote an inline style every frame for the life of the page. */}
+      <div
+        className={`hud-marquee-third flex shrink-0 gap-8 pr-8 ${reverse ? "[animation-direction:reverse]" : ""}`}
+        style={{ "--hud-dur": `${speed}s` } as React.CSSProperties}
       >
         {duplicatedItems.map((item, idx) => (
           <div
@@ -57,7 +59,7 @@ const DataStream = ({
             {item}
           </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };
@@ -76,11 +78,7 @@ const BadgeMarquee = ({ badges }: { badges: Badge[] }) => {
         2. x: ["0%", "-50%"] moves exactly half the total width.
         3. The gap (gap-6) and padding-right (pr-6) MUST be identical for the pixel math to result in a flawless, invisible loop. 
       */}
-      <motion.div
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 40, ease: "linear", repeat: Infinity }}
-        className="flex shrink-0 items-center w-max gap-6 md:gap-12 pr-6 md:pr-12"
-      >
+      <div className="hud-marquee-half [--hud-dur:40s] flex shrink-0 items-center w-max gap-6 md:gap-12 pr-6 md:pr-12">
         {duplicatedBadges.map((badge, idx) => (
           <div
             key={idx}
@@ -136,7 +134,7 @@ const BadgeMarquee = ({ badges }: { badges: Badge[] }) => {
             </div>
           </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };
@@ -152,9 +150,13 @@ export default function Engine({
 }) {
   const traceRef = useRef<HTMLDivElement>(null);
   const { fill, packetOpacity } = useTraceFill(traceRef);
+  // Marquees and status pulses loop forever; freeze them off screen.
+  const { ref: sectionRef, offscreen } = useOffscreen<HTMLElement>();
 
   return (
     <section
+      ref={sectionRef}
+      data-offscreen={offscreen || undefined}
       id="engine"
       className="relative w-full flex justify-center z-20 overflow-hidden"
     >

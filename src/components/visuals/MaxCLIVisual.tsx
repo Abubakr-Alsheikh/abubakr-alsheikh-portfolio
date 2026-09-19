@@ -9,61 +9,91 @@ import {
   DownloadCloud,
   Cpu,
   Layers,
-  CheckCircle2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useOffscreen } from "@/hooks/useOffscreen";
+
+/**
+ * Every loop here is a CSS keyframe from globals.css, and the whole card
+ * freezes while it is off screen (`data-offscreen`). The command timer stops
+ * with it, so the one-shot transitions keyed on a command change stop too.
+ */
+
+const COMMANDS = [
+  {
+    cmd: "max video compress movie.mp4",
+    log: "[MEDIA_ENGINE] FFmpeg transcode initialized. Preset: high.",
+    target: 0, // 0 = Media
+    color: "#3B82F6",
+  },
+  {
+    cmd: 'max ai ask "Make this smaller"',
+    log: "[AI_ENGINE] Ollama context loaded. Resolving intent...",
+    target: 1, // 1 = AI
+    color: "#F97316",
+  },
+  {
+    cmd: "max pdf bundle ./contracts/",
+    log: "[PDF_ENGINE] Merging 12 documents. Applying compression.",
+    target: 2, // 2 = PDF
+    color: "#10B981", // Emerald
+  },
+  {
+    cmd: 'max grab download "youtube.com/..."',
+    log: "[NETWORK_ENGINE] WSS stream connected. Quality: 1080p.",
+    target: 3, // 3 = Grab/Network
+    color: "#8B5CF6", // Violet
+  },
+];
+
+/** One flowing packet: a faint wide stroke under a 2px one, sharing a dash. */
+function Flow({
+  d,
+  tone,
+  dash,
+  className,
+}: {
+  d: string;
+  tone: string;
+  dash: string;
+  className: string;
+}) {
+  return (
+    <g className={`hud-flow ${className}`} strokeDasharray={dash} stroke={tone}>
+      <path d={d} strokeWidth={6} strokeOpacity={0.2} vectorEffect="non-scaling-stroke" />
+      <path d={d} strokeWidth={2} vectorEffect="non-scaling-stroke" />
+    </g>
+  );
+}
 
 export default function MaxCLIVisual() {
+  const { ref, offscreen } = useOffscreen();
   // Cycle through the actual Max CLI commands from the documentation
   const [execIndex, setExecIndex] = useState(0);
 
-  const commands = [
-    {
-      cmd: "max video compress movie.mp4",
-      log: "[MEDIA_ENGINE] FFmpeg transcode initialized. Preset: high.",
-      target: 0, // 0 = Media
-      color: "#3B82F6",
-    },
-    {
-      cmd: 'max ai ask "Make this smaller"',
-      log: "[AI_ENGINE] Ollama context loaded. Resolving intent...",
-      target: 1, // 1 = AI
-      color: "#F97316",
-    },
-    {
-      cmd: "max pdf bundle ./contracts/",
-      log: "[PDF_ENGINE] Merging 12 documents. Applying compression.",
-      target: 2, // 2 = PDF
-      color: "#10B981", // Emerald
-    },
-    {
-      cmd: 'max grab download "youtube.com/..."',
-      log: "[NETWORK_ENGINE] WSS stream connected. Quality: 1080p.",
-      target: 3, // 3 = Grab/Network
-      color: "#8B5CF6", // Violet
-    },
-  ];
 
   useEffect(() => {
+    if (offscreen) return;
+
     const timer = setInterval(() => {
-      setExecIndex((prev) => (prev + 1) % commands.length);
+      setExecIndex((prev) => (prev + 1) % COMMANDS.length);
     }, 3000);
     return () => clearInterval(timer);
-  }, [commands.length]);
+  }, [offscreen]);
 
-  const current = commands[execIndex];
+  const current = COMMANDS[execIndex];
 
   return (
-    <div className="relative w-full h-full min-h-[500px] xl:min-h-[450px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300">
+    <div
+      ref={ref}
+      data-offscreen={offscreen || undefined}
+      className="relative w-full h-full min-h-[500px] xl:min-h-[450px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300"
+    >
       {/* 1. Hardware Header */}
       <div className="h-8 border-b border-slate-800 flex items-center px-4 justify-between bg-[#020617] z-30 shadow-[0_4px_20px_rgba(0,0,0,0.8)] shrink-0">
         <div className="flex gap-2">
           <div className="w-1.5 h-1.5 bg-slate-700" />
-          <motion.div
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-1.5 h-1.5 bg-[#3B82F6]"
-          />
+          <div className="hud-pulse [--hud-dur:2s] w-1.5 h-1.5 bg-[#3B82F6]" />
           <div className="w-1.5 h-1.5 bg-[#F97316]" />
         </div>
         <span className="text-[10px] text-slate-500 uppercase tracking-widest truncate pl-2">
@@ -73,68 +103,40 @@ export default function MaxCLIVisual() {
 
       {/* 2. Main HUD Area */}
       <div className="flex-1 relative bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem]">
-        {/* Radar Overlay */}
-        <motion.div
-          animate={{ backgroundPosition: ["0% -100%", "0% 200%"] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 opacity-10 bg-[linear-gradient(to_bottom,transparent_0%,#3B82F6_50%,transparent_100%)] bg-[length:100%_100%] pointer-events-none z-0"
-        />
+        {/* Radar sweep: a band carried across on a transform, not a
+            background-position repaint. */}
+        <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none z-0">
+          <div className="hud-traverse-y [--hud-dur:8s] absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,#3B82F6_50%,transparent_100%)]" />
+        </div>
 
-        {/* 3. Dynamic SVG Routing System */}
+        {/* 3. Routing. A 0-100 box stretched to the panel, with non-scaling
+            strokes so lines and dashes stay in screen pixels. */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
+          viewBox="0 0 100 100"
           preserveAspectRatio="none"
+          fill="none"
+          aria-hidden="true"
         >
-          <defs>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
+          {/* Terminal -> Core Router */}
+          <path d="M 35 50 L 50 50" stroke="#1e293b" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+          <Flow d="M 35 50 L 50 50" tone={current.color} dash="10 100" className="[--hud-dur:1s] [--hud-flow:110px]" />
 
-          {/* Path: Terminal -> Core Router */}
-          <path
-            d="M 35% 50% L 50% 50%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
-          <motion.path
-            d="M 35% 50% L 50% 50%"
-            stroke={current.color}
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="10 100"
-            filter="url(#glow)"
-            animate={{ strokeDashoffset: [110, -110] }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-
-          {/* Paths: Core Router -> Modules */}
+          {/* Core Router -> Modules */}
           {[20, 40, 60, 80].map((yPos, i) => (
             <g key={i}>
-              {/* Base dark trace */}
               <path
-                d={`M 50% 50% L 60% ${yPos}% L 80% ${yPos}%`}
+                d={`M 50 50 L 60 ${yPos} L 80 ${yPos}`}
                 stroke="#1e293b"
-                strokeWidth="2"
-                fill="none"
+                strokeWidth={2}
+                vectorEffect="non-scaling-stroke"
               />
-              {/* Active illuminated trace */}
               {current.target === i && (
-                <motion.path
-                  d={`M 50% 50% L 60% ${yPos}% L 80% ${yPos}%`}
-                  stroke={current.color}
-                  strokeWidth="2"
-                  fill="none"
-                  strokeDasharray="15 150"
-                  filter="url(#glow)"
-                  animate={{ strokeDashoffset: [165, -165] }}
-                  transition={{
-                    duration: 1.2,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
+                <Flow
+                  d={`M 50 50 L 60 ${yPos} L 80 ${yPos}`}
+                  tone={current.color}
+                  dash="15 150"
+                  className="[--hud-dur:1.2s] [--hud-flow:165px]"
                 />
               )}
             </g>
@@ -143,7 +145,7 @@ export default function MaxCLIVisual() {
 
         {/* 4. LEFT: Interactive Terminal Session */}
         <div className="absolute left-[5%] md:left-[10%] bottom-10  z-20 w-[55%] max-w-[340px]">
-          <div className="border border-slate-700 bg-[#020617]/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col">
+          <div className="border border-slate-700 bg-[#020617]/95 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col">
             <div className="h-6 border-b border-slate-700 flex items-center px-3 bg-slate-900/50">
               <Terminal className="w-3 h-3 text-slate-400 mr-2" />
               <span className="text-[9px] text-slate-400 tracking-widest uppercase">
@@ -215,10 +217,8 @@ export default function MaxCLIVisual() {
               style={{ color: current.color }}
             />
             {/* Pulsing core effect */}
-            <motion.div
-              animate={{ scale: [1, 1.2, 1], opacity: [0.8, 0, 0.8] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="absolute inset-0 border border-dashed rotate-0"
+            <div
+              className="hud-ping [--hud-dur:1.5s] absolute inset-0 border border-dashed rotate-0"
               style={{ borderColor: current.color }}
             />
           </div>

@@ -3,7 +3,6 @@
 import React from "react";
 import {
   motion,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -211,7 +210,6 @@ function AltitudeRail({
 }
 
 const CockpitCanopy = React.memo(() => {
-  const prefersReducedMotion = useReducedMotion();
   const { scrollY, scrollYProgress } = useScroll();
 
   const progress = useSpring(scrollYProgress, {
@@ -230,23 +228,13 @@ const CockpitCanopy = React.memo(() => {
     clamp: true,
   });
 
-  const hullTick = prefersReducedMotion
-    ? undefined
-    : { x: [0, 1, -1.5, 0.5, 0], y: [0, -1, 0.5, -1.5, 0] };
-
   return (
     <div className="fixed inset-0 pointer-events-none z-40">
       {/* Frame chrome. The hull tick is a sub-pixel drift that keeps the glass
           from looking painted on; the whole group moves as one plate. */}
       <motion.div
-        className="absolute inset-4 md:inset-6"
+        className="hud-hull absolute inset-4 md:inset-6"
         style={{ opacity: chromeOpacity }}
-        animate={hullTick}
-        transition={
-          prefersReducedMotion
-            ? undefined
-            : { duration: 11, repeat: Infinity, ease: "easeInOut" }
-        }
       >
         {/* Gutter. A CSS border stays exactly 1px on every viewport. */}
         <div className="absolute inset-2 border border-slate-800/40" />
@@ -295,14 +283,17 @@ const CockpitCanopy = React.memo(() => {
 
       {/* Scanline drift is a CSS keyframe - see globals.css. A JS timer writing
           state here would repaint the entire overlay dozens of times a second. */}
-      <div
-        className="hud-scanlines absolute inset-0 opacity-25"
-        style={{
-          background:
-            "linear-gradient(rgba(2,6,23,0) 50%, rgba(2,6,23,0.35) 50%)",
-          backgroundSize: "100% 3px",
-        }}
-      />
+      <div className="absolute inset-0 overflow-hidden opacity-25">
+        {/* 60px taller than the viewport so the drift never shows an edge. */}
+        <div
+          className="hud-scanlines absolute inset-x-0 top-0 -bottom-[60px] will-change-transform"
+          style={{
+            background:
+              "linear-gradient(rgba(2,6,23,0) 50%, rgba(2,6,23,0.35) 50%)",
+            backgroundSize: "100% 3px",
+          }}
+        />
+      </div>
 
       {/* Chromatic edges: lens artifact, not a glow. */}
       <div

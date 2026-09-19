@@ -1,6 +1,7 @@
 "use client";
 
 import GeometricSphere from "./GeometricSphere";
+import { useSmilPause } from "@/hooks/useSmilPause";
 
 /**
  * Archive: a small, sharply inclined world. The rings sit at three different
@@ -8,10 +9,13 @@ import GeometricSphere from "./GeometricSphere";
  * visibly different on each one.
  */
 export default function GeometricNeptune() {
+  const svgRef = useSmilPause();
+
   return (
     <div className="absolute bottom-[-10%] right-[-50%] md:right-[-28%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.65] pointer-events-none z-0">
       {/* data-planet: PlanetTag finds the body by it to aim its leader. */}
       <svg
+        ref={svgRef}
         viewBox="0 0 200 200"
         className="w-full h-full"
         aria-hidden="true"

@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import GeometricSphere from "./GeometricSphere";
 import { axisFrom, circlePoints, flatten } from "@/lib/sphere";
 import { planetNotes } from "@/lib/data/planets";
+import { useSmilPause } from "@/hooks/useSmilPause";
 
 /**
  * Hero: Saturn.
@@ -297,6 +298,8 @@ function SaturnAnnotations({ ready }: { ready: boolean }) {
 }
 
 export default function GeometricPlanet({ ready = true }: { ready?: boolean }) {
+  const svgRef = useSmilPause();
+
   return (
     // Positioned by its centre rather than by an edge: the old right/width
     // offsets put the planet near the middle of the screen once the width cap
@@ -312,7 +315,12 @@ export default function GeometricPlanet({ ready = true }: { ready?: boolean }) {
     // dimmer: at full strength the B ring sat right behind the dim second line
     // and washed it out.
     <div className="absolute left-[86%] top-[13%] w-[250vw] md:left-[88%] md:top-[355px] md:w-[180vw] max-w-[2800px] aspect-square -translate-x-1/2 -translate-y-1/2 opacity-[0.45] md:opacity-[0.88] pointer-events-none z-0">
-      <svg viewBox="0 0 200 200" className="w-full h-full" aria-hidden="true">
+      <svg
+        ref={svgRef}
+        viewBox="0 0 200 200"
+        className="w-full h-full"
+        aria-hidden="true"
+      >
         <g transform="translate(100, 100)">
           <GeometricSphere
             id="hero-saturn"

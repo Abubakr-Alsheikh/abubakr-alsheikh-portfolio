@@ -12,6 +12,7 @@ import {
   wireframe,
   type Vec3,
 } from "@/lib/sphere";
+import { flowStyle } from "@/lib/flow";
 
 /**
  * A projected wireframe planet.
@@ -384,19 +385,20 @@ const GeometricSphere = React.memo(
               strokeDasharray={ring.dash}
               opacity={ring.opacity ?? 0.85}
               vectorEffect="non-scaling-stroke"
-            >
-              {ring.dash && ring.flowSeconds ? (
-                // Material flowing around the ring. Offsetting the dash is the
-                // only rotation a circularly symmetric ring can actually show.
-                <animate
-                  attributeName="stroke-dashoffset"
-                  from="0"
-                  to={dashPeriod(ring.dash)}
-                  dur={`${ring.flowSeconds}s`}
-                  repeatCount="indefinite"
-                />
-              ) : null}
-            </path>
+              // Material flowing around the ring. Offsetting the dash is the
+              // only rotation a circularly symmetric ring can actually show.
+              // Stepped CSS, not SMIL: see src/lib/flow.ts.
+              {...(ring.dash && ring.flowSeconds
+                ? {
+                    className: "hud-flow-stepped",
+                    style: flowStyle(
+                      dashPeriod(ring.dash),
+                      ring.flowSeconds,
+                      true,
+                    ),
+                  }
+                : {})}
+            />
           ) : null;
         })}
 

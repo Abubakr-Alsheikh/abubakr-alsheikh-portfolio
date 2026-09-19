@@ -1,6 +1,7 @@
 "use client";
 
 import GeometricSphere from "./GeometricSphere";
+import { useSmilPause } from "@/hooks/useSmilPause";
 
 /**
  * About: a gas giant. Heavy on parallels and light on meridians, so the cage
@@ -8,10 +9,13 @@ import GeometricSphere from "./GeometricSphere";
  * the terminator across the visible face.
  */
 export default function GeometricJupiter() {
+  const svgRef = useSmilPause();
+
   return (
     <div className="absolute top-[5%] left-[-55%] md:left-[-32%] w-[180%] md:w-[140%] max-w-[2000px] aspect-square opacity-[0.62] pointer-events-none z-0">
       {/* data-planet: PlanetTag finds the body by it to aim its leader. */}
       <svg
+        ref={svgRef}
         viewBox="0 0 200 200"
         className="w-full h-full"
         aria-hidden="true"

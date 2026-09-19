@@ -10,10 +10,61 @@ import {
   Layers,
   Sparkles,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useOffscreen } from "@/hooks/useOffscreen";
+
+/**
+ * Every loop here is a CSS keyframe from globals.css, and the whole card
+ * freezes while it is off screen (`data-offscreen`). The pipeline timer stops
+ * with it and resumes from the same step. See the project-visual rule in
+ * agents.md before adding motion.
+ */
+
+// The NanoManga generation lifecycle, one step per tick.
+const CYCLE = [
+  { log: "[FLASH] Parsing user prompt into JSON Story Plan...", state: 0 },
+  { log: "[FLASH_IMG] Synthesizing base Character Sheets...", state: 1 },
+  { log: "[MEM] Caching assets to Visual Buffer.", state: 1 },
+  { log: "[FLASH_IMG] Generating Page 1 (Establishing Shot)", state: 2 },
+  { log: "[MEM] >> INJECTING PAGE 1 AS VISUAL CONTEXT <<", state: 3 },
+  { log: "[FLASH_IMG] Generating Page 2 (Action Sequence)", state: 3 },
+  { log: "[MEM] >> INJECTING PAGE 1 & 2 AS VISUAL CONTEXT <<", state: 4 },
+  { log: "[FLASH_IMG] Generating Page 3 (Resolution)", state: 4 },
+  { log: "[SYS] Story Arc Synthesis Complete.", state: 5 },
+];
+
+/** One flowing packet: a faint wide stroke under a thin one, sharing a dash. */
+function Flow({
+  d,
+  tone,
+  dash,
+  width = 2,
+  className,
+}: {
+  d: string;
+  tone: string;
+  dash: string;
+  width?: number;
+  className: string;
+}) {
+  return (
+    <g className={`hud-flow ${className}`} strokeDasharray={dash} stroke={tone}>
+      <path d={d} strokeWidth={width * 3} strokeOpacity={0.2} vectorEffect="non-scaling-stroke" />
+      <path d={d} strokeWidth={width} vectorEffect="non-scaling-stroke" />
+    </g>
+  );
+}
+
+/** The unlit wire under a flow. */
+function Track({ d }: { d: string }) {
+  return (
+    <path d={d} stroke="#1e293b" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+  );
+}
 
 export default function NanoMangaVisual() {
-  // Cycle through the NanoManga generation lifecycle
+  const { ref, offscreen } = useOffscreen();
+  const step = useRef(0);
   const [pipelineState, setPipelineState] = useState(0);
   const [logs, setLogs] = useState<string[]>([
     "[SYS] NANO_MANGA_STUDIO INITIALIZED",
@@ -21,45 +72,34 @@ export default function NanoMangaVisual() {
   ]);
 
   useEffect(() => {
-    const cycle = [
-      { log: "[FLASH] Parsing user prompt into JSON Story Plan...", state: 0 },
-      { log: "[FLASH_IMG] Synthesizing base Character Sheets...", state: 1 },
-      { log: "[MEM] Caching assets to Visual Buffer.", state: 1 },
-      { log: "[FLASH_IMG] Generating Page 1 (Establishing Shot)", state: 2 },
-      { log: "[MEM] >> INJECTING PAGE 1 AS VISUAL CONTEXT <<", state: 3 },
-      { log: "[FLASH_IMG] Generating Page 2 (Action Sequence)", state: 3 },
-      { log: "[MEM] >> INJECTING PAGE 1 & 2 AS VISUAL CONTEXT <<", state: 4 },
-      { log: "[FLASH_IMG] Generating Page 3 (Resolution)", state: 4 },
-      { log: "[SYS] Story Arc Synthesis Complete.", state: 5 },
-    ];
+    if (offscreen) return;
 
-    let i = 0;
     const interval = setInterval(() => {
-      setPipelineState(cycle[i].state);
-      setLogs((prev) => {
-        const updated = [
+      const { log, state } = CYCLE[step.current];
+      step.current = (step.current + 1) % CYCLE.length;
+      setPipelineState(state);
+      setLogs((prev) =>
+        [
           ...prev,
-          `[${new Date().toISOString().split("T")[1].slice(0, 8)}] ${cycle[i].log}`,
-        ];
-        return updated.slice(-5);
-      });
-      i = (i + 1) % cycle.length;
+          `[${new Date().toISOString().split("T")[1].slice(0, 8)}] ${log}`,
+        ].slice(-5),
+      );
     }, 2800);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [offscreen]);
 
   return (
-    <div className="relative w-full h-full min-h-[500px] xl:min-h-[450px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300">
+    <div
+      ref={ref}
+      data-offscreen={offscreen || undefined}
+      className="relative w-full h-full min-h-[500px] xl:min-h-[450px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300"
+    >
       {/* 1. Hardware Header */}
       <div className="h-8 border-b border-slate-800 flex items-center px-4 justify-between bg-[#020617] z-30 shadow-[0_4px_20px_rgba(0,0,0,0.8)] shrink-0">
         <div className="flex gap-2">
           <div className="w-1.5 h-1.5 bg-slate-700" />
-          <motion.div
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-1.5 h-1.5 bg-[#F97316]"
-          />
+          <div className="hud-pulse [--hud-dur:1.5s] w-1.5 h-1.5 bg-[#F97316]" />
           <div className="w-1.5 h-1.5 bg-[#3B82F6]" />
         </div>
         <span className="text-[10px] text-slate-500 uppercase tracking-widest truncate pl-2">
@@ -69,175 +109,100 @@ export default function NanoMangaVisual() {
 
       {/* 2. Main HUD Area */}
       <div className="flex-1 relative bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem]">
-        {/* Radar Overlay */}
-        <motion.div
-          animate={{ backgroundPosition: ["0% -100%", "0% 200%"] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 opacity-10 bg-[linear-gradient(to_bottom,transparent_0%,#F97316_50%,transparent_100%)] bg-[length:100%_100%] pointer-events-none z-0"
-        />
+        {/* Radar sweep: a band carried across on a transform, not a
+            background-position repaint. */}
+        <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none z-0">
+          <div className="hud-traverse-y [--hud-dur:15s] absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,#F97316_50%,transparent_100%)]" />
+        </div>
 
-        {/* 3. The SVG Interconnect Layer (The Multi-Modal Wires) */}
+        {/* 3. The multi-modal wires. A 0-100 box stretched to the panel, with
+            non-scaling strokes so lines and dashes stay in screen pixels. */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
+          viewBox="0 0 100 100"
           preserveAspectRatio="none"
+          fill="none"
+          aria-hidden="true"
         >
-          <defs>
-            <filter
-              id="glowOrange"
-              x="-20%"
-              y="-20%"
-              width="140%"
-              height="140%"
-            >
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter
-              id="glowEmerald"
-              x="-20%"
-              y="-20%"
-              width="140%"
-              height="140%"
-            >
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-
           {/* INPUTS TO CORE */}
           {/* JSON Text Plan (Orange) */}
-          <path
-            d="M 20% 30% L 50% 50%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
-          <motion.path
-            d="M 20% 30% L 50% 50%"
-            stroke="#F97316"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="10 150"
-            filter="url(#glowOrange)"
-            animate={{ strokeDashoffset: [160, -160] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          <Track d="M 20 30 L 50 50" />
+          <Flow
+            d="M 20 30 L 50 50"
+            tone="#F97316"
+            dash="10 150"
+            className="[--hud-dur:1.5s] [--hud-flow:160px]"
           />
 
           {/* Visual Memory Buffer (Blue) */}
-          <path
-            d="M 20% 70% L 50% 50%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
-          <motion.path
-            d="M 20% 70% L 50% 50%"
-            stroke="#3B82F6"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="15 200"
-            filter="url(#glowBlue)"
-            animate={{ strokeDashoffset: [215, -215] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+          <Track d="M 20 70 L 50 50" />
+          <Flow
+            d="M 20 70 L 50 50"
+            tone="#3B82F6"
+            dash="15 200"
+            className="[--hud-dur:1.8s] [--hud-flow:215px]"
           />
 
           {/* CORE TO SEQUENTIAL PAGES */}
           {/* Core -> Page 1 */}
-          <path
-            d="M 50% 50% L 65% 50% L 65% 25% L 80% 25%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
+          <Track d="M 50 50 L 65 50 L 65 25 L 80 25" />
           {pipelineState === 2 && (
-            <motion.path
-              d="M 50% 50% L 65% 50% L 65% 25% L 80% 25%"
-              stroke="#10B981"
-              strokeWidth="2"
-              fill="none"
-              strokeDasharray="20 250"
-              filter="url(#glowEmerald)"
-              animate={{ strokeDashoffset: [270, -270] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+            <Flow
+              d="M 50 50 L 65 50 L 65 25 L 80 25"
+              tone="#10B981"
+              dash="20 250"
+              className="[--hud-dur:1.2s] [--hud-flow:270px]"
             />
           )}
 
           {/* Core -> Page 2 */}
-          <path
-            d="M 50% 50% L 80% 50%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
+          <Track d="M 50 50 L 80 50" />
           {pipelineState === 3 && (
-            <motion.path
-              d="M 50% 50% L 80% 50%"
-              stroke="#10B981"
-              strokeWidth="2"
-              fill="none"
-              strokeDasharray="20 200"
-              filter="url(#glowEmerald)"
-              animate={{ strokeDashoffset: [220, -220] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+            <Flow
+              d="M 50 50 L 80 50"
+              tone="#10B981"
+              dash="20 200"
+              className="[--hud-dur:1.2s] [--hud-flow:220px]"
             />
           )}
 
           {/* Core -> Page 3 */}
-          <path
-            d="M 50% 50% L 65% 50% L 65% 75% L 80% 75%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
+          <Track d="M 50 50 L 65 50 L 65 75 L 80 75" />
           {pipelineState === 4 && (
-            <motion.path
-              d="M 50% 50% L 65% 50% L 65% 75% L 80% 75%"
-              stroke="#10B981"
-              strokeWidth="2"
-              fill="none"
-              strokeDasharray="20 250"
-              filter="url(#glowEmerald)"
-              animate={{ strokeDashoffset: [270, -270] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+            <Flow
+              d="M 50 50 L 65 50 L 65 75 L 80 75"
+              tone="#10B981"
+              dash="20 250"
+              className="[--hud-dur:1.2s] [--hud-flow:270px]"
             />
           )}
 
           {/* === THE VISUAL MEMORY FEEDBACK LOOPS === */}
           {/* Page 1 -> Core (When generating Page 2) */}
           {pipelineState >= 3 && (
-            <motion.path
-              d="M 80% 25% L 50% 50%"
-              stroke="#3B82F6"
-              strokeWidth="1.5"
-              fill="none"
-              strokeDasharray="5 50"
-              filter="url(#glowBlue)"
-              animate={{ strokeDashoffset: [-55, 55] }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            <Flow
+              d="M 80 25 L 50 50"
+              tone="#3B82F6"
+              dash="5 50"
+              width={1.5}
+              className="[--hud-dur:1s] [--hud-flow:55px] [animation-direction:reverse]"
             />
           )}
           {/* Page 2 -> Core (When generating Page 3) */}
           {pipelineState >= 4 && (
-            <motion.path
-              d="M 80% 50% L 50% 50%"
-              stroke="#3B82F6"
-              strokeWidth="1.5"
-              fill="none"
-              strokeDasharray="5 50"
-              filter="url(#glowBlue)"
-              animate={{ strokeDashoffset: [-55, 55] }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            <Flow
+              d="M 80 50 L 50 50"
+              tone="#3B82F6"
+              dash="5 50"
+              width={1.5}
+              className="[--hud-dur:1s] [--hud-flow:55px] [animation-direction:reverse]"
             />
           )}
         </svg>
 
         {/* 4. LEFT TEXT LOGS (Art Director Terminal) */}
-        <div className="absolute top-4 left-4 z-20 flex flex-col gap-4 w-[220px] lg:w-[280px] pointer-events-none flex">
-          <div className="border border-[#F97316]/30 bg-[#020617]/90 backdrop-blur-sm p-3">
+        <div className="absolute top-4 left-4 z-20 flex flex-col gap-4 w-[220px] lg:w-[280px] pointer-events-none">
+          <div className="border border-[#F97316]/30 bg-[#020617]/95 p-3">
             <div className="flex items-center gap-2 mb-2 border-b border-slate-800 pb-2">
               <Terminal className="w-3 h-3 text-[#F97316]" />
               <span className="text-[9px] text-[#F97316] tracking-widest uppercase">
@@ -281,11 +246,7 @@ export default function NanoMangaVisual() {
         {/* NODE 2: Visual Memory Buffer (Image Modality) */}
         <div className="absolute left-[20%] top-[80%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
           <div className="w-12 h-12 lg:w-14 lg:h-14 shrink-0 rounded-full border-2 border-[#3B82F6] flex items-center justify-center bg-[#020617] relative">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-1 rounded-full border border-dashed border-[#3B82F6]/50"
-            />
+            <div className="hud-spin [--hud-dur:8s] absolute inset-1 rounded-full border border-dashed border-[#3B82F6]/50" />
             <Eye className="w-5 h-5 lg:w-6 lg:h-6 text-[#3B82F6]" />
           </div>
           <div className="flex flex-col items-center bg-[#020617]/80 px-1">
@@ -301,25 +262,21 @@ export default function NanoMangaVisual() {
         {/* NODE 3: GEMINI MULTI-MODAL CORE (The Engine) */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center">
           <div className="relative flex items-center justify-center w-24 h-24 lg:w-32 lg:h-32 shrink-0 mb-4">
-            {/* Geometric Diamond Architecture */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 border border-slate-700 rotate-45"
-            />
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-2 border-2 border-[#F97316]/30 rotate-45"
-            />
+            {/* Geometric Diamond Architecture. The spin rides a wrapper so the
+                keyframe transform does not wipe the square's own 45deg. */}
+            <div className="hud-spin [--hud-dur:25s] absolute inset-0">
+              <div className="absolute inset-0 border border-slate-700 rotate-45" />
+            </div>
+            <div className="hud-spin-rev [--hud-dur:15s] absolute inset-2">
+              <div className="absolute inset-0 border-2 border-[#F97316]/30 rotate-45" />
+            </div>
 
             {/* Core Box */}
             <div className="w-12 h-12 lg:w-16 lg:h-16 bg-[#020617] border-2 border-[#F97316] rotate-45 flex items-center justify-center relative shadow-[0_0_30px_rgba(249,115,22,0.2)] z-10 overflow-hidden">
-              <motion.div
-                animate={{ top: ["100%", "-10%"] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="absolute left-0 right-0 h-1 bg-[#F97316]/50 -rotate-45"
-              />
+              {/* Scan bar rising through the core. */}
+              <div className="hud-traverse-y-rev [--hud-dur:2s] absolute inset-0">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#F97316]/50 -rotate-45" />
+              </div>
               <BrainCircuit className="w-6 h-6 lg:w-8 lg:h-8 text-white -rotate-45" />
             </div>
           </div>
@@ -348,11 +305,9 @@ export default function NanoMangaVisual() {
               className={`w-4 h-4 lg:w-6 lg:h-6 ${pipelineState >= 2 ? "text-[#10B981]" : "text-slate-700"}`}
             />
             {pipelineState === 2 && (
-              <motion.div
-                animate={{ left: ["-10%", "110%"] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                className="absolute top-0 bottom-0 w-px bg-[#10B981] shadow-[0_0_10px_#10B981]"
-              />
+              <div className="hud-traverse-x [--hud-dur:1.5s] absolute inset-0">
+                <div className="absolute top-0 bottom-0 left-0 w-px bg-[#10B981] shadow-[0_0_10px_#10B981]" />
+              </div>
             )}
             <span className="absolute bottom-0.5 right-1 text-[5px] lg:text-[6px] text-slate-500">
               PG_01
@@ -367,11 +322,9 @@ export default function NanoMangaVisual() {
               className={`w-4 h-4 lg:w-6 lg:h-6 ${pipelineState >= 3 ? "text-[#10B981]" : "text-slate-700"}`}
             />
             {pipelineState === 3 && (
-              <motion.div
-                animate={{ top: ["-10%", "110%"] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                className="absolute left-0 right-0 h-px bg-[#10B981] shadow-[0_0_10px_#10B981]"
-              />
+              <div className="hud-traverse-y [--hud-dur:1.5s] absolute inset-0">
+                <div className="absolute left-0 right-0 top-0 h-px bg-[#10B981] shadow-[0_0_10px_#10B981]" />
+              </div>
             )}
             <span className="absolute bottom-0.5 right-1 text-[5px] lg:text-[6px] text-slate-500">
               PG_02
@@ -386,11 +339,9 @@ export default function NanoMangaVisual() {
               className={`w-4 h-4 lg:w-6 lg:h-6 ${pipelineState >= 4 ? "text-[#10B981]" : "text-slate-700"}`}
             />
             {pipelineState === 4 && (
-              <motion.div
-                animate={{ left: ["-10%", "110%"] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                className="absolute top-0 bottom-0 w-px bg-[#10B981] shadow-[0_0_10px_#10B981]"
-              />
+              <div className="hud-traverse-x [--hud-dur:1.5s] absolute inset-0">
+                <div className="absolute top-0 bottom-0 left-0 w-px bg-[#10B981] shadow-[0_0_10px_#10B981]" />
+              </div>
             )}
             <span className="absolute bottom-0.5 right-1 text-[5px] lg:text-[6px] text-slate-500">
               PG_03

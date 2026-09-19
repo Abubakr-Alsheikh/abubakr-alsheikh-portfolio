@@ -9,6 +9,9 @@ import {
 } from "@/lib/sphere";
 import { planetNotes } from "@/lib/data/planets";
 import PlanetCallout from "./PlanetCallout";
+import { useSmilPause } from "@/hooks/useSmilPause";
+import { useOffscreen } from "@/hooks/useOffscreen";
+import { flowStyle } from "@/lib/flow";
 
 /**
  * A black hole, drawn the way the planets are: projected line work, no blur.
@@ -29,8 +32,22 @@ import PlanetCallout from "./PlanetCallout";
  *  - Keplerian flow. Inner rings orbit faster (period ∝ r^1.5), and matter
  *    spirals in and vanishes at the horizon.
  *
- * All motion is SMIL on static paths. No filters, per the rule on animated
- * SVGs; the geometry is computed once.
+ * No filters, per the rule on animated SVGs; the geometry is computed once.
+ *
+ * Layers. The hole spans ~2000px and an SVG repaints as one piece: while
+ * anything in it moved, Chrome re-rastered all of its line work every frame,
+ * which alone held the contact section near 50fps in profiling. So it is
+ * three layers:
+ *
+ *  1. Spinning rings (lensing field, dashed ring by the photon ring), each its
+ *     own small SVG turned by a CSS rotation. Composited, never repainted.
+ *  2. The static body: lensed images, shadow, photon ring, still disk rings
+ *     and the callout. Promoted to its own layer and rastered once.
+ *  3. The live overlay: only the flowing disk rings (stepped CSS, see
+ *     src/lib/flow.ts) and the infalling matter (SMIL), paused off screen.
+ *
+ * Moving dashes on rings this size repaint them whatever drives them; the
+ * stepping is what keeps that affordable.
  */
 
 const R = 13;
@@ -84,6 +101,85 @@ const lensUnder = (d: number) => {
   const ry = R * (1.03 + (d - INNER) * 0.1);
   return `M ${-rx} 0 A ${rx} ${ry} 0 0 0 ${rx} 0`;
 };
+
+/** The viewBox: 200 x 100 units, centred on the hole. */
+const VIEW_W = 200;
+const VIEW_H = 100;
+
+interface SpinRingSpec {
+  r: number;
+  strokeOpacity: number;
+  strokeWidth: number;
+  dash: string;
+  /** hud-spin turns clockwise, hud-spin-rev counter-clockwise. */
+  spin: string;
+}
+
+const SPIN_RINGS: SpinRingSpec[] = [
+  // Lensed background field: faint rings the light is being bent along.
+  { r: R * 3.4, strokeOpacity: 0.22, strokeWidth: 0.8, dash: "0.6 3", spin: "hud-spin [--hud-dur:140s]" },
+  { r: R * 5.4, strokeOpacity: 0.14, strokeWidth: 0.8, dash: "0.4 5", spin: "hud-spin-rev [--hud-dur:220s]" },
+  // Just outside the photon ring.
+  { r: R * 1.13, strokeOpacity: 0.5, strokeWidth: 0.7, dash: "2 1.5 0.5 1.5", spin: "hud-spin-rev [--hud-dur:30s]" },
+];
+
+/**
+ * One ring in its own square SVG, centred on the hole and turned by CSS. The
+ * box is sized in percent of the 2:1 wrapper so its units match the main
+ * viewBox exactly. A rotating layer is composited, so it never repaints.
+ */
+function SpinRing({ ring }: { ring: SpinRingSpec }) {
+  const side = 2 * ring.r + 4;
+  return (
+    <div
+      className={`absolute aspect-square ${ring.spin}`}
+      style={{
+        width: `${(side / VIEW_W) * 100}%`,
+        left: `${50 - (side / VIEW_W) * 50}%`,
+        top: `${50 - (side / VIEW_H) * 50}%`,
+      }}
+    >
+      <svg
+        viewBox={`${-side / 2} ${-side / 2} ${side} ${side}`}
+        className="w-full h-full overflow-visible"
+        fill="none"
+      >
+        <circle
+          r={ring.r}
+          stroke={BLUE}
+          strokeOpacity={ring.strokeOpacity}
+          strokeWidth={ring.strokeWidth}
+          strokeDasharray={ring.dash}
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </div>
+  );
+}
+
+/** Approaching side bright, receding side dim. userSpaceOnUse so every ring
+ *  shares one sweep instead of each getting its own. */
+function DopplerGradient({ id }: { id: string }) {
+  return (
+    <linearGradient
+      id={id}
+      gradientUnits="userSpaceOnUse"
+      x1={-OUTER * R}
+      y1={0}
+      x2={OUTER * R}
+      y2={0}
+      gradientTransform={`rotate(${-TILT})`}
+    >
+      <stop offset="0" stopColor={ORANGE} stopOpacity="1" />
+      <stop offset="0.5" stopColor={ORANGE} stopOpacity="0.6" />
+      <stop offset="1" stopColor={ORANGE} stopOpacity="0.16" />
+    </linearGradient>
+  );
+}
+
+type FlowingLine = DiskLine & { dash: string; period: number };
+const isFlowing = (line: DiskLine): line is FlowingLine =>
+  !!(line.dash && line.period);
 
 const dashPeriod = (dash: string) =>
   dash.split(/\s+/).reduce((sum, n) => sum + Number(n), 0);
@@ -192,8 +288,11 @@ export default function GeometricBlackHole({
    */
   intensity?: number;
 }) {
+  const svgRef = useSmilPause();
+  const { ref: wrapRef, offscreen } = useOffscreen();
   const uid = useId().replace(/:/g, "");
   const doppler = `bh-doppler-${uid}`;
+  const dopplerLive = `bh-doppler-live-${uid}`;
 
   const disk = useMemo(
     () =>
@@ -208,190 +307,171 @@ export default function GeometricBlackHole({
   );
 
   return (
-    <svg
-      viewBox="-100 -50 200 100"
-      className="w-full h-full overflow-visible"
-      fill="none"
+    <div
+      ref={wrapRef}
+      data-offscreen={offscreen || undefined}
+      className="relative w-full h-full"
       aria-hidden="true"
     >
-      <defs>
-        {/* Approaching side bright, receding side dim. userSpaceOnUse so every
-            ring shares one sweep instead of each getting its own. */}
-        <linearGradient
-          id={doppler}
-          gradientUnits="userSpaceOnUse"
-          x1={-OUTER * R}
-          y1={0}
-          x2={OUTER * R}
-          y2={0}
-          gradientTransform={`rotate(${-TILT})`}
-        >
-          <stop offset="0" stopColor={ORANGE} stopOpacity="1" />
-          <stop offset="0.5" stopColor={ORANGE} stopOpacity="0.6" />
-          <stop offset="1" stopColor={ORANGE} stopOpacity="0.16" />
-        </linearGradient>
-      </defs>
-
-      {/* Lensed background field: faint rings the light is being bent along. */}
-      {[3.4, 5.4].map((k, i) => (
-        <g key={k}>
-          <circle
-            r={R * k}
-            stroke={BLUE}
-            strokeOpacity={0.22 - i * 0.08}
-            strokeWidth={0.8}
-            strokeDasharray={i === 0 ? "0.6 3" : "0.4 5"}
-            vectorEffect="non-scaling-stroke"
-          />
-          <animateTransform
-            attributeName="transform"
-            type="rotate"
-            from={i === 0 ? "0" : "360"}
-            to={i === 0 ? "360" : "0"}
-            dur={i === 0 ? "140s" : "220s"}
-            repeatCount="indefinite"
-          />
-        </g>
+      {/* 1. Spinning rings, under the body so the disk crosses over them. */}
+      {SPIN_RINGS.map((ring) => (
+        <SpinRing key={ring.r} ring={ring} />
       ))}
 
-      <g transform={`rotate(${-TILT})`} opacity={intensity}>
-        {/* Secondary image, under the shadow. */}
-        {DISK.filter((_, i) => i % 3 === 0).map((line) => (
-          <path
-            key={`under-${line.d}`}
-            d={lensUnder(line.d)}
-            stroke={`url(#${doppler})`}
-            strokeWidth={0.7}
-            opacity={0.6}
-            vectorEffect="non-scaling-stroke"
-          />
-        ))}
+      {/* 2. Static body, rastered once. */}
+      <svg
+        viewBox="-100 -50 200 100"
+        className="absolute inset-0 w-full h-full overflow-visible will-change-transform"
+        fill="none"
+      >
+        <defs>
+          <DopplerGradient id={doppler} />
+        </defs>
 
-        {/* Primary lensed image: the far disk, arched over the top. */}
-        {DISK.map((line) => (
-          <path
-            key={`top-${line.d}`}
-            d={lensTop(line.d)}
-            stroke={`url(#${doppler})`}
-            strokeWidth={line.width}
-            opacity={line.opacity}
-            strokeDasharray={line.dash}
-            vectorEffect="non-scaling-stroke"
-          >
-            {line.dash && line.period ? (
-              <animate
-                attributeName="stroke-dashoffset"
-                from="0"
-                to={-dashPeriod(line.dash)}
-                dur={`${line.period}s`}
-                repeatCount="indefinite"
-              />
-            ) : null}
-          </path>
-        ))}
-      </g>
+        <g transform={`rotate(${-TILT})`} opacity={intensity}>
+          {/* Secondary image, under the shadow. */}
+          {DISK.filter((_, i) => i % 3 === 0).map((line) => (
+            <path
+              key={`under-${line.d}`}
+              d={lensUnder(line.d)}
+              stroke={`url(#${doppler})`}
+              strokeWidth={0.7}
+              opacity={0.6}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
 
-      {/* The shadow. Page background, so the stars behind it are gone. */}
-      <circle r={R} fill={BACKDROP} />
+          {/* Primary lensed image: the far disk, arched over the top. */}
+          {DISK.filter((line) => !isFlowing(line)).map((line) => (
+            <path
+              key={`top-${line.d}`}
+              d={lensTop(line.d)}
+              stroke={`url(#${doppler})`}
+              strokeWidth={line.width}
+              opacity={line.opacity}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+        </g>
 
-      {/* Photon ring: light on the last orbit before the horizon. */}
-      <circle
-        r={R * 1.035}
-        stroke={BLUE}
-        strokeWidth={1.3}
-        vectorEffect="non-scaling-stroke"
-      />
-      <circle
-        r={R * 1.035}
-        stroke={BLUE}
-        strokeOpacity={0.14}
-        strokeWidth={6}
-        vectorEffect="non-scaling-stroke"
-      />
-      <g>
+        {/* The shadow. Page background, so the stars behind it are gone. */}
+        <circle r={R} fill={BACKDROP} />
+
+        {/* Photon ring: light on the last orbit before the horizon. */}
         <circle
-          r={R * 1.13}
+          r={R * 1.035}
           stroke={BLUE}
-          strokeOpacity={0.5}
-          strokeWidth={0.7}
-          strokeDasharray="2 1.5 0.5 1.5"
+          strokeWidth={1.3}
           vectorEffect="non-scaling-stroke"
         />
-        <animateTransform
-          attributeName="transform"
-          type="rotate"
-          from="0"
-          to="-360"
-          dur="30s"
-          repeatCount="indefinite"
+        <circle
+          r={R * 1.035}
+          stroke={BLUE}
+          strokeOpacity={0.14}
+          strokeWidth={6}
+          vectorEffect="non-scaling-stroke"
         />
-      </g>
 
-      {/* Direct image of the disk: near side crosses in front of the shadow,
-          far side is hidden only where the shadow actually covers it. */}
-      {disk.map((geo, i) => {
-        const line = DISK[i];
-        return geo.front ? (
-          <path
-            key={`disk-${line.d}`}
-            d={geo.front}
-            stroke={`url(#${doppler})`}
-            strokeWidth={line.width}
-            opacity={line.opacity * intensity}
-            strokeDasharray={line.dash}
-            vectorEffect="non-scaling-stroke"
+        {/* Direct image of the disk: near side crosses in front of the shadow,
+            far side is hidden only where the shadow actually covers it. */}
+        {disk.map((geo, i) => {
+          const line = DISK[i];
+          return geo.front && !isFlowing(line) ? (
+            <path
+              key={`disk-${line.d}`}
+              d={geo.front}
+              stroke={`url(#${doppler})`}
+              strokeWidth={line.width}
+              opacity={line.opacity * intensity}
+              vectorEffect="non-scaling-stroke"
+            />
+          ) : null;
+        })}
+
+        {/* Below and right of the shadow, clear of the contact form. */}
+        <PlanetCallout
+          note={planetNotes.blackHole}
+          radius={R}
+          angleDeg={60}
+          reach={9}
+          run={22}
+          size={0.82}
+        />
+      </svg>
+
+      {/* 3. Live overlay: flowing rings and infalling matter only. */}
+      <svg
+        ref={svgRef}
+        viewBox="-100 -50 200 100"
+        className="absolute inset-0 w-full h-full overflow-visible will-change-transform"
+        fill="none"
+      >
+        <defs>
+          <DopplerGradient id={dopplerLive} />
+        </defs>
+
+        <g transform={`rotate(${-TILT})`} opacity={intensity}>
+          {DISK.filter(isFlowing).map((line) => (
+            <path
+              key={`top-${line.d}`}
+              d={lensTop(line.d)}
+              stroke={`url(#${dopplerLive})`}
+              strokeWidth={line.width}
+              opacity={line.opacity}
+              strokeDasharray={line.dash}
+              vectorEffect="non-scaling-stroke"
+              className="hud-flow-stepped"
+              style={flowStyle(dashPeriod(line.dash), line.period, false)}
+            />
+          ))}
+        </g>
+
+        {disk.map((geo, i) => {
+          const line = DISK[i];
+          return geo.front && isFlowing(line) ? (
+            <path
+              key={`disk-${line.d}`}
+              d={geo.front}
+              stroke={`url(#${dopplerLive})`}
+              strokeWidth={line.width}
+              opacity={line.opacity * intensity}
+              strokeDasharray={line.dash}
+              vectorEffect="non-scaling-stroke"
+              className="hud-flow-stepped"
+              style={flowStyle(dashPeriod(line.dash), line.period, true)}
+            />
+          ) : null;
+        })}
+
+        {/* Infalling matter. */}
+        {INFALL.map((p, i) => (
+          <rect
+            key={i}
+            x={-0.3}
+            y={-0.3}
+            width={0.6}
+            height={0.6}
+            fill={i % 2 ? "#E2E8F0" : ORANGE}
+            opacity={0}
           >
-            {line.dash && line.period ? (
-              <animate
-                attributeName="stroke-dashoffset"
-                from="0"
-                to={dashPeriod(line.dash)}
-                dur={`${line.period}s`}
-                repeatCount="indefinite"
-              />
-            ) : null}
-          </path>
-        ) : null;
-      })}
-
-      {/* Below and right of the shadow, clear of the contact form. */}
-      <PlanetCallout
-        note={planetNotes.blackHole}
-        radius={R}
-        angleDeg={60}
-        reach={9}
-        run={22}
-        size={0.82}
-      />
-
-      {/* Infalling matter. */}
-      {INFALL.map((p, i) => (
-        <rect
-          key={i}
-          x={-0.3}
-          y={-0.3}
-          width={0.6}
-          height={0.6}
-          fill={i % 2 ? "#E2E8F0" : ORANGE}
-          opacity={0}
-        >
-          <animateMotion
-            dur={`${p.dur}s`}
-            begin={`${p.begin}s`}
-            repeatCount="indefinite"
-            path={p.path}
-          />
-          <animate
-            attributeName="opacity"
-            calcMode="discrete"
-            values={p.values}
-            keyTimes={p.keyTimes}
-            dur={`${p.dur}s`}
-            begin={`${p.begin}s`}
-            repeatCount="indefinite"
-          />
-        </rect>
-      ))}
-    </svg>
+            <animateMotion
+              dur={`${p.dur}s`}
+              begin={`${p.begin}s`}
+              repeatCount="indefinite"
+              path={p.path}
+            />
+            <animate
+              attributeName="opacity"
+              calcMode="discrete"
+              values={p.values}
+              keyTimes={p.keyTimes}
+              dur={`${p.dur}s`}
+              begin={`${p.begin}s`}
+              repeatCount="indefinite"
+            />
+          </rect>
+        ))}
+      </svg>
+    </div>
   );
 }

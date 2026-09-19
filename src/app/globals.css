@@ -197,14 +197,16 @@
   Cockpit Canopy: scanline drift.
   Driven by CSS so the canopy never re-renders — a JS timer setting state
   here would repaint the whole overlay dozens of times a second.
-  60px = 20 scanline bands at 3px, so the loop is seamless.
+  60px = 20 scanline bands at 3px, so the loop is seamless. It moves the layer
+  by transform, not background-position: animating background-position
+  repaints the full viewport every frame, a transform is composited.
 */
 @keyframes hud-scanline-drift {
   from {
-    background-position-y: 0px;
+    transform: translateY(-60px);
   }
   to {
-    background-position-y: 60px;
+    transform: translateY(0);
   }
 }
 
@@ -212,8 +214,30 @@
   animation: hud-scanline-drift 6s linear infinite;
 }
 
+/* Canopy hull tick: a sub-pixel drift of the frame chrome, on the compositor. */
+@keyframes hud-hull {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(1px, -1px);
+  }
+  50% {
+    transform: translate(-1.5px, 0.5px);
+  }
+  75% {
+    transform: translate(0.5px, -1.5px);
+  }
+}
+
+.hud-hull {
+  animation: hud-hull 11s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .hud-scanlines {
+  .hud-scanlines,
+  .hud-hull {
     animation: none;
   }
 }
@@ -238,6 +262,208 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hud-blink {
+    animation: none;
+  }
+}
+
+/*
+  Decorative loops for the project visuals.
+
+  These used to be framer-motion `repeat: Infinity` animations: JS writing an
+  inline style on every element every frame, for every card on the page,
+  whether or not it was on screen. As CSS keyframes, transform and opacity run
+  on the compositor and cost the main thread nothing.
+
+  Duration comes from --hud-dur (Tailwind: `[--hud-dur:10s]`). Never put a
+  var() inside a transform keyframe: Chrome cannot run such an animation on the
+  compositor and falls back to the main thread. Add a named variant instead
+  (hud-bob-sm, hud-marquee-third). A root tagged
+  `data-offscreen` freezes every loop inside it; see `useOffscreen`.
+*/
+[data-offscreen],
+[data-offscreen] * {
+  animation-play-state: paused !important;
+}
+
+@keyframes hud-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hud-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes hud-flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes hud-ping {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes hud-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes hud-bob-sm {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes hud-level {
+  0%,
+  100% {
+    transform: scaleY(0.2);
+  }
+  50% {
+    transform: scaleY(0.7);
+  }
+}
+
+/* A full-size layer that carries its content across the parent, edge to edge.
+   Transform percentages are the layer's own size, which equals the parent's. */
+@keyframes hud-traverse-y {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes hud-traverse-x {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Dash flow along an SVG path. --hud-flow is one dash period. stroke-dashoffset
+   inherits, so the class can sit on a <g> around a line and its glow. */
+@keyframes hud-flow {
+  from {
+    stroke-dashoffset: var(--hud-flow, 165px);
+  }
+  to {
+    stroke-dashoffset: calc(var(--hud-flow, 165px) * -1);
+  }
+}
+
+.hud-spin {
+  animation: hud-spin var(--hud-dur, 10s) linear infinite;
+}
+.hud-spin-rev {
+  animation: hud-spin var(--hud-dur, 10s) linear infinite reverse;
+}
+.hud-pulse {
+  animation: hud-pulse var(--hud-dur, 2s) ease-in-out infinite;
+}
+.hud-flash {
+  animation: hud-flash var(--hud-dur, 1s) steps(1, end) infinite;
+}
+.hud-ping {
+  animation: hud-ping var(--hud-dur, 1.5s) ease-in-out infinite;
+}
+.hud-bob {
+  animation: hud-bob var(--hud-dur, 4s) ease-in-out infinite;
+}
+.hud-bob-sm {
+  animation: hud-bob-sm var(--hud-dur, 4s) ease-in-out infinite;
+}
+.hud-level {
+  transform-origin: bottom;
+  animation: hud-level var(--hud-dur, 1.5s) ease-in-out infinite;
+}
+.hud-traverse-y {
+  animation: hud-traverse-y var(--hud-dur, 10s) linear infinite;
+}
+.hud-traverse-y-rev {
+  animation: hud-traverse-y var(--hud-dur, 10s) linear infinite reverse;
+}
+.hud-traverse-x {
+  animation: hud-traverse-x var(--hud-dur, 2s) linear infinite;
+}
+.hud-flow {
+  animation: hud-flow var(--hud-dur, 1.5s) linear infinite;
+}
+/* Big-body dash flow, updated --hud-steps times per run. Set all three
+   variables through flowStyle() in src/lib/flow.ts. */
+.hud-flow-stepped {
+  animation: hud-flow var(--hud-dur, 2s) steps(var(--hud-steps, 40)) infinite;
+}
+
+/* Marquee: shifts the track by one copy of its content and loops. -half for
+   a doubled track, -third for a tripled one. */
+@keyframes hud-marquee-half {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes hud-marquee-third {
+  to {
+    transform: translateX(-33.333%);
+  }
+}
+
+.hud-marquee-half {
+  animation: hud-marquee-half var(--hud-dur, 40s) linear infinite;
+}
+.hud-marquee-third {
+  animation: hud-marquee-third var(--hud-dur, 40s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-spin,
+  .hud-spin-rev,
+  .hud-pulse,
+  .hud-flash,
+  .hud-ping,
+  .hud-bob,
+  .hud-level,
+  .hud-traverse-y,
+  .hud-traverse-y-rev,
+  .hud-traverse-x,
+  .hud-flow,
+  .hud-flow-stepped,
+  .hud-bob-sm,
+  .hud-marquee-half,
+  .hud-marquee-third {
     animation: none;
   }
 }

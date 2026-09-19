@@ -1,16 +1,20 @@
 "use client";
 
 import GeometricSphere from "./GeometricSphere";
+import { useSmilPause } from "@/hooks/useSmilPause";
 
 /**
  * Engine: a surveyed world. Keeps the HUD crosshairs and the tracking ring of
  * the original, but the body underneath is now real geometry.
  */
 export default function GeometricMars() {
+  const svgRef = useSmilPause();
+
   return (
     <div className="absolute top-[-6%] right-[-60%] md:right-[-38%] w-[200%] md:w-[130%] max-w-[2400px] aspect-square opacity-[0.7] pointer-events-none z-0">
       {/* data-planet: PlanetTag finds the body by it to aim its leader. */}
       <svg
+        ref={svgRef}
         viewBox="0 0 200 200"
         className="w-full h-full"
         aria-hidden="true"

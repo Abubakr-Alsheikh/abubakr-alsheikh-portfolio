@@ -12,35 +12,85 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useOffscreen } from "@/hooks/useOffscreen";
+
+/**
+ * Every loop here is a CSS keyframe from globals.css, and the whole card
+ * freezes while it is off screen (`data-offscreen`). The state timer stops
+ * with it. See the project-visual rule in agents.md before adding motion.
+ */
+
+/** 5x6 schedule matrix (days x periods). */
+const SCHEDULE_GRID = Array.from({ length: 30 }, (_, i) => i);
+/** Placeholder rows for the data grid. */
+const DATA_ROWS = Array.from({ length: 5 }, (_, i) => i);
+
+/**
+ * Deterministic "solver" pattern: which cells are lit on a given tick while
+ * the matrix is generating. Replaces a Math.random() in render, which
+ * mismatched on hydration and reshuffled on every render.
+ */
+function isLit(index: number, tick: number) {
+  return (index * 7 + tick * 3) % 5 < 2;
+}
+
+/** One flowing packet: a faint wide stroke under a 2px one, sharing a dash. */
+function Flow({
+  d,
+  tone,
+  dash,
+  className,
+}: {
+  d: string;
+  tone: string;
+  dash: string;
+  className: string;
+}) {
+  return (
+    <g className={`hud-flow ${className}`} strokeDasharray={dash} stroke={tone}>
+      <path d={d} strokeWidth={6} strokeOpacity={0.2} vectorEffect="non-scaling-stroke" />
+      <path d={d} strokeWidth={2} vectorEffect="non-scaling-stroke" />
+    </g>
+  );
+}
 
 export default function SchoolManagementVisual() {
-  // Cycle through WinForms application states
+  const { ref, offscreen } = useOffscreen();
+  // 0 = Fetching Students, 1 = Managing Employees, 2 = Generating Schedule
   const [opState, setOpState] = useState(0);
+  // Drives the matrix pattern while generating.
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    // 0 = Fetching Students, 1 = Managing Employees, 2 = Generating Schedule
+    if (offscreen) return;
+
     const interval = setInterval(() => {
       setOpState((prev) => (prev + 1) % 3);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [offscreen]);
 
-  // Generate a 5x6 grid for the schedule matrix (Days x Periods)
-  const scheduleGrid = Array.from({ length: 30 }, (_, i) => i);
-  // Generate fake data rows for the grid
-  const dataRows = Array.from({ length: 5 }, (_, i) => i);
+  useEffect(() => {
+    if (offscreen || opState !== 2) return;
+
+    const interval = setInterval(() => setTick((t) => t + 1), 300);
+    return () => clearInterval(interval);
+  }, [offscreen, opState]);
+
+  // Students and staff are read from the kernel out to the UI.
+  const toUi = opState === 0 || opState === 1;
 
   return (
-    <div className="relative w-full h-full min-h-[500px] xl:min-h-[450px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300">
+    <div
+      ref={ref}
+      data-offscreen={offscreen || undefined}
+      className="relative w-full h-full min-h-[500px] xl:min-h-[450px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300"
+    >
       {/* 1. Hardware Header */}
       <div className="h-8 border-b border-slate-800 flex items-center px-4 justify-between bg-[#020617] z-30 shadow-[0_4px_20px_rgba(0,0,0,0.8)] shrink-0">
         <div className="flex gap-2">
           <div className="w-1.5 h-1.5 bg-slate-700" />
-          <motion.div
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-1.5 h-1.5 bg-[#F97316]"
-          />
+          <div className="hud-pulse [--hud-dur:1.5s] w-1.5 h-1.5 bg-[#F97316]" />
           <div className="w-1.5 h-1.5 bg-[#3B82F6]" />
         </div>
         <span className="text-[10px] text-slate-500 uppercase tracking-widest truncate pl-2">
@@ -50,112 +100,54 @@ export default function SchoolManagementVisual() {
 
       {/* 2. Main HUD Area */}
       <div className="flex-1 relative bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem]">
-        {/* Radar Overlay */}
-        <motion.div
-          animate={{ backgroundPosition: ["0% -100%", "0% 200%"] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 opacity-10 bg-[linear-gradient(to_bottom,transparent_0%,#3B82F6_50%,transparent_100%)] bg-[length:100%_100%] pointer-events-none z-0"
-        />
+        {/* Radar sweep: a band carried across on a transform, not a
+            background-position repaint. */}
+        <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none z-0">
+          <div className="hud-traverse-y [--hud-dur:12s] absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,#3B82F6_50%,transparent_100%)]" />
+        </div>
 
-        {/* 3. The SVG Interconnect Layer (Data Access Layer Wiring) */}
+        {/* 3. Data access layer wiring. A 0-100 box stretched to the panel,
+            with non-scaling strokes so lines and dashes stay in screen pixels. */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
+          viewBox="0 0 100 100"
           preserveAspectRatio="none"
+          fill="none"
+          aria-hidden="true"
         >
-          <defs>
-            <filter
-              id="glowOrange"
-              x="-20%"
-              y="-20%"
-              width="140%"
-              height="140%"
-            >
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter
-              id="glowEmerald"
-              x="-20%"
-              y="-20%"
-              width="140%"
-              height="140%"
-            >
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-
-          {/* C# Kernel <-> WinForms UI (Left Path) */}
-          <path
-            d="M 25% 50% L 50% 50%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
-          <motion.path
-            d={
-              opState === 0 || opState === 1
-                ? "M 50% 50% L 25% 50%"
-                : "M 25% 50% L 50% 50%"
-            }
-            stroke="#3B82F6"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="15 150"
-            filter="url(#glowBlue)"
-            animate={{
-              strokeDashoffset:
-                opState === 0 || opState === 1 ? [-165, 165] : [165, -165],
-            }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+          {/* C# Kernel <-> WinForms UI */}
+          <path d="M 25 50 L 50 50" stroke="#1e293b" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+          <Flow
+            d="M 25 50 L 50 50"
+            tone="#3B82F6"
+            dash="15 150"
+            className={`[--hud-dur:1.2s] [--hud-flow:165px] ${toUi ? "[animation-direction:reverse]" : ""}`}
           />
 
-          {/* C# Kernel <-> Oracle DB (Top Right Path) */}
-          <path
-            d="M 50% 50% L 50% 25% L 75% 25%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
-          <motion.path
-            d="M 75% 25% L 50% 25% L 50% 50%"
-            stroke="#F97316"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="15 150"
-            filter="url(#glowOrange)"
-            animate={{ strokeDashoffset: [-165, 165] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          {/* C# Kernel <-> Oracle DB */}
+          <path d="M 50 50 L 50 25 L 75 25" stroke="#1e293b" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+          <Flow
+            d="M 75 25 L 50 25 L 50 50"
+            tone="#F97316"
+            dash="15 150"
+            className="[--hud-dur:1.5s] [--hud-flow:165px] [animation-direction:reverse]"
           />
 
-          {/* C# Kernel -> Schedule Matrix (Bottom Right Path) */}
-          <path
-            d="M 50% 50% L 50% 75% L 75% 75%"
-            stroke="#1e293b"
-            strokeWidth="2"
-            fill="none"
-          />
+          {/* C# Kernel -> Schedule Matrix */}
+          <path d="M 50 50 L 50 75 L 75 75" stroke="#1e293b" strokeWidth={2} vectorEffect="non-scaling-stroke" />
           {opState === 2 && (
-            <motion.path
-              d="M 50% 50% L 50% 75% L 75% 75%"
-              stroke="#10B981"
-              strokeWidth="2"
-              fill="none"
-              strokeDasharray="20 200"
-              filter="url(#glowEmerald)"
-              animate={{ strokeDashoffset: [220, -220] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+            <Flow
+              d="M 50 50 L 50 75 L 75 75"
+              tone="#10B981"
+              dash="20 200"
+              className="[--hud-dur:1.2s] [--hud-flow:220px]"
             />
           )}
         </svg>
 
         {/* 4. LEFT: Windows Forms UI Wireframe */}
         <div className="absolute left-[5%] md:left-[10%] top-1/3 -translate-y-1/2 z-20 w-[55%] max-w-[340px] block">
-          <div className="border border-slate-700 bg-[#020617]/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col h-[220px]">
+          <div className="border border-slate-700 bg-[#020617]/95 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col h-[220px]">
             {/* WinForms Title Bar */}
             <div className="h-6 border-b border-slate-700 flex items-center px-2 bg-[#1e293b]/50 justify-between">
               <div className="flex items-center gap-2">
@@ -220,7 +212,7 @@ export default function SchoolManagementVisual() {
                     <div className="w-16 h-1 bg-slate-700" />
                     <div className="w-10 h-1 bg-slate-700" />
                   </div>
-                  {dataRows.map((row) => (
+                  {DATA_ROWS.map((row) => (
                     <motion.div
                       key={`${opState}-${row}`}
                       initial={{ opacity: 0, x: -5 }}
@@ -248,22 +240,14 @@ export default function SchoolManagementVisual() {
         {/* CENTER NODE: C# OOP Application Kernel */}
         <div className="absolute left-1/2 top-9/12 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center">
           <div className="relative flex items-center justify-center w-14 h-14 lg:w-20 lg:h-20 shrink-0 mb-3">
-            {/* Stacked Window Forms effect representing OOP Layers */}
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 border border-slate-700 bg-[#020617] translate-x-2 translate-y-2"
-            />
-            <motion.div
-              animate={{ y: [0, -2, 0] }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.2,
-              }}
-              className="absolute inset-0 border border-[#3B82F6]/50 bg-[#020617] translate-x-1 translate-y-1"
-            />
+            {/* Stacked Window Forms effect representing OOP Layers. The bob
+                sits on a wrapper so it does not replace the offset. */}
+            <div className="absolute inset-0 translate-x-2 translate-y-2">
+              <div className="hud-bob [--hud-dur:4s] absolute inset-0 border border-slate-700 bg-[#020617]" />
+            </div>
+            <div className="absolute inset-0 translate-x-1 translate-y-1">
+              <div className="hud-bob-sm [--hud-dur:4s] [animation-delay:0.2s] absolute inset-0 border border-[#3B82F6]/50 bg-[#020617]" />
+            </div>
 
             {/* Main Application Core */}
             <div className="absolute inset-0 bg-[#020617] border-2 border-[#3B82F6] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.2)]">
@@ -293,11 +277,7 @@ export default function SchoolManagementVisual() {
             <div className="absolute top-8 w-8 h-2 border border-[#F97316] rounded-[100%]" />
             <Database className="w-5 h-5 lg:w-6 lg:h-6 text-[#F97316] opacity-0" />
             {opState <= 1 && (
-              <motion.div
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="absolute -left-1 -top-1 w-2 h-2 bg-[#F97316] shadow-[0_0_10px_#F97316]"
-              />
+              <div className="hud-pulse [--hud-dur:1s] absolute -left-1 -top-1 w-2 h-2 bg-[#F97316] shadow-[0_0_10px_#F97316]" />
             )}
           </div>
 
@@ -316,22 +296,20 @@ export default function SchoolManagementVisual() {
           <div className="relative p-1.5 lg:p-2 border-2 border-[#10B981]/50 bg-[#020617] shrink-0">
             {/* The 5x6 Matrix Grid for Class Scheduling */}
             <div className="grid grid-cols-5 gap-0.5 w-[60px] lg:w-[80px]">
-              {scheduleGrid.map((index) => {
-                const isProcessing = opState === 2 && Math.random() > 0.5;
+              {SCHEDULE_GRID.map((index) => {
+                const isProcessing = opState === 2 && isLit(index, tick);
                 const isResolved = opState !== 2 && index % 4 !== 0;
 
                 return (
-                  <motion.div
+                  <div
                     key={index}
-                    animate={{
-                      backgroundColor: isProcessing
-                        ? "#10B981"
+                    className={`aspect-square border border-slate-800 transition-colors duration-300 ease-in-out ${
+                      isProcessing
+                        ? "bg-[#10B981]"
                         : isResolved
-                          ? "rgba(16, 185, 129, 0.3)"
-                          : "rgba(30, 41, 59, 0.5)",
-                    }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="aspect-square border border-slate-800"
+                          ? "bg-[#10B981]/30"
+                          : "bg-slate-800/50"
+                    }`}
                   />
                 );
               })}
