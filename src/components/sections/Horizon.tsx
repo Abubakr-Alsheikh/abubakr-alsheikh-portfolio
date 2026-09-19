@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
   Send,
   TerminalSquare,
@@ -11,7 +11,7 @@ import {
   Github,
   Linkedin,
 } from "lucide-react";
-import PlanetCurvature from "@/components/visuals/PlanetCurvature";
+import GeometricBlackHole from "@/components/visuals/GeometricBlackHole";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 
@@ -42,6 +42,15 @@ export default function Horizon({
   const traceRef = useRef<HTMLDivElement>(null);
   const { fill, packetOpacity } = useTraceFill(traceRef);
 
+  // The approach: the hole grows and firms up as you scroll down onto it.
+  const holeRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: approach } = useScroll({
+    target: holeRef,
+    offset: ["start end", "center center"],
+  });
+  const holeScale = useTransform(approach, [0, 1], [0.8, 1]);
+  const holeOpacity = useTransform(approach, [0, 0.7], [0.3, 1]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setFormState("submitting");
@@ -53,12 +62,12 @@ export default function Horizon({
       id="contact"
       className="relative w-full flex flex-col items-center justify-between z-20 overflow-hidden min-h-[100dvh]"
     >
-      <PlanetCurvature />
-
       <div className="w-full max-w-7xl mx-auto relative pt-32 pb-32 px-6 md:px-12 flex-1 flex flex-col justify-center">
+        {/* The rail stops at the black hole's centre: the trace that has run
+            down the whole page falls in. The shadow is drawn over its end. */}
         <div
           ref={traceRef}
-          className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0"
+          className="absolute left-1/2 top-0 bottom-1/2 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0"
         >
           <motion.div
             style={{ height: fill }}
@@ -69,6 +78,21 @@ export default function Horizon({
               label="HORIZON"
               tone="orange"
             />
+          </motion.div>
+        </div>
+
+        {/* Event horizon, behind the contact content and centred on the
+            trace. After the rail in the DOM so the shadow covers its end. */}
+        <div
+          ref={holeRef}
+          className="absolute inset-0 pointer-events-none z-0"
+        >
+          <motion.div
+            style={{ scale: holeScale, opacity: holeOpacity }}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[260vw] md:w-[190vw] max-w-[2900px] aspect-[2/1]"
+          >
+            {/* Dimmed disk: the contact copy is read on top of it. */}
+            <GeometricBlackHole intensity={0.85} />
           </motion.div>
         </div>
 
@@ -190,7 +214,9 @@ export default function Horizon({
               </div>
             </motion.div>
 
-            <div className="bg-[#020617] border border-slate-800 p-8 relative z-10 group-hover:border-[#F97316]/50 transition-colors duration-500 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
+            {/* Translucent, so the black hole reads through the panel instead of
+                being cut in half by it. */}
+            <div className="bg-[#020617]/55 border border-slate-800 p-8 relative z-10 group-hover:border-[#F97316]/50 transition-colors duration-500 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
               <motion.div
                 initial="hidden"
                 whileInView="visible"
@@ -250,7 +276,7 @@ export default function Horizon({
                     </label>
                     <input
                       required
-                      className="w-full bg-[#020617] border-b border-slate-800 px-0 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors"
+                      className="w-full bg-transparent border-b border-slate-800 px-0 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors"
                       placeholder="Enter designation..."
                     />
                   </div>
@@ -261,7 +287,7 @@ export default function Horizon({
                     <input
                       type="email"
                       required
-                      className="w-full bg-[#020617] border-b border-slate-800 px-0 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors"
+                      className="w-full bg-transparent border-b border-slate-800 px-0 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors"
                       placeholder="system@domain.com"
                     />
                   </div>
@@ -272,7 +298,7 @@ export default function Horizon({
                     <textarea
                       rows={4}
                       required
-                      className="w-full bg-[#020617] border border-slate-800 mt-2 px-4 py-3 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors resize-none"
+                      className="w-full bg-[#020617]/60 border border-slate-800 mt-2 px-4 py-3 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors resize-none"
                       placeholder="Describe the architecture required..."
                     />
                   </div>
