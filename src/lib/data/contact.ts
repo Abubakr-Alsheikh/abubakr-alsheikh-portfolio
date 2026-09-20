@@ -1,9 +1,11 @@
 /**
  * The contact section's content. The copy lives here, not in Horizon.tsx.
  *
- * `intro` names no framework on purpose. The hero states the approach rather
- * than the stack (see hero.ts), and a contact line advertising two specific
- * tools contradicts it and dates faster than the rest of the page.
+ * `intro` names no framework on purpose, and says so plainly: the work is
+ * whatever the problem needs, and the stack is the client's to choose. The
+ * hero states the approach rather than the tools (see hero.ts), a contact
+ * line advertising two specific ones contradicts it, and a visitor arriving
+ * with something outside that pair should not read the page as a no.
  */
 export const contactData = {
   email: "AbubakrAlsheikh@outlook.com",
@@ -11,7 +13,7 @@ export const contactData = {
   location: "Aleppo, Syria // Remote",
   headline: { lead: "Initiate", trail: "Connection." },
   intro:
-    "The descent is complete. The architecture is reviewed. If you have a system to design, build or take over, transmit your payload.",
+    "The descent is complete. The architecture is reviewed. Bring the problem and whatever it already runs on: the tools change from one project to the next, the engineering does not. Design, build, take over or repair, transmit your payload.",
   resumeLink: "/Abubakr_Alsheikh_Resume.pdf",
   socials: [
     {
