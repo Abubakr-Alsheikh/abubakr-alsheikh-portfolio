@@ -41,14 +41,21 @@ export const metadata: Metadata = {
     template: "%s | Abubakr Alsheikh",
   },
   description: DESCRIPTION,
+  // Search terms, not a positioning statement: the named frameworks are ones
+  // actually used on shipped work, and they sit among the general terms
+  // rather than standing for what the work is.
   keywords: [
     "Abubakr Alsheikh",
     "Software Engineer",
+    "Backend Developer",
+    "Frontend Developer",
     "Full-Stack Developer",
-    "Django Developer",
-    "Next.js Developer",
+    "API Design",
+    "Developer Tooling",
     "TypeScript",
     "Python Developer",
+    "Django Developer",
+    "Next.js Developer",
     "Syria",
     "Aleppo University",
     "Systems Architect",
