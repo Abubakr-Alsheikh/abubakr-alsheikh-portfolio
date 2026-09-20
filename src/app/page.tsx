@@ -49,7 +49,6 @@ export default function Home() {
       </AnimatePresence>
 
       <main className="relative flex flex-col items-center w-full max-w-full min-h-screen overflow-x-clip selection:bg-[#3B82F6]/30 selection:text-[#3B82F6]">
-        {/* <BackgroundEnv /> */}
         <DeepSpaceEnvironment />
         <TelemetryNav />
         <GLoadWarning />

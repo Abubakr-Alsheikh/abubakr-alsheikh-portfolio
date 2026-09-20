@@ -28,6 +28,10 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+/** One description for the page, the OG card and the Twitter card. */
+const DESCRIPTION =
+  "Systems-focused Software Engineer designing, building and shipping backends, developer tooling and full-stack applications.";
+
 // 2. ADVANCED METADATA & OPEN GRAPH
 export const metadata: Metadata = {
   metadataBase: new URL("https://abubakr-alsheikh.netlify.app"),
@@ -35,8 +39,7 @@ export const metadata: Metadata = {
     default: "Abubakr Alsheikh | Software Engineer",
     template: "%s | Abubakr Alsheikh",
   },
-  description:
-    "Systems-focused Software Engineer specializing in scalable backend infrastructure, robust developer tooling, and modern full-stack applications.",
+  description: DESCRIPTION,
   keywords: [
     "Abubakr Alsheikh",
     "Software Engineer",
@@ -62,8 +65,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://abubakr-alsheikh.netlify.app",
     title: "Abubakr Alsheikh | Software Engineer",
-    description:
-      "Architecting scalable backend infrastructure and robust full-stack applications.",
+    // Same sentence as the page description above: a preview that promises
+    // something the page does not say is worse than a plain one.
+    description: DESCRIPTION,
     siteName: "Abubakr Alsheikh Portfolio",
     images: [
       {
@@ -79,8 +83,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Abubakr Alsheikh | Software Engineer",
-    description:
-      "Architecting scalable backend infrastructure and robust full-stack applications.",
+    description: DESCRIPTION,
     images: ["/og-image.png"],
   },
   robots: {
@@ -133,8 +136,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // No `scroll-smooth` on <html>: the page is scrolled by Lenis, and the
+  // native behaviour runs its own animation against it on every programmatic
+  // scroll. See the smooth scroll contract in agents.md.
   return (
-    <html lang="en" className="dark scroll-smooth max-w-full">
+    <html lang="en" className="dark max-w-full">
       <body
         className={cn(
           "min-h-screen antialiased text-slate-200 overflow-x-clip max-w-full",

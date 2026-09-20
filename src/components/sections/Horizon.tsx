@@ -32,6 +32,8 @@ export default function Horizon({
   contact: {
     email: string;
     location: string;
+    headline: { lead: string; trail: string };
+    intro: string;
     resumeLink: string;
     socials: Array<{ name: string; url: string; icon: string }>;
   };
@@ -140,8 +142,8 @@ export default function Horizon({
               viewport={{ once: true }}
               className="text-5xl md:text-7xl lg:text-8xl font-space font-bold text-slate-100 tracking-tighter leading-[0.95] mb-8"
             >
-              Initiate <br />
-              <span className="text-slate-600">Connection.</span>
+              {contact.headline.lead} <br />
+              <span className="text-slate-600">{contact.headline.trail}</span>
             </motion.h2>
 
             <motion.p
@@ -150,9 +152,7 @@ export default function Horizon({
               viewport={{ once: true }}
               className="text-sm md:text-base text-slate-400 font-mono font-light leading-relaxed max-w-md border-l-2 border-[#3B82F6] pl-6 mb-12"
             >
-              The descent is complete. The architecture is reviewed. If you need
-              a scalable Django backend or a fluid Next.js frontend—transmit
-              your payload.
+              {contact.intro}
             </motion.p>
 
             <motion.div
@@ -405,7 +405,12 @@ export default function Horizon({
           <div className="flex items-center gap-3">
             <span className="w-2 h-2 rounded-full bg-[#F97316] animate-pulse shadow-[0_0_8px_#F97316]" />
             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
-              SYS.ONLINE // {new Date().getFullYear()} Abubakr Alsheikh
+              {/* Rendered at build time into the static HTML, then again by the
+                  client on a later date: suppressed so the two may differ,
+                  which they do for one page load every new year. */}
+              <span suppressHydrationWarning>
+                SYS.ONLINE // {new Date().getFullYear()} Abubakr Alsheikh
+              </span>
             </span>
           </div>
 
