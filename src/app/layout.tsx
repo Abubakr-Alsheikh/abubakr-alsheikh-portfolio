@@ -67,7 +67,9 @@ export const metadata: Metadata = {
     siteName: "Abubakr Alsheikh Portfolio",
     images: [
       {
-        url: "/og-image.jpg", // Create a 1200x630 image and put it in your /public folder
+        // The file in /public is a .png; pointing at .jpg served every
+        // link preview a 404.
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Abubakr Alsheikh - Software Engineer Portfolio System",
@@ -79,7 +81,7 @@ export const metadata: Metadata = {
     title: "Abubakr Alsheikh | Software Engineer",
     description:
       "Architecting scalable backend infrastructure and robust full-stack applications.",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,

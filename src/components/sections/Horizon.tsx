@@ -36,9 +36,9 @@ export default function Horizon({
     socials: Array<{ name: string; url: string; icon: string }>;
   };
 }) {
-  const [formState, setFormState] = useState<"idle" | "submitting" | "success">(
-    "idle",
-  );
+  const [formState, setFormState] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
   const traceRef = useRef<HTMLDivElement>(null);
   const { fill, packetOpacity } = useTraceFill(traceRef);
 
@@ -51,10 +51,34 @@ export default function Horizon({
   const holeScale = useTransform(approach, [0, 1], [0.8, 1]);
   const holeOpacity = useTransform(approach, [0, 0.7], [0.3, 1]);
 
-  const handleSubmit = (e: FormEvent) => {
+  /**
+   * Netlify Forms. The submission is posted to `public/__forms.html`, which is
+   * where the form is declared: Netlify registers forms by parsing the static
+   * files it deploys, and an App Router page is not one of those files. Every
+   * field here has to exist in that file too, or it is dropped.
+   *
+   * Posted by fetch rather than by a native submit so the panel keeps its
+   * state instead of the browser navigating away.
+   */
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
     setFormState("submitting");
-    setTimeout(() => setFormState("success"), 1500);
+
+    try {
+      const response = await fetch("/__forms.html", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(
+          new FormData(form) as unknown as Record<string, string>,
+        ).toString(),
+      });
+      if (!response.ok) throw new Error(`Netlify returned ${response.status}`);
+      setFormState("success");
+    } catch {
+      // The address below is the fallback, so say so rather than swallowing it.
+      setFormState("error");
+    }
   };
 
   return (
@@ -269,46 +293,100 @@ export default function Horizon({
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                <form
+                  name="contact"
+                  method="POST"
+                  data-netlify="true"
+                  netlify-honeypot="bot-field"
+                  onSubmit={handleSubmit}
+                  className="flex flex-col gap-6"
+                >
+                  <input type="hidden" name="form-name" value="contact" />
+                  {/* Honeypot: a real visitor never sees it, a bot fills it
+                      and Netlify drops the submission. */}
+                  <p className="hidden">
+                    <label>
+                      Leave this field empty
+                      <input name="bot-field" tabIndex={-1} autoComplete="off" />
+                    </label>
+                  </p>
+
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-mono text-slate-500 tracking-widest uppercase">
+                    <label
+                      htmlFor="contact-name"
+                      className="text-[10px] font-mono text-slate-500 tracking-widest uppercase"
+                    >
                       IDENTIFIER // Name
                     </label>
                     <input
+                      id="contact-name"
+                      name="name"
+                      autoComplete="name"
                       required
-                      className="w-full bg-transparent border-b border-slate-800 px-0 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors"
+                      disabled={formState === "submitting"}
+                      className="w-full bg-transparent border-b border-slate-800 px-0 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors disabled:opacity-60"
                       placeholder="Enter designation..."
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-mono text-slate-500 tracking-widest uppercase">
+                    <label
+                      htmlFor="contact-email"
+                      className="text-[10px] font-mono text-slate-500 tracking-widest uppercase"
+                    >
                       RETURN_ROUTE // Email
                     </label>
                     <input
+                      id="contact-email"
+                      name="email"
                       type="email"
+                      autoComplete="email"
                       required
-                      className="w-full bg-transparent border-b border-slate-800 px-0 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors"
+                      disabled={formState === "submitting"}
+                      className="w-full bg-transparent border-b border-slate-800 px-0 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors disabled:opacity-60"
                       placeholder="system@domain.com"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-mono text-slate-500 tracking-widest uppercase">
+                    <label
+                      htmlFor="contact-message"
+                      className="text-[10px] font-mono text-slate-500 tracking-widest uppercase"
+                    >
                       DATA_PAYLOAD // Objective
                     </label>
                     <textarea
+                      id="contact-message"
+                      name="message"
                       rows={4}
                       required
-                      className="w-full bg-[#020617]/60 border border-slate-800 mt-2 px-4 py-3 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors resize-none"
+                      disabled={formState === "submitting"}
+                      className="w-full bg-[#020617]/60 border border-slate-800 mt-2 px-4 py-3 text-slate-200 font-mono text-sm focus:outline-none focus:border-[#3B82F6] transition-colors resize-none disabled:opacity-60"
                       placeholder="Describe the architecture required..."
                     />
                   </div>
+
+                  {formState === "error" ? (
+                    <p
+                      role="alert"
+                      className="border border-[#F97316]/40 bg-[#F97316]/5 px-4 py-3 font-mono text-[11px] leading-relaxed text-[#F97316]"
+                    >
+                      TRANSMISSION FAILED // the relay did not answer. Mail{" "}
+                      <a href={`mailto:${contact.email}`} className="underline">
+                        {contact.email}
+                      </a>{" "}
+                      instead.
+                    </p>
+                  ) : null}
+
                   <button
                     type="submit"
-                    className="w-full py-4 mt-4 bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316] hover:text-[#020617] font-mono text-xs tracking-widest uppercase transition-all flex justify-center items-center gap-3 group/btn"
+                    disabled={formState === "submitting"}
+                    className="w-full py-4 mt-4 bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316] hover:text-[#020617] font-mono text-xs tracking-widest uppercase transition-all flex justify-center items-center gap-3 group/btn disabled:cursor-wait disabled:hover:bg-[#F97316]/10 disabled:hover:text-[#F97316]"
                   >
                     {formState === "submitting"
                       ? "Transmitting..."
-                      : "Transmit Payload"}
+                      : formState === "error"
+                        ? "Retry Transmission"
+                        : "Transmit Payload"}
                     <Send className="w-4 h-4 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
                   </button>
                 </form>

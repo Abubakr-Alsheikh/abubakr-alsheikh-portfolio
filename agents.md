@@ -241,6 +241,8 @@ The HUD includes built-in developer Easter eggs. Maintain and respect them.
 
 This project is optimized for modern hosting environments (Netlify/Vercel).
 
+- **Contact Form**: Netlify Forms. The form is declared in `public/__forms.html` and posted there by `fetch` from `Horizon.tsx`. Netlify registers a form by parsing the static files it deploys, and an App Router page is not one of those files, so the declaration file is what makes the form exist; every field the component sends must also appear in it. A failed post shows the email address instead of swallowing the message. Form detection has to be on in the Netlify site settings, and submissions land under Forms there.
+- **Link Previews**: `layout.tsx` names the OG image; the file lives in `public/` and its extension must match (a `.jpg` reference against a `.png` file served a 404 to every scraper). The image is a 1200x630 capture of the hero, so re-shoot it whenever the hero's headline or status changes.
 - **Deployment Platform**: Primarily Netlify (as seen in `sitemap.ts`). Ensure `metadataBase` in `layout.tsx` matches the production URL.
 - **SEO & Metadata**: Every page modification must check `layout.tsx` for OpenGraph and Twitter card integrity. Use the "Space Grotesk" aesthetic for OG images.
 - **Robots & Sitemaps**: Dynamic routes (if added) must be reflected in `src/app/sitemap.ts` and `src/app/robots.ts`.

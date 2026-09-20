@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Form definitions</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <!--
+      Netlify finds forms by parsing the HTML files it deploys. The App Router
+      serves its pages from the Next runtime rather than as files in the
+      publish directory, so the contact form in Horizon.tsx is invisible to
+      that scan. This file is the form's declaration: it is deployed as a
+      static file, Netlify reads it at build time and registers the form, and
+      the real form POSTs here.
+
+      Every field the form sends must be listed here, or Netlify drops it.
+      Keep it in step with `src/components/sections/Horizon.tsx`.
+    -->
+    <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="contact" />
+      <input type="text" name="bot-field" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <textarea name="message"></textarea>
+    </form>
+  </body>
+</html>
