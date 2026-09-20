@@ -13,12 +13,40 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useOffscreen } from "@/hooks/useOffscreen";
+import {
+  anchor,
+  legMid,
+  nodeStyle,
+  route,
+  routeV,
+  Wire,
+  WireLabel,
+  WirePort,
+  WiringLayer,
+  type HudNode,
+} from "./HudWiring";
 
 /**
- * Every loop here is a CSS keyframe from globals.css, and the whole card
- * freezes while it is off screen (`data-offscreen`). The state timer stops
- * with it. See the project-visual rule in agents.md before adding motion.
+ * School Management: a WinForms dashboard over a C# kernel, an Oracle
+ * database and the timetable solver.
+ *
+ * Built on the QaderVisual pattern: nodes and wires read one coordinate map,
+ * a node's wrapper is its body with the name hanging off it, and every loop
+ * is a CSS keyframe that freezes with `data-offscreen`.
  */
+
+/** Panel percentages. `rx`/`ry` are the half-size of the body a wire stops
+ *  at. The dashboard's height is a percentage too, so its edge stays where
+ *  the map says whatever height the card takes. */
+const NODES = {
+  dashboard: { x: 30, y: 30, rx: 26, ry: 16 },
+  kernel: { x: 30, y: 72, rx: 7.2, ry: 6.6 },
+  oracle: { x: 83, y: 24, rx: 5.2, ry: 4.7 },
+  matrix: { x: 83, y: 76, rx: 8.1, ry: 8.5 },
+} satisfies Record<string, HudNode>;
+
+/** Both right-hand wires turn on this line, so they read as one bus. */
+const BUS_X = 62;
 
 /** 5x6 schedule matrix (days x periods). */
 const SCHEDULE_GRID = Array.from({ length: 30 }, (_, i) => i);
@@ -32,26 +60,6 @@ const DATA_ROWS = Array.from({ length: 5 }, (_, i) => i);
  */
 function isLit(index: number, tick: number) {
   return (index * 7 + tick * 3) % 5 < 2;
-}
-
-/** One flowing packet: a faint wide stroke under a 2px one, sharing a dash. */
-function Flow({
-  d,
-  tone,
-  dash,
-  className,
-}: {
-  d: string;
-  tone: string;
-  dash: string;
-  className: string;
-}) {
-  return (
-    <g className={`hud-flow ${className}`} strokeDasharray={dash} stroke={tone}>
-      <path d={d} strokeWidth={6} strokeOpacity={0.2} vectorEffect="non-scaling-stroke" />
-      <path d={d} strokeWidth={2} vectorEffect="non-scaling-stroke" />
-    </g>
-  );
 }
 
 export default function SchoolManagementVisual() {
@@ -80,6 +88,16 @@ export default function SchoolManagementVisual() {
   // Students and staff are read from the kernel out to the UI.
   const toUi = opState === 0 || opState === 1;
 
+  const dashboardOut = anchor(NODES.dashboard, "bottom");
+  const kernelIn = anchor(NODES.kernel, "top");
+  const kernelOut = anchor(NODES.kernel, "right");
+  const oracleIn = anchor(NODES.oracle, "left");
+  const matrixIn = anchor(NODES.matrix, "left");
+
+  const uiWire = routeV(dashboardOut, kernelIn);
+  const dbWire = route(kernelOut, oracleIn, BUS_X);
+  const matrixWire = route(kernelOut, matrixIn, BUS_X);
+
   return (
     <div
       ref={ref}
@@ -106,50 +124,63 @@ export default function SchoolManagementVisual() {
           <div className="hud-traverse-y [--hud-dur:12s] absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,#3B82F6_50%,transparent_100%)]" />
         </div>
 
-        {/* 3. Data access layer wiring. A 0-100 box stretched to the panel,
-            with non-scaling strokes so lines and dashes stay in screen pixels. */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none z-10"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          fill="none"
-          aria-hidden="true"
-        >
-          {/* C# Kernel <-> WinForms UI */}
-          <path d="M 25 50 L 50 50" stroke="#1e293b" strokeWidth={2} vectorEffect="non-scaling-stroke" />
-          <Flow
-            d="M 25 50 L 50 50"
+        {/* 3. Data access layer. The UI wire runs kernel-to-window while a
+            grid is being filled, and the solver's wire only carries anything
+            while the timetable is generating. */}
+        <WiringLayer>
+          <Wire
+            d={uiWire}
             tone="#3B82F6"
-            dash="15 150"
-            className={`[--hud-dur:1.2s] [--hud-flow:165px] ${toUi ? "[animation-direction:reverse]" : ""}`}
+            dash="14 120"
+            seconds={1.2}
+            reverse={toUi}
           />
-
-          {/* C# Kernel <-> Oracle DB */}
-          <path d="M 50 50 L 50 25 L 75 25" stroke="#1e293b" strokeWidth={2} vectorEffect="non-scaling-stroke" />
-          <Flow
-            d="M 75 25 L 50 25 L 50 50"
+          <Wire
+            d={dbWire}
             tone="#F97316"
-            dash="15 150"
-            className="[--hud-dur:1.5s] [--hud-flow:165px] [animation-direction:reverse]"
+            dash="14 150"
+            seconds={1.5}
+            delaySeconds={0.2}
           />
+          <Wire
+            d={matrixWire}
+            tone="#10B981"
+            dash="18 180"
+            seconds={1.2}
+            live={opState === 2}
+          />
+        </WiringLayer>
 
-          {/* C# Kernel -> Schedule Matrix */}
-          <path d="M 50 50 L 50 75 L 75 75" stroke="#1e293b" strokeWidth={2} vectorEffect="non-scaling-stroke" />
-          {opState === 2 && (
-            <Flow
-              d="M 50 50 L 50 75 L 75 75"
-              tone="#10B981"
-              dash="20 200"
-              className="[--hud-dur:1.2s] [--hud-flow:220px]"
-            />
-          )}
-        </svg>
+        {/* Pads where a wire meets a node, and what each wire carries. */}
+        <WirePort at={dashboardOut} tone="#3B82F6" />
+        <WirePort at={kernelIn} />
+        <WirePort at={kernelOut} />
+        <WirePort at={oracleIn} tone="#F97316" />
+        <WirePort at={matrixIn} tone="#10B981" />
 
-        {/* 4. LEFT: Windows Forms UI Wireframe */}
-        <div className="absolute left-[5%] md:left-[10%] top-1/3 -translate-y-1/2 z-20 w-[55%] max-w-[340px] block">
-          <div className="border border-slate-700 bg-[#020617]/95 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col h-[220px]">
+        <WireLabel
+          at={{ x: dashboardOut.x, y: (dashboardOut.y + kernelIn.y) / 2 }}
+        >
+          DATAGRID
+        </WireLabel>
+        <WireLabel at={legMid(BUS_X, oracleIn)} tone="text-[#F97316]">
+          SQL
+        </WireLabel>
+        <WireLabel at={legMid(BUS_X, matrixIn)} tone="text-[#10B981]">
+          SOLVE
+        </WireLabel>
+
+        {/* 4. NODES */}
+
+        {/* NODE 1: the Windows Forms dashboard. The wrapper is the window, so
+            the kernel's wire meets its edge rather than its caption. */}
+        <div
+          style={nodeStyle(NODES.dashboard)}
+          className="absolute -translate-x-1/2 -translate-y-1/2 z-20 w-[52%] max-w-[340px] h-[32%]"
+        >
+          <div className="w-full h-full border border-slate-700 bg-[#020617]/95 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col">
             {/* WinForms Title Bar */}
-            <div className="h-6 border-b border-slate-700 flex items-center px-2 bg-[#1e293b]/50 justify-between">
+            <div className="h-6 shrink-0 border-b border-slate-700 flex items-center px-2 bg-[#1e293b]/50 justify-between">
               <div className="flex items-center gap-2">
                 <AppWindow className="w-3 h-3 text-[#3B82F6]" />
                 <span className="text-[9px] text-slate-300 tracking-widest font-sans">
@@ -165,7 +196,7 @@ export default function SchoolManagementVisual() {
 
             <div className="flex flex-1 overflow-hidden">
               {/* Sidebar Navigation */}
-              <div className="w-[80px] border-r border-slate-800 p-2 flex flex-col gap-2">
+              <div className="w-[80px] shrink-0 border-r border-slate-800 p-2 flex flex-col gap-2">
                 <div
                   className={`flex items-center gap-1.5 p-1 transition-colors ${opState === 0 ? "bg-[#3B82F6]/20 text-[#3B82F6]" : "text-slate-500"}`}
                 >
@@ -193,7 +224,7 @@ export default function SchoolManagementVisual() {
               </div>
 
               {/* Main DataGrid Area */}
-              <div className="flex-1 p-3 flex flex-col">
+              <div className="flex-1 p-3 flex flex-col overflow-hidden">
                 <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-800">
                   <TableProperties className="w-4 h-4 text-slate-400" />
                   <span className="text-[8px] uppercase tracking-widest text-slate-400">
@@ -235,11 +266,12 @@ export default function SchoolManagementVisual() {
           </div>
         </div>
 
-        {/* 5. HARDWARE NODES */}
-
-        {/* CENTER NODE: C# OOP Application Kernel */}
-        <div className="absolute left-1/2 top-9/12 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center justify-center">
-          <div className="relative flex items-center justify-center w-14 h-14 lg:w-20 lg:h-20 shrink-0 mb-3">
+        {/* NODE 2: C# OOP application kernel */}
+        <div
+          style={nodeStyle(NODES.kernel)}
+          className="absolute -translate-x-1/2 -translate-y-1/2 z-20 w-14 h-14 lg:w-20 lg:h-20"
+        >
+          <div className="relative w-full h-full">
             {/* Stacked Window Forms effect representing OOP Layers. The bob
                 sits on a wrapper so it does not replace the offset. */}
             <div className="absolute inset-0 translate-x-2 translate-y-2">
@@ -258,7 +290,7 @@ export default function SchoolManagementVisual() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center bg-[#020617]/90 px-2 py-1 border border-slate-800 whitespace-nowrap">
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 flex flex-col items-center bg-[#020617]/90 px-2 py-1 border border-slate-800 whitespace-nowrap">
             <span className="text-[9px] lg:text-[11px] font-bold text-white tracking-widest">
               APP KERNEL
             </span>
@@ -268,9 +300,12 @@ export default function SchoolManagementVisual() {
           </div>
         </div>
 
-        {/* TOP RIGHT NODE: Oracle Relational Database */}
-        <div className="absolute left-[80%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
-          <div className="w-12 h-12 lg:w-16 lg:h-16 shrink-0 border-2 border-[#F97316] flex items-center justify-center bg-[#020617] relative">
+        {/* NODE 3: Oracle relational database */}
+        <div
+          style={nodeStyle(NODES.oracle)}
+          className="absolute -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 lg:w-16 lg:h-16"
+        >
+          <div className="w-full h-full border-2 border-[#F97316] flex items-center justify-center bg-[#020617] relative">
             {/* Oracle Database platters */}
             <div className="absolute top-2 w-8 h-2 border border-[#F97316] rounded-[100%]" />
             <div className="absolute top-5 w-8 h-2 border border-[#F97316] rounded-[100%]" />
@@ -281,7 +316,7 @@ export default function SchoolManagementVisual() {
             )}
           </div>
 
-          <div className="flex flex-col items-center bg-[#020617]/90 px-2 py-1 border border-slate-800 text-center">
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 flex flex-col items-center bg-[#020617]/90 px-2 py-1 border border-slate-800 text-center">
             <span className="text-[9px] lg:text-[11px] font-bold text-white tracking-widest whitespace-nowrap">
               ORACLE_DB
             </span>
@@ -291,9 +326,12 @@ export default function SchoolManagementVisual() {
           </div>
         </div>
 
-        {/* BOTTOM RIGHT NODE: The Schedule Matrix Algorithm */}
-        <div className="absolute left-[80%] top-[75%] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
-          <div className="relative p-1.5 lg:p-2 border-2 border-[#10B981]/50 bg-[#020617] shrink-0">
+        {/* NODE 4: the schedule matrix solver */}
+        <div
+          style={nodeStyle(NODES.matrix)}
+          className="absolute -translate-x-1/2 -translate-y-1/2 z-20"
+        >
+          <div className="relative p-1.5 lg:p-2 border-2 border-[#10B981]/50 bg-[#020617]">
             {/* The 5x6 Matrix Grid for Class Scheduling */}
             <div className="grid grid-cols-5 gap-0.5 w-[60px] lg:w-[80px]">
               {SCHEDULE_GRID.map((index) => {
@@ -320,7 +358,7 @@ export default function SchoolManagementVisual() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center bg-[#020617]/90 px-2 py-1 border border-slate-800 text-center">
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 flex flex-col items-center bg-[#020617]/90 px-2 py-1 border border-slate-800 text-center">
             <span className="text-[9px] lg:text-[11px] font-bold text-white tracking-widest whitespace-nowrap">
               MATRIX_ENGINE
             </span>
