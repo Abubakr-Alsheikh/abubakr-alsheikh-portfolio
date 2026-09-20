@@ -25,7 +25,8 @@ export const viewport: Viewport = {
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // No maximumScale: capping it blocks pinch zoom, which is the one control
+  // a reader with low vision has on a page of 8px HUD labels.
 };
 
 /** One description for the page, the OG card and the Twitter card. */

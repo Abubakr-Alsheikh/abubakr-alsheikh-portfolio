@@ -210,6 +210,8 @@ High-fidelity HUDs with SVGs and Canvas can become sluggish. Maintain 60FPS at a
 - **Batch Canvas Strokes**: In a loop drawing hundreds of segments, bucket them by colour and alpha and issue one `beginPath`/`stroke` per bucket (`WarpField.tsx`: 3 tints × 4 brightness levels = 12 strokes a frame). One `stroke()` per element is the cost that shows up first.
 - **Canvas Lifecycle**: The `DeepSpaceEnvironment.tsx` uses `requestAnimationFrame`. Always ensure a cleanup function is present to `cancelAnimationFrame` on unmount to prevent memory leaks.
 - **Component Memoization**: Use `React.memo` for static background visuals or heavy SVG components that do not rely on scroll state to prevent unnecessary re-renders.
+- **Weigh Every Asset**: the page's whole transfer is ~330KB. It was 1.7MB because `src/app/icon0.svg` was an SVG wrapping a base64 PNG - a 1.38MB favicon fetched on every load. An icon belongs in `icon1.png` (96x96) and `favicon.ico`. A `next/image` with `fill` and no `sizes` requests the widest source in the set (1920px of PNG for the 48px nav mark), so `fill` always takes a `sizes`. Re-measure with `performance.getEntriesByType("resource")` after adding anything binary.
+- **Manifest Matches The Theme**: `manifest.json` carries `theme_color` and `background_color` of `#020617`. White there flashes a white address bar and splash on a page that is otherwise all deep space.
 - **Dynamic Imports**: For heavy visual modules (e.g., `GeometricJupiter.tsx`), use `next/dynamic` with `{ ssr: false }` to reduce initial bundle size and ensure hydration matches.
 
 ## 16. Accessibility (The "Readable HUD" Rule)
@@ -218,7 +220,9 @@ Technical aesthetics must not sacrifice usability. A true engineer builds for ev
 
 - **ARIA for SVGs**: Decorative SVGs must have `aria-hidden="true"`. Interactive or data-driven SVGs must have a `<title>` tag and `role="img"`.
 - **Motion Sensitivity**: Respect the user's system preferences. Use the `useReducedMotion` hook from Framer Motion to disable intense parallax or flashing for users who prefer reduced motion.
-- **Contrast Ratios**: While the theme is dark (`#020617`), ensure text (`#F8FAFC` or `#94A3B8`) maintains high contrast against background elements.
+- **Contrast Floor**: `slate-400` (`#94A3B8`) is the darkest text on `#020617` that clears 4.5:1. `slate-500` measures 3.7:1 and `slate-600` worse, so they are for borders, rules and dots, never for a label a visitor has to read. The page is checked with axe (`axe.run(document)`) and sits at zero violations; keep it there.
+- **Decoration Stays Out Of The Tree**: `CockpitCanopy` is `aria-hidden`, whole. Its ladders and readouts are a lens over the page, not content, and without that they are announced and flagged for contrast at 8px.
+- **Zoom Is Never Capped**: the viewport export carries no `maximumScale`. On a page of 8px HUD labels, pinch zoom is the one control a reader with low vision has.
 - **Keyboard Navigation**: The `TelemetryNav` and `AdminTerminal` must be fully navigable via Tab and Enter.
 
 ## 17. Data Schema Integrity (The "Source of Truth" Rule)

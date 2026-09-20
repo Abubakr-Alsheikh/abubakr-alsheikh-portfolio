@@ -260,7 +260,7 @@ export default function Hero({
 
               {/* Panel header, in the same idiom as the nav and boot plates. */}
               <div className="flex justify-between items-center gap-4 px-6 lg:px-8 py-2.5 border-b border-slate-800 font-mono text-[9px] tracking-widest uppercase">
-                <span className="text-slate-500">Operator.Profile</span>
+                <span className="text-slate-400">Operator.Profile</span>
                 <span className="flex items-center gap-2 text-[#3B82F6]">
                   <span aria-hidden="true" className="hud-blink w-1.5 h-1.5 bg-[#3B82F6]" />
                   Online
@@ -282,7 +282,7 @@ export default function Hero({
                       key={spec.sys}
                       className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-3 py-2.5 border-b border-slate-800/70 font-mono text-[11px] md:text-xs tracking-wider"
                     >
-                      <span className="flex items-center gap-2 text-slate-500 tracking-widest">
+                      <span className="flex items-center gap-2 text-slate-400 tracking-widest">
                         <span aria-hidden="true" className="w-1 h-1 bg-[#F97316]" />
                         {spec.sys}
                       </span>

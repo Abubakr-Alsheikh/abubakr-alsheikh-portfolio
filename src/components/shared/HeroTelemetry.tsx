@@ -69,8 +69,8 @@ export default function HeroTelemetry({ data }: { data: Telemetry }) {
       <span aria-hidden="true" className="pointer-events-none absolute bottom-1 right-1 h-1 w-1 bg-slate-800" />
 
       <div className="flex justify-between items-center gap-4 px-5 py-2.5 border-b border-slate-800 font-mono text-[9px] tracking-widest uppercase">
-        <span className="text-slate-500">Local_Time // Base</span>
-        <span className="text-slate-600">{data.base.offset}</span>
+        <span className="text-slate-400">Local_Time // Base</span>
+        <span className="text-slate-400">{data.base.offset}</span>
       </div>
 
       <div className="px-5 pt-5 pb-4">
@@ -80,7 +80,7 @@ export default function HeroTelemetry({ data }: { data: Telemetry }) {
             <span className="hud-blink text-[#F97316]">:</span>
             {clock ? clock.mm : "--"}
           </span>
-          <span className="font-mono text-sm text-slate-500">
+          <span className="font-mono text-sm text-slate-400">
             {clock ? clock.ss : "--"}
           </span>
         </p>
@@ -105,7 +105,7 @@ export default function HeroTelemetry({ data }: { data: Telemetry }) {
                   }`}
                 />
                 {major && (
-                  <span className="absolute top-3 -translate-x-1/2 font-mono text-[8px] tracking-widest text-slate-600">
+                  <span className="absolute top-3 -translate-x-1/2 font-mono text-[8px] tracking-widest text-slate-400">
                     {String(h % 24).padStart(2, "0")}
                   </span>
                 )}

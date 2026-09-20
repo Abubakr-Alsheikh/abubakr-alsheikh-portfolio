@@ -314,7 +314,7 @@ export default function Horizon({
                   <div className="flex flex-col gap-2">
                     <label
                       htmlFor="contact-name"
-                      className="text-[10px] font-mono text-slate-500 tracking-widest uppercase"
+                      className="text-[10px] font-mono text-slate-400 tracking-widest uppercase"
                     >
                       IDENTIFIER // Name
                     </label>
@@ -331,7 +331,7 @@ export default function Horizon({
                   <div className="flex flex-col gap-2">
                     <label
                       htmlFor="contact-email"
-                      className="text-[10px] font-mono text-slate-500 tracking-widest uppercase"
+                      className="text-[10px] font-mono text-slate-400 tracking-widest uppercase"
                     >
                       RETURN_ROUTE // Email
                     </label>
@@ -349,7 +349,7 @@ export default function Horizon({
                   <div className="flex flex-col gap-2">
                     <label
                       htmlFor="contact-message"
-                      className="text-[10px] font-mono text-slate-500 tracking-widest uppercase"
+                      className="text-[10px] font-mono text-slate-400 tracking-widest uppercase"
                     >
                       DATA_PAYLOAD // Objective
                     </label>
@@ -414,10 +414,10 @@ export default function Horizon({
             </span>
           </div>
 
-          <div className="flex items-center gap-6 text-[10px] font-mono text-slate-600 uppercase tracking-widest">
+          <div className="flex items-center gap-6 text-[10px] font-mono text-slate-400 uppercase tracking-widest">
             <div className="hidden md:flex items-center gap-4 border-r border-slate-800 pr-6">
               <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair">
-                [ NEXT.JS_ENGINE ]
+                [ BUILT_FROM_SCRATCH ]
               </span>
               <span className="hover:text-[#3B82F6] transition-colors cursor-crosshair">
                 [ ORBITAL_STABLE ]
@@ -431,7 +431,7 @@ export default function Horizon({
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-2 text-[10px] font-mono tracking-[0.2em] text-slate-500 hover:text-[#F97316] transition-all duration-300"
+                  className="group flex items-center gap-2 text-[10px] font-mono tracking-[0.2em] text-slate-400 hover:text-[#F97316] transition-all duration-300"
                   title={social.name}
                 >
                   {/* Opening Bracket - Static Slate to Active Orange */}

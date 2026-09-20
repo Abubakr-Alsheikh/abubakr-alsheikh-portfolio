@@ -229,7 +229,9 @@ const CockpitCanopy = React.memo(() => {
   });
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-40">
+    // Decoration, all of it: the ladders, the tick marks and the readouts
+    // are a lens over the page, so they stay out of the accessibility tree.
+    <div className="fixed inset-0 pointer-events-none z-40" aria-hidden="true">
       {/* Frame chrome. The hull tick is a sub-pixel drift that keeps the glass
           from looking painted on; the whole group moves as one plate. */}
       <motion.div

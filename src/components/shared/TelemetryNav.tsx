@@ -73,7 +73,7 @@ function VelocityGraph({ velocity }: { velocity: MotionValue<number> }) {
 
   return (
     <div className="hidden flex-col items-end gap-1 md:flex">
-      <span className="font-mono text-[8px] uppercase tracking-widest text-slate-500">
+      <span className="font-mono text-[8px] uppercase tracking-widest text-slate-400">
         SCROLL.V
       </span>
       <svg width="76" height="24" aria-hidden="true">
@@ -222,6 +222,9 @@ export default function TelemetryNav() {
                 src="/web-app-manifest-512x512.png"
                 alt="Abubakr Alsheikh"
                 fill
+                // Without this a `fill` image asks for the widest source in
+                // the set: 1920px of PNG for a 48px mark.
+                sizes="48px"
                 className="object-contain"
               />
             </div>
@@ -254,7 +257,7 @@ export default function TelemetryNav() {
                       className={`relative px-3 py-4 font-mono text-[10px] tracking-widest transition-colors ${
                         isActive
                           ? "text-[#F97316]"
-                          : "text-slate-500 hover:text-slate-200"
+                          : "text-slate-400 hover:text-slate-200"
                       }`}
                     >
                       {link.short}
@@ -280,7 +283,7 @@ export default function TelemetryNav() {
                 <VelocityGraph velocity={smoothVelocity} />
 
                 <div className="flex w-20 flex-col text-right">
-                  <span className="mb-1 font-mono text-[8px] uppercase tracking-widest text-slate-500">
+                  <span className="mb-1 font-mono text-[8px] uppercase tracking-widest text-slate-400">
                     Velocity
                   </span>
                   <span className="font-mono text-xs tracking-widest text-slate-200 tabular-nums md:text-sm">
@@ -292,7 +295,7 @@ export default function TelemetryNav() {
                   onClick={() => setIsTerminalOpen(true)}
                   aria-label="Open root terminal (backtick)"
                   title="Root terminal  [ ` ]"
-                  className="flex items-center gap-1.5 border border-slate-800 px-2 py-1.5 font-mono text-[9px] uppercase tracking-widest text-slate-500 transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6]"
+                  className="flex items-center gap-1.5 border border-slate-800 px-2 py-1.5 font-mono text-[9px] uppercase tracking-widest text-slate-400 transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6]"
                 >
                   <TerminalSquare className="h-3.5 w-3.5" />
                   <span className="hidden xl:inline">`</span>

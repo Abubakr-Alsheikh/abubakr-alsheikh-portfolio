@@ -90,7 +90,7 @@ const GLoadWarning = React.memo(() => {
             <span className="text-[#F97316]">G-LOAD HIGH</span>
 
             {/* Live G number */}
-            <span className="text-slate-500">
+            <span className="text-slate-400">
               {gLoadValue.toFixed(1)} <span className="text-[8px]">G</span>
             </span>
           </div>
