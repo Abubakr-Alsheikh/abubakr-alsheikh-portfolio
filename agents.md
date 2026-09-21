@@ -31,6 +31,7 @@ npx tsc --noEmit         # Full type-safety check
 ```
 src/
 ├── app/                  # Route Manifest & Metadata (Layout, Page, Sitemap)
+│   └── api/chat/         # POST route for the terminal agent (Netlify function, NDJSON stream)
 ├── components/           
 │   ├── sections/         # Flush-stacked UI blocks (Hero, About, Engine)
 │   ├── shared/           # HUD Telemetry, Navigation, & Circuit Routing
@@ -38,6 +39,7 @@ src/
 │   └── visuals/          # Complex SVG/Canvas Aerospace environments
 ├── hooks/                # HUD state logic (Trace Continuity, Scroll Velocity, Boot)
 ├── lib/                  
+│   ├── chat/             # Terminal agent: tool registry, frozen prompt, agent loop, wire protocol
 │   ├── data/             # Centralized source of truth for all content
 │   │                     #   incl. buildLog.ts (scroll stream) and bootSequence.ts (POST + launch stages)
 │   └── utils.ts          # Tailwind merging & logic helpers
@@ -239,7 +241,7 @@ The HUD includes built-in developer Easter eggs. Maintain and respect them.
 
 - **Console Art**: Do not remove the `useBootSequence.ts` hook. It handles the stylized ASCII art in the browser console.
 - **HUD Diagnostics**: Use the `TelemetryNav` as a visual debugger. If `VELOCITY` or `ALTITUDE` is not updating, the scroll hook is disconnected.
-- **Terminal Overrides**: The `AdminTerminal.tsx` is the primary "God Mode" interface. New hidden commands should be added to the `switch` statement in `handleCommand`.
+- **Terminal Overrides**: The `AdminTerminal.tsx` is the primary "God Mode" interface. New hidden commands go in the `switch` of `localCommand`; they answer in the browser with no model call. Any input that is not a local command is a question for the agent (see Terminal Agent in §19).
 
 ## 19. Environment & Deployment (The "Orbital Stable" Rule)
 
@@ -248,6 +250,11 @@ This project is optimized for modern hosting environments (Netlify/Vercel).
 - **Contact Copy**: lives in `src/lib/data/contact.ts` (headline, intro, location), like every other section's content. It names no framework: the hero states the approach rather than the stack, and a contact line selling two tools contradicts it. The location is the real one and matches the hero clock's city.
 - **Contact Form**: Netlify Forms. The form is declared in `public/__forms.html` and posted there by `fetch` from `Horizon.tsx`. Netlify registers a form by parsing the static files it deploys, and an App Router page is not one of those files, so the declaration file is what makes the form exist; every field the component sends must also appear in it. A failed post shows the email address instead of swallowing the message. Form detection has to be on in the Netlify site settings, and submissions land under Forms there.
 - **Link Previews**: `layout.tsx` names the OG image; the file lives in `public/` and its extension must match (a `.jpg` reference against a `.png` file served a 404 to every scraper). The image is a 1200x630 capture of the hero, so re-shoot it whenever the hero's headline or status changes.
+- **Terminal Agent**: the nav terminal answers questions through ARCH, an agent behind `src/app/api/chat/route.ts` that calls Gemini through the `openai` SDK and Gemini's OpenAI-compatible base URL (`src/lib/chat/config.ts`). It needs `GEMINI_API_KEY` in the Netlify environment (and `.env.local` for dev); `GEMINI_MODEL` sets the model id and `GEMINI_REASONING_EFFORT` optionally caps thinking. Tool results carry absolute URLs (`SITE_URL`): handed a relative path, the model invented a domain for it. Never prefix either with `NEXT_PUBLIC_`. Four rules keep it cheap and correct:
+  1. **The agent reads content through tools, never through its prompt.** `src/lib/chat/tools.ts` is the registry; every tool reads `src/lib/data/`. To teach the agent a new source, add one registry entry. `server` tools return compact JSON; `client` tools (`navigate`, `prefill_contact`) are forwarded to the terminal as actions, because only the browser can touch the page.
+  2. **The prefix is frozen.** `SYSTEM_PROMPT` (`prompt.ts`) and `TOOL_DEFINITIONS` are identical bytes on every request: no date, no visitor data, no reordering. Gemini's implicit cache hits only on an identical prefix.
+  3. **History is append-only and lives in the browser.** Each request carries the whole conversation; the route appends the assistant's tool calls and the tool results and returns them in the `done` event. Never edit, trim or summarise an earlier message; when the conversation is full the visitor runs `clear`. Tool calls keep their `extra_content` untouched: Gemini 3 stores its thought signature there and rejects a follow-up request without it.
+  4. **The route trusts nothing from the client.** It rebuilds each message from known fields, rejects system messages, caps input, turns and history size (`CHAT_LIMITS`), and rate-limits per IP. The limiter is per function instance; move it to shared storage if the key is ever abused.
 - **Deployment Platform**: Primarily Netlify (as seen in `sitemap.ts`). Ensure `metadataBase` in `layout.tsx` matches the production URL.
 - **SEO & Metadata**: Every page modification must check `layout.tsx` for OpenGraph and Twitter card integrity. Use the "Space Grotesk" aesthetic for OG images.
 - **Robots & Sitemaps**: Dynamic routes (if added) must be reflected in `src/app/sitemap.ts` and `src/app/robots.ts`.

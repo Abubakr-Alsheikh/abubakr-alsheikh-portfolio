@@ -367,6 +367,7 @@ export default function TelemetryNav() {
         isOpen={isTerminalOpen}
         onOpen={() => setIsTerminalOpen(true)}
         onClose={() => setIsTerminalOpen(false)}
+        onNavigate={scrollToSection}
       />
     </>
   );

@@ -19,6 +19,7 @@
     "magic-ui": "^0.1.0",
     "motion": "^12.23.18",
     "next": "16.1.6",
+    "openai": "^7.20.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "styled-components": "^6.1.19",
