@@ -296,11 +296,14 @@ export default function Horizon({
                 <form
                   name="contact"
                   method="POST"
-                  data-netlify="true"
-                  netlify-honeypot="bot-field"
+                  action="/__forms.html"
                   onSubmit={handleSubmit}
                   className="flex flex-col gap-6"
                 >
+                  {/* No `data-netlify` on this form: it is declared in
+                      `public/__forms.html`, and Netlify's Next adapter fails
+                      the deploy if it finds that attribute in a prerendered
+                      page. `action` is the fallback for a visitor without JS. */}
                   <input type="hidden" name="form-name" value="contact" />
                   {/* Honeypot: a real visitor never sees it, a bot fills it
                       and Netlify drops the submission. */}
