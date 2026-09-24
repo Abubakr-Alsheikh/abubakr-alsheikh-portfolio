@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MEMORY_CELLS,
   launchStages,
@@ -30,6 +30,12 @@ const TICK_MS = 30;
 
 /** Warp jump between 100% and handing the page over. */
 const HANDOVER_MS = 1300;
+
+/**
+ * Set once a visitor has watched the sequence through. From then on the boot
+ * still plays, because it is the site setting itself up, but it offers a skip.
+ */
+const SEEN_KEY = "orbital.boot.seen";
 
 /** Checklist resolves within the self-test stage. */
 const POST_END = launchStages[1].from;
@@ -138,6 +144,37 @@ export default function SystemBootSequence({
 }) {
   const [progress, setProgress] = useState(0);
   const [hexCode, setHexCode] = useState("0x00000000");
+  const [canSkip, setCanSkip] = useState(false);
+
+  // Read by the progress loop: a skip jumps straight to the warp handover
+  // rather than cutting to the page, so the jump still plays.
+  const skipped = useRef(false);
+  const skip = () => {
+    skipped.current = true;
+  };
+
+  // Storage can throw (private mode, blocked site data); the boot must still
+  // run, just without the offer to skip.
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(SEEN_KEY)) {
+        const id = window.setTimeout(() => setCanSkip(true), 0);
+        return () => window.clearTimeout(id);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (!canSkip) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        skipped.current = true;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [canSkip]);
 
   useEffect(() => {
     const steps = BOOT_MS / TICK_MS;
@@ -146,11 +183,16 @@ export default function SystemBootSequence({
 
     const progressInterval = setInterval(() => {
       currentStep++;
-      const next = Math.min(Math.floor((currentStep / steps) * 100), 100);
+      const next = skipped.current
+        ? 100
+        : Math.min(Math.floor((currentStep / steps) * 100), 100);
       setProgress(next);
 
       if (next >= 100) {
         clearInterval(progressInterval);
+        try {
+          window.localStorage.setItem(SEEN_KEY, "1");
+        } catch {}
         handover = window.setTimeout(() => onComplete(), HANDOVER_MS);
       }
     }, TICK_MS);
@@ -349,6 +391,24 @@ export default function SystemBootSequence({
       <div className="absolute bottom-6 md:bottom-10 inset-x-0 flex justify-center px-6">
         <StageTrack current={stage} />
       </div>
+
+      {/* Skip, for returning visitors only. It jumps to warp, never to a
+          hard cut. Above the stage track on phones, beside it from md. */}
+      {canSkip && !complete && (
+        <motion.button
+          type="button"
+          onClick={skip}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 200, damping: 30, delay: 0.6 }}
+          className="absolute z-40 bottom-14 right-8 md:bottom-9 md:right-14 flex items-center gap-2.5 px-3 py-2 bg-[#020617] border border-slate-700 hover:border-[#F97316] text-slate-300 hover:text-[#F97316] font-mono text-[10px] tracking-widest uppercase cursor-pointer transition-colors group"
+        >
+          Skip_Sequence
+          <kbd className="px-1.5 py-0.5 border border-slate-700 group-hover:border-[#F97316]/60 text-[9px] text-slate-400 group-hover:text-[#F97316] font-mono transition-colors">
+            ESC
+          </kbd>
+        </motion.button>
+      )}
     </motion.div>
   );
 }
