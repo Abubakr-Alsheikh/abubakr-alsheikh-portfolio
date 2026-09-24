@@ -19,6 +19,8 @@ import type { ProjectDiffLine } from "@/lib/data/topProjects";
 
 interface CodeDiffProps {
   file: string;
+  /** Short SHA of the real commit the hunk comes from. */
+  commit: string;
   lines: ProjectDiffLine[];
 }
 
@@ -28,7 +30,7 @@ const WIPE_MS = 420;
 /** Wait after the card lands before the first line goes. */
 const LEAD_MS = 250;
 
-const CodeDiff = React.memo(({ file, lines }: CodeDiffProps) => {
+const CodeDiff = React.memo(({ file, commit, lines }: CodeDiffProps) => {
   const reduce = useReducedMotion();
   const ref = React.useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-20% 0px -20% 0px" });
@@ -58,7 +60,9 @@ const CodeDiff = React.memo(({ file, lines }: CodeDiffProps) => {
       aria-hidden="true"
     >
       <div className="flex items-center justify-between gap-3 border-b border-slate-800/80 px-3 py-1.5 font-mono text-[9px] tracking-widest">
-        <span className="truncate text-slate-600">{file}</span>
+        <span className="truncate text-slate-600">
+          {file} <span className="text-slate-700">@{commit}</span>
+        </span>
         <span className="flex shrink-0 items-center gap-2">
           <span className="text-[#3B82F6]">+{added}</span>
           <span className="text-[#F97316]">-{removed}</span>

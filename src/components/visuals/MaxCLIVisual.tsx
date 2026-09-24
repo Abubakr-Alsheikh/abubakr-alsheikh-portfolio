@@ -77,7 +77,7 @@ const MODULES = [
     node: NODES.pdf,
     icon: FileText,
     label: "PDF_ENG",
-    carries: "PYPDF2",
+    carries: "PYMUPDF",
     tone: "#10B981",
     text: "text-[#10B981]",
     lit: "border-[#10B981] shadow-[0_0_15px_rgba(16,185,129,0.3)]",
@@ -156,7 +156,7 @@ export default function MaxCLIVisual() {
           <div className="w-1.5 h-1.5 bg-[#F97316]" />
         </div>
         <span className="text-[10px] text-slate-500 uppercase tracking-widest truncate pl-2">
-          Max_CLI_Kernel_v1.4.exe
+          Max_CLI_Kernel_v0.4.exe
         </span>
       </div>
 
@@ -270,8 +270,8 @@ export default function MaxCLIVisual() {
           <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 flex items-center gap-3 border border-slate-800 bg-[#020617] p-2 whitespace-nowrap">
             <Layers className="w-3 h-3 text-[#3B82F6] shrink-0" />
             <span className="text-[8px] text-slate-400 uppercase tracking-widest">
-              PLUGINS:{" "}
-              <span className="text-emerald-500">FFmpeg, Ollama, PyPDF2</span>
+              BACKENDS:{" "}
+              <span className="text-emerald-500">FFmpeg, Ollama, PyMuPDF</span>
             </span>
           </div>
         </div>

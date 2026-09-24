@@ -22,16 +22,37 @@ import {
 import DeepSpaceEnvironment from "@/components/visuals/DeepSpaceEnvironment";
 import TraceField from "@/components/shared/TraceField";
 import SystemBootSequence from "@/components/shared/SystemBootSequence";
+import { useLenisInstance } from "@/components/shared/LenisProvider";
+
+/**
+ * The boot plays once per page load. Coming back from a case study is a
+ * client-side navigation inside the same load, so it lands straight on the
+ * page. A fresh load always starts false here, which matches the server
+ * render, so this cannot cause a hydration mismatch.
+ */
+let bootedThisLoad = false;
 
 export default function Home() {
-  const [isBooting, setIsBooting] = useState(true);
+  const [isBooting, setIsBooting] = useState(() => !bootedThisLoad);
+  const lenis = useLenisInstance();
+
+  useEffect(() => {
+    if (!isBooting) bootedThisLoad = true;
+  }, [isBooting]);
+
+  // Returning to /#projects from a case study: land on the section.
+  useEffect(() => {
+    if (isBooting || !lenis || !window.location.hash) return;
+    const el = document.getElementById(window.location.hash.slice(1));
+    if (el) lenis.scrollTo(el, { immediate: true });
+  }, [isBooting, lenis]);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
 
-    window.scrollTo(0, 0);
+    if (isBooting) window.scrollTo(0, 0);
 
     if (isBooting) {
       document.body.style.overflow = "hidden";

@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Github, Rocket } from "lucide-react";
+import { ArrowUpRight, BookOpen, FileText, Github, Globe, Rocket } from "lucide-react";
+import Link from "next/link";
 import { useRef } from "react";
 import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholder";
 import QaderVisual from "@/components/visuals/QaderVisual";
@@ -11,19 +12,15 @@ import SchoolManagementVisual from "../visuals/SchoolManagementVisual";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 import CodeDiff from "@/components/visuals/CodeDiff";
-import type { ProjectDiffLine } from "@/lib/data/topProjects";
+import type { TopProject } from "@/lib/data/topProjects";
+import { caseStudiesData } from "@/lib/data/caseStudies";
 
-type Project = {
-  id: string;
-  title: string;
-  description: string;
-  stack: string[];
-  link: string;
-  codeFile: string;
-  codeDiff: ProjectDiffLine[];
-};
+const ACTION =
+  "flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest transition-colors group/link";
+const ARROW =
+  "w-3 h-3 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform";
 
-export default function Projects({ data }: { data: Project[] }) {
+export default function Projects({ data }: { data: TopProject[] }) {
   const traceRef = useRef<HTMLDivElement>(null);
   const { fill, packetOpacity } = useTraceFill(traceRef);
 
@@ -183,19 +180,63 @@ export default function Projects({ data }: { data: Project[] }) {
                     ))}
                   </div>
 
-                  <CodeDiff file={project.codeFile} lines={project.codeDiff} />
+                  {/* A real hunk, or nothing: private projects show no code. */}
+                  {project.code && (
+                    <CodeDiff
+                      file={project.code.file}
+                      commit={project.code.commit}
+                      lines={project.code.lines}
+                    />
+                  )}
 
-                  <div className="flex items-center gap-6 mt-auto">
-                    {project.link !== "#" && (
+                  {/* One button per link that exists; the case study comes
+                      first because it stays on this site. */}
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-auto">
+                    {caseStudiesData[project.slug] && (
+                      <Link
+                        href={`/projects/${project.slug}`}
+                        data-hud-target={`PROJ.${String(index + 1).padStart(2, "0")}.CASE`}
+                        className={`${ACTION} text-[#F97316] hover:text-slate-100`}
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>Case_Study</span>
+                        <ArrowUpRight className={ARROW} />
+                      </Link>
+                    )}
+                    {project.links.live && (
                       <a
-                        href={project.link}
+                        href={project.links.live}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-slate-300 hover:text-[#3B82F6] group/link transition-colors"
+                        className={`${ACTION} text-slate-300 hover:text-[#3B82F6]`}
                       >
-                        <Github className="w-4 h-4" />{" "}
-                        <span>Execute_Source</span>
-                        <ArrowUpRight className="w-3 h-3 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
+                        <Globe className="w-4 h-4" />
+                        <span>Live</span>
+                        <ArrowUpRight className={ARROW} />
+                      </a>
+                    )}
+                    {project.links.repo && (
+                      <a
+                        href={project.links.repo}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${ACTION} text-slate-300 hover:text-[#3B82F6]`}
+                      >
+                        <Github className="w-4 h-4" />
+                        <span>Source</span>
+                        <ArrowUpRight className={ARROW} />
+                      </a>
+                    )}
+                    {project.links.docs && (
+                      <a
+                        href={project.links.docs}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${ACTION} text-slate-300 hover:text-[#3B82F6]`}
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        <span>Docs</span>
+                        <ArrowUpRight className={ARROW} />
                       </a>
                     )}
                   </div>

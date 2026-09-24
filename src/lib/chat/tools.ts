@@ -7,6 +7,7 @@ import {
   journeyData,
   skillsData,
   topProjectsData,
+  caseStudiesData,
 } from "@/lib/data";
 import { SITE_URL } from "./config";
 import { SECTIONS, type ChatAction, type SectionId } from "./protocol";
@@ -102,6 +103,12 @@ interface Project {
   stack: string[];
   description: string;
   link?: string;
+  /** Public source, when there is one. */
+  repo?: string;
+  /** The running product. */
+  live?: string;
+  /** This site's write-up of the project. */
+  caseStudy?: string;
 }
 
 const PROJECTS: Project[] = [
@@ -111,7 +118,12 @@ const PROJECTS: Project[] = [
     tier: "featured" as const,
     stack: p.stack,
     description: p.description,
-    link: p.link,
+    link: p.links.live ?? p.links.repo,
+    repo: p.links.repo,
+    live: p.links.live,
+    caseStudy: caseStudiesData[p.slug]
+      ? new URL(`/projects/${p.slug}`, SITE_URL).href
+      : undefined,
   })),
   ...archiveProjectsData.map((p) => ({
     slug: slugify(p.title),

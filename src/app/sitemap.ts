@@ -1,4 +1,7 @@
 import { MetadataRoute } from "next";
+import { caseStudiesData } from "@/lib/data/caseStudies";
+
+const SITE = "https://abubakr-alsheikh.netlify.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -8,6 +11,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 1,
     },
-    // If you add a /blog or /projects page later, you append them here.
+    ...Object.keys(caseStudiesData).map((slug) => ({
+      url: `${SITE}/projects/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
   ];
 }
