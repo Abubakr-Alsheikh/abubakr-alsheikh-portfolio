@@ -1,20 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Terminal } from "lucide-react";
+import { ArrowUpRight, FileText, Terminal } from "lucide-react";
+import Link from "next/link";
 import { useRef } from "react";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 
-type JourneyItem = {
-  date: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  tags: string[];
-};
+import type { JourneyEntry } from "@/lib/data/journey";
 
-export default function Journey({ data }: { data: JourneyItem[] }) {
+export default function Journey({ data }: { data: JourneyEntry[] }) {
   const traceRef = useRef<HTMLDivElement>(null);
   const { fill, packetOpacity } = useTraceFill(traceRef);
 
@@ -101,10 +96,21 @@ export default function Journey({ data }: { data: JourneyItem[] }) {
                     <div className="inline-flex px-3 py-1 bg-[#020617]/80 border border-slate-700 text-[10px] font-mono text-slate-400 uppercase tracking-widest self-start">{item.subtitle}</div>
                   </div>
                   <p className="text-slate-300 text-sm md:text-base leading-relaxed font-mono font-light mb-8 max-w-3xl">{item.description}</p>
-                  <div className="flex flex-wrap gap-2 border-t border-slate-800 pt-6">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-4 border-t border-slate-800 pt-6">
                     {item.tags.map((tag, i) => (
                       <span key={i} className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{i !== 0 && <span className="text-slate-800 mr-2">|</span>} {tag}</span>
                     ))}
+                    {item.caseStudy && (
+                      <Link
+                        href={`/projects/${item.caseStudy}`}
+                        data-hud-target="JRNY.CASE"
+                        className="md:ml-auto flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-[#F97316] hover:text-slate-100 transition-colors group/link"
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>Case_Study</span>
+                        <ArrowUpRight className="w-3 h-3 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
+                      </Link>
+                    )}
                   </div>
                 </div>
               </motion.div>
