@@ -3,6 +3,7 @@ import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import LenisProvider from "@/components/shared/LenisProvider";
+import PageTransition from "@/components/shared/PageTransition";
 import CursorAura from "@/components/shared/CursorAura";
 import CockpitCanopy from "@/components/shared/CockpitCanopy";
 import TargetReticle from "@/components/shared/TargetReticle";
@@ -166,7 +167,9 @@ export default function RootLayout({
         <CursorAura />
         <CockpitCanopy />
         <TargetReticle />
-        <LenisProvider>{children}</LenisProvider>
+        <LenisProvider>
+          <PageTransition>{children}</PageTransition>
+        </LenisProvider>
       </body>
     </html>
   );

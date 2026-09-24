@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { WarpLink } from "@/components/shared/PageTransition";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -183,14 +183,15 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
       <div className="relative z-10 w-full max-w-6xl mx-auto px-6 md:px-12 pt-10 pb-32">
         {/* Top bar */}
         <nav className="flex items-center justify-between gap-4 mb-20 font-mono text-[10px] md:text-xs tracking-widest uppercase">
-          <Link
+          <WarpLink
             href="/#projects"
+            warp={{ kicker: "Return // The_Arsenal", title: "Back to base" }}
             data-hud-target="CASE.BACK"
             className="flex items-center gap-2 px-3 h-9 border border-slate-800 bg-[#020617] text-slate-300 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors group/back"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover/back:-translate-x-0.5 transition-transform" />
             The_Arsenal
-          </Link>
+          </WarpLink>
           <span className="text-slate-400">
             {project.id}
             {" // Case_Study"}
@@ -351,8 +352,9 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
 
         {/* Next */}
         {next && next.slug !== project.slug && (
-          <Link
+          <WarpLink
             href={`/projects/${next.slug}`}
+            warp={{ kicker: `${next.id} // Case_Study`, title: next.title }}
             data-hud-target="CASE.NEXT"
             className="mt-32 flex items-end justify-between gap-6 border-t border-slate-800 pt-8 group/next"
           >
@@ -366,7 +368,7 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
               </span>
             </span>
             <ArrowUpRight className="w-8 h-8 text-slate-400 group-hover/next:text-[#3B82F6] group-hover/next:translate-x-1 group-hover/next:-translate-y-1 transition-all shrink-0" />
-          </Link>
+          </WarpLink>
         )}
       </div>
     </main>

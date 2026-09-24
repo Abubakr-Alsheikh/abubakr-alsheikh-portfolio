@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight, BookOpen, FileText, Github, Globe, Rocket } from "lucide-react";
-import Link from "next/link";
+import { WarpLink } from "@/components/shared/PageTransition";
 import { useRef } from "react";
 import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholder";
 import QaderVisual from "@/components/visuals/QaderVisual";
@@ -193,15 +193,16 @@ export default function Projects({ data }: { data: TopProject[] }) {
                       first because it stays on this site. */}
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-auto">
                     {caseStudiesData[project.slug] && (
-                      <Link
+                      <WarpLink
                         href={`/projects/${project.slug}`}
+                        warp={{ kicker: `${project.id} // Case_Study`, title: project.title }}
                         data-hud-target={`PROJ.${String(index + 1).padStart(2, "0")}.CASE`}
                         className={`${ACTION} text-[#F97316] hover:text-slate-100`}
                       >
                         <FileText className="w-4 h-4" />
                         <span>Case_Study</span>
                         <ArrowUpRight className={ARROW} />
-                      </Link>
+                      </WarpLink>
                     )}
                     {project.links.live && (
                       <a

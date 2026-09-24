@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight, FileText, Terminal } from "lucide-react";
-import Link from "next/link";
+import { WarpLink } from "@/components/shared/PageTransition";
 import { useRef } from "react";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
@@ -104,15 +104,16 @@ export default function Journey({ data }: { data: JourneyEntry[] }) {
                       <span key={i} className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{i !== 0 && <span className="text-slate-800 mr-2">|</span>} {tag}</span>
                     ))}
                     {item.caseStudy && (
-                      <Link
+                      <WarpLink
                         href={`/projects/${item.caseStudy}`}
+                        warp={{ kicker: "Timeline // Case_Study", title: item.subtitle.split(" //")[0] }}
                         data-hud-target="JRNY.CASE"
                         className="md:ml-auto flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-[#F97316] hover:text-slate-100 transition-colors group/link"
                       >
                         <FileText className="w-4 h-4" />
                         <span>Case_Study</span>
                         <ArrowUpRight className="w-3 h-3 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
-                      </Link>
+                      </WarpLink>
                     )}
                   </div>
                 </div>
