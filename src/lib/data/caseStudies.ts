@@ -1,11 +1,17 @@
 /**
  * Long-form write-ups behind /projects/[slug], keyed by `TopProject.slug`.
  *
- * Every sentence here has to trace back to something public: the project's
- * README, its source tree or commits, or the live site. `sources` lists where
- * each write-up came from, so the next edit can be checked against them. A
- * project without an entry gets no case-study page and no CASE_STUDY button;
- * that beats a page padded out with guesses.
+ * Every sentence here has to trace back to a real source: the project's
+ * README, its source tree or commits, the live site, or, for private client
+ * work, the owner's own account of it. `sources` lists where each write-up
+ * came from, so the next edit can be checked against them. A project without
+ * an entry gets no case-study page and no CASE_STUDY button; that beats a
+ * page padded out with guesses.
+ *
+ * Company products (Qader) are not the owner's to disclose. Their entries
+ * give the general shape and the tools only: no module counts, internal
+ * features, customers, numbers or unreleased work, and no claim that the
+ * owner owns the code.
  */
 
 export interface CaseStudyLayer {
@@ -31,12 +37,70 @@ export interface CaseStudy {
   problem: string;
   architecture: CaseStudyLayer[];
   decisions: CaseStudyDecision[];
-  facts: CaseStudyFact[];
+  /** Headline figures. Left out for company products. */
+  facts?: CaseStudyFact[];
   /** Where the content above was taken from. Not rendered. */
   sources: string[];
 }
 
 export const caseStudiesData: Record<string, CaseStudy> = {
+  qader: {
+    context:
+      "Company product · full-stack software engineer · live at qader.vip",
+    summary:
+      "An Arabic-first exam-prep platform for the Saudi market, for students and for schools.",
+    problem:
+      "Saudi students prepare for national exams. Qader serves them in Arabic by default, right to left, with English as the second language, alongside the teachers, parents and schools around them.",
+    architecture: [
+      {
+        name: "Backend",
+        detail:
+          "Django and Django REST Framework, organised as modular domain apps behind a documented OpenAPI contract.",
+      },
+      {
+        name: "Real-time and jobs",
+        detail:
+          "Django Channels for WebSockets, Celery workers for background jobs, and Redis.",
+      },
+      {
+        name: "Data",
+        detail: "PostgreSQL with pgvector.",
+      },
+      {
+        name: "Web",
+        detail:
+          "Next.js, React and strict TypeScript, Arabic first with right-to-left layouts.",
+      },
+      {
+        name: "Infrastructure",
+        detail:
+          "Docker, nginx, GitHub Actions CI, and Prometheus and Grafana for monitoring.",
+      },
+    ],
+    decisions: [
+      {
+        title: "A modular backend",
+        body: "Each domain lives in its own app, with business logic in a service layer and thin API views on top.",
+      },
+      {
+        title: "Heavy work off the request path",
+        body: "Slow jobs run on Celery workers, so API responses stay fast.",
+      },
+      {
+        title: "Real-time where it matters",
+        body: "Live features run over WebSockets through Django Channels.",
+      },
+      {
+        title: "Arabic first",
+        body: "Right to left is the default layout and English is the second language, on the backend and the web app alike.",
+      },
+    ],
+    sources: [
+      "Owner's account of his role (Sep 2026); general structure and tools only",
+      "qader.vip",
+    ],
+  },
+
   "max-cli": {
     context: "Open source · published on PyPI · docs on GitHub Pages",
     summary:

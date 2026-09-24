@@ -152,7 +152,9 @@ function Block({
         className="absolute left-0 top-[11px] w-6 md:w-12 h-px bg-[#3B82F6]/40"
       />
       <h2 className="font-mono text-xs tracking-widest uppercase text-[#3B82F6] mb-8">
-        {String(index).padStart(2, "0")}{" // "}{label}
+        {String(index).padStart(2, "0")}
+        {" // "}
+        {label}
       </h2>
       {children}
     </section>
@@ -166,6 +168,7 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
   const { project, study } = found;
 
   const Visual = VISUALS[slug];
+  const facts = study.facts ?? [];
   const featured = topProjectsData.filter((p) => caseStudiesData[p.slug]);
   const next = featured[(featured.indexOf(project) + 1) % featured.length];
   const commitUrl =
@@ -189,7 +192,8 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
             The_Arsenal
           </Link>
           <span className="text-slate-400">
-            {project.id}{" // Case_Study"}
+            {project.id}
+            {" // Case_Study"}
           </span>
         </nav>
 
@@ -224,28 +228,36 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
           />
 
           <Block index={1} label="Problem">
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-start">
+            <div
+              className={`grid gap-10 items-start ${
+                facts.length
+                  ? "lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"
+                  : "max-w-3xl"
+              }`}
+            >
               <p className="font-mono text-sm md:text-base leading-relaxed text-slate-300">
                 <Prose text={study.problem} />
               </p>
-              <dl className="grid grid-cols-2 border border-slate-800 bg-[#020617]">
-                {study.facts.map((fact, i) => (
-                  <div
-                    key={fact.label}
-                    className={`flex flex-col-reverse justify-end p-5 border-slate-800 ${i % 2 === 0 ? "border-r" : ""} ${
-                      i < study.facts.length - 2 ? "border-b" : ""
-                    } ${study.facts.length % 2 === 1 && i === study.facts.length - 1 ? "col-span-2 border-r-0" : ""}`}
-                  >
-                    {/* dt first for readers; flex-col-reverse puts the figure on top. */}
-                    <dt className="mt-2 font-mono text-[10px] tracking-widest uppercase text-slate-400">
-                      {fact.label}
-                    </dt>
-                    <dd className="font-space font-bold tracking-tighter text-4xl text-slate-100 leading-none">
-                      {fact.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+              {facts.length > 0 && (
+                <dl className="grid grid-cols-2 border border-slate-800 bg-[#020617]">
+                  {facts.map((fact, i) => (
+                    <div
+                      key={fact.label}
+                      className={`flex flex-col-reverse justify-end p-5 border-slate-800 ${i % 2 === 0 ? "border-r" : ""} ${
+                        i < facts.length - 2 ? "border-b" : ""
+                      } ${facts.length % 2 === 1 && i === facts.length - 1 ? "col-span-2 border-r-0" : ""}`}
+                    >
+                      {/* dt first for readers; flex-col-reverse puts the figure on top. */}
+                      <dt className="mt-2 font-mono text-[10px] tracking-widest uppercase text-slate-400">
+                        {fact.label}
+                      </dt>
+                      <dd className="font-space font-bold tracking-tighter text-4xl text-slate-100 leading-none">
+                        {fact.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
             </div>
           </Block>
 
@@ -277,8 +289,14 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
                   key={d.title}
                   className="relative border border-slate-800 bg-[#020617] p-6 md:p-7"
                 >
-                  <span aria-hidden="true" className="absolute top-2 left-2 w-1 h-1 bg-slate-800" />
-                  <span aria-hidden="true" className="absolute bottom-2 right-2 w-1 h-1 bg-slate-800" />
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-2 left-2 w-1 h-1 bg-slate-800"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="absolute bottom-2 right-2 w-1 h-1 bg-slate-800"
+                  />
                   <p className="font-mono text-[10px] tracking-widest text-[#F97316] mb-4">
                     D.{String(i + 1).padStart(2, "0")}
                   </p>
@@ -340,7 +358,8 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
           >
             <span className="flex flex-col gap-3">
               <span className="font-mono text-[10px] tracking-widest uppercase text-slate-400">
-                {"Next // "}{next.id}
+                {"Next // "}
+                {next.id}
               </span>
               <span className="font-space font-bold tracking-tighter text-3xl md:text-5xl text-slate-100 group-hover/next:text-[#3B82F6] transition-colors">
                 {next.title}

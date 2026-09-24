@@ -53,7 +53,7 @@ export const topProjectsData: TopProject[] = [
     title: "Qader Platform (LMS)",
     description:
       "Architected a highly scalable, modular backend infrastructure featuring versioned RESTful APIs. Established a modern, type-safe frontend with robust i18n support, engineered for production-grade reliability using asynchronous task processing.",
-    stack: ["Django", "Next.js", "Celery", "PostgreSQL", "WebSockets"],
+    stack: ["Django", "Next.js", "Celery", "Redis", "PostgreSQL + pgvector", "WebSockets"],
     links: { live: "https://qader.vip/" },
   },
   {
