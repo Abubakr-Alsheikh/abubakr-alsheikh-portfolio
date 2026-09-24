@@ -245,16 +245,16 @@ export default function TelemetryNav() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 pt-4 pointer-events-none"
       >
-        <div className="max-w-7xl mx-auto flex items-start justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex items-start justify-between gap-2 sm:gap-4">
           {/* Brand returns to the top of the page. It used to open the
               terminal, which now has its own button on this bar. */}
           <button
             onClick={() => scrollToSection("hero")}
             aria-label="Back to top"
-            className="pointer-events-auto relative flex items-center gap-3 md:gap-4 border border-slate-800/60 bg-[#020617] p-2 md:p-3 transition-colors duration-300 hover:border-[#3B82F6]/50"
+            className="pointer-events-auto relative flex items-center gap-2.5 md:gap-4 border border-slate-800/60 bg-[#020617] p-2 md:p-3 transition-colors duration-300 hover:border-[#3B82F6]/50"
           >
             <Screws />
-            <div className="relative h-10 w-10 flex-shrink-0 md:h-12 md:w-12">
+            <div className="relative h-9 w-9 flex-shrink-0 sm:h-10 sm:w-10 md:h-12 md:w-12">
               <Image
                 src="/web-app-manifest-512x512.png"
                 alt="Abubakr Alsheikh"
@@ -266,10 +266,10 @@ export default function TelemetryNav() {
               />
             </div>
             <div className="flex flex-col items-start leading-[1.1] tracking-wide">
-              <span className="font-space text-sm font-bold text-slate-100 md:text-lg">
+              <span className="font-space text-[13px] font-bold text-slate-100 sm:text-sm md:text-lg">
                 ABUBAKR
               </span>
-              <span className="font-space text-sm font-bold text-slate-400 md:text-lg">
+              <span className="font-space text-[13px] font-bold text-slate-400 sm:text-sm md:text-lg">
                 ALSHEIKH
               </span>
             </div>
@@ -316,10 +316,12 @@ export default function TelemetryNav() {
 
               <div className="hidden w-px bg-slate-800 lg:block" />
 
-              <div className="flex items-center gap-4 px-4 py-3">
+              {/* Phones get the two controls only: the velocity readout is
+                  decoration, and at 390px it squeezed the bar edge to edge. */}
+              <div className="flex items-center gap-2 px-2 py-2 sm:gap-4 sm:px-4 sm:py-3">
                 <VelocityGraph velocity={smoothVelocity} />
 
-                <div className="flex w-20 flex-col text-right">
+                <div className="hidden w-20 flex-col text-right sm:flex">
                   <span className="mb-1 font-mono text-[8px] uppercase tracking-widest text-slate-400">
                     Velocity
                   </span>
@@ -333,7 +335,7 @@ export default function TelemetryNav() {
                     onClick={openTerminal}
                     aria-label="Open root terminal (backtick)"
                     title="Root terminal  [ ` ]"
-                    className={`relative flex items-center gap-1.5 border px-2 py-1.5 font-mono text-[9px] uppercase tracking-widest transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6] ${
+                    className={`relative flex h-9 min-w-9 items-center justify-center gap-1.5 border px-2 font-mono sm:h-auto sm:min-w-0 sm:py-1.5 text-[9px] uppercase tracking-widest transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6] ${
                       beacon === "off"
                         ? "border-slate-800 text-slate-400"
                         : "border-[#F97316]/70 text-[#F97316]"
@@ -399,7 +401,7 @@ export default function TelemetryNav() {
                   aria-expanded={isMenuOpen}
                   aria-controls="hud-menu"
                   aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                  className="flex items-center gap-2 border border-slate-800 px-2 py-1.5 font-mono text-[9px] uppercase tracking-widest text-slate-400 transition-colors hover:border-[#F97316]/40 hover:text-[#F97316] lg:hidden"
+                  className="flex h-9 items-center gap-2 border border-slate-800 px-3 font-mono text-[9px] uppercase tracking-widest text-slate-400 transition-colors hover:border-[#F97316]/40 hover:text-[#F97316] sm:h-auto sm:px-2 sm:py-1.5 lg:hidden"
                 >
                   {isMenuOpen ? (
                     <X className="h-3.5 w-3.5" />
