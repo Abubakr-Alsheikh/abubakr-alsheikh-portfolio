@@ -193,7 +193,7 @@ export default function Hero({
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 w-full relative pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 w-full relative pb-12 md:pb-24">
           <div
             ref={traceRef}
             className="absolute left-[50%] top-[32px] bottom-0 w-px bg-slate-800/50 hidden md:block -translate-x-1/2 z-0"

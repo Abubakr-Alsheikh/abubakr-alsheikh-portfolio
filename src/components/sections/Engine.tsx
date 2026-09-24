@@ -232,7 +232,8 @@ export default function Engine({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Compact on phones: fourteen full-size cards ran four screens. */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {certs.map((cert, idx) => (
               <motion.div
                 key={idx}
@@ -240,7 +241,7 @@ export default function Engine({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.05 }}
-                className={`group relative flex flex-col p-6 bg-[#020617] border border-slate-800 transition-colors duration-300 ${cert.inProgress ? "hover:border-[#3B82F6]" : "hover:border-[#F97316]"}`}
+                className={`group relative flex flex-col p-4 md:p-6 bg-[#020617] border border-slate-800 transition-colors duration-300 ${cert.inProgress ? "hover:border-[#3B82F6]" : "hover:border-[#F97316]"}`}
               >
                 <div
                   className={`absolute top-1 left-1 w-1 h-1 bg-slate-800 ${cert.inProgress ? "group-hover:bg-[#3B82F6]" : "group-hover:bg-[#F97316]"}`}
@@ -249,24 +250,24 @@ export default function Engine({
                   className={`absolute bottom-1 right-1 w-1 h-1 bg-slate-800 ${cert.inProgress ? "group-hover:bg-[#3B82F6]" : "group-hover:bg-[#F97316]"}`}
                 />
 
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex justify-between items-start mb-3 md:mb-6">
                   <span
                     className={`text-[10px] font-mono tracking-widest uppercase px-2 py-1 border ${cert.inProgress ? "text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20" : "text-[#F97316] bg-[#F97316]/10 border-[#F97316]/20"}`}
                   >
                     {cert.issuer}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-500">
+                  <span className="text-[10px] font-mono text-slate-400">
                     {cert.date}
                   </span>
                 </div>
 
                 <h4
-                  className={`text-lg font-space font-bold text-slate-200 leading-tight mb-8 transition-colors ${cert.inProgress ? "group-hover:text-[#3B82F6]" : "group-hover:text-[#F97316]"}`}
+                  className={`text-base md:text-lg font-space font-bold text-slate-200 leading-tight mb-4 md:mb-8 transition-colors ${cert.inProgress ? "group-hover:text-[#3B82F6]" : "group-hover:text-[#F97316]"}`}
                 >
                   {cert.title}
                 </h4>
 
-                <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-800/50">
+                <div className="mt-auto flex items-center justify-between pt-3 md:pt-4 border-t border-slate-800/50">
                   <div className="flex items-center gap-2">
                     {cert.inProgress ? (
                       <>
@@ -278,7 +279,7 @@ export default function Engine({
                     ) : (
                       <>
                         <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
                           Verified
                         </span>
                       </>
