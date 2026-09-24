@@ -8,6 +8,7 @@ import { streamChat } from "@/lib/chat/client";
 import {
   MAX_INPUT_CHARS,
   type ChatAction,
+  type ChatErrorCode,
   type ChatEvent,
   type SectionId,
   type WireMessage,
@@ -76,6 +77,27 @@ function localCommand(cmd: string): string | null {
       return "Permission denied. Nice try, script kiddie.";
     default:
       return null;
+  }
+}
+
+/**
+ * What a visitor reads when ARCH cannot answer. The server's message is for
+ * logs; this says what happened and what to do next, in plain words.
+ */
+function explainError(code: ChatErrorCode, serverMessage: string): string {
+  switch (code) {
+    case "busy":
+      return "[BUSY] ARCH is getting a lot of questions right now. Please wait a minute and try again.";
+    case "rate_limited":
+      return "[WAIT] You've sent a lot of questions in a short time. Take a short break and try again in a few minutes.";
+    case "offline":
+      return `[OFFLINE] ARCH is offline at the moment. Please try again later, or email Abubakr at ${contactData.email}.`;
+    case "too_long":
+      return `[FULL] ${serverMessage}`;
+    case "bad_request":
+      return "[ERR] That message couldn't be read. Please rephrase it and try again.";
+    default:
+      return `[ERR] Something went wrong on the way to ARCH. Please try again. If it keeps happening, email Abubakr at ${contactData.email}.`;
   }
 }
 
@@ -187,7 +209,7 @@ export default function AdminTerminal({
           conversation.current = [...pending, ...event.messages];
           break;
         case "error":
-          push({ kind: "error", text: `[ERR] ${event.message}` });
+          push({ kind: "error", text: explainError(event.code, event.message) });
           break;
       }
     };
@@ -198,7 +220,7 @@ export default function AdminTerminal({
       if (!controller.signal.aborted) {
         push({
           kind: "error",
-          text: `[ERR] Uplink failed. Reach Abubakr at ${contactData.email}.`,
+          text: `[NO SIGNAL] The connection dropped before ARCH could answer. Check your internet and try again, or email Abubakr at ${contactData.email}.`,
         });
       }
     } finally {

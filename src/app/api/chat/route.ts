@@ -68,7 +68,7 @@ type Parsed =
 
 function parse(raw: string): Parsed {
   if (raw.length > CHAT_LIMITS.maxHistoryChars) {
-    return { ok: false, code: "too_long", message: "Conversation is full. Run 'clear'." };
+    return { ok: false, code: "too_long", message: "This conversation is full. Type 'clear' to start a new one." };
   }
 
   let body: unknown;
@@ -99,7 +99,7 @@ function parse(raw: string): Parsed {
     };
   }
   if (valid.filter((m) => m.role === "user").length > CHAT_LIMITS.maxTurns) {
-    return { ok: false, code: "too_long", message: "Conversation is full. Run 'clear'." };
+    return { ok: false, code: "too_long", message: "This conversation is full. Type 'clear' to start a new one." };
   }
   return { ok: true, messages: valid };
 }
@@ -144,7 +144,7 @@ function errorResponse(code: ChatErrorCode, message: string, status: number) {
 
 export async function POST(req: Request) {
   if (limited(clientIp(req))) {
-    return errorResponse("rate_limited", "Too many transmissions. Wait a few minutes.", 429);
+    return errorResponse("rate_limited", "Too many questions from this address. Wait a few minutes.", 429);
   }
 
   const parsed = parse(await req.text());
@@ -166,11 +166,15 @@ export async function POST(req: Request) {
       } catch (error) {
         if (error instanceof ChatOfflineError) {
           emit({ type: "error", code: "offline", message: "Uplink offline." });
-        } else if (error instanceof OpenAI.APIError && error.status === 429) {
+        } else if (
+          error instanceof OpenAI.APIError &&
+          (error.status === 429 || (error.status ?? 0) >= 500)
+        ) {
+          // The provider's quota or capacity, not this visitor's doing.
           emit({
             type: "error",
-            code: "rate_limited",
-            message: "Uplink quota exhausted. Try again shortly.",
+            code: "busy",
+            message: "Provider busy. Try again shortly.",
           });
         } else if (!req.signal.aborted) {
           console.error("[api/chat]", error);

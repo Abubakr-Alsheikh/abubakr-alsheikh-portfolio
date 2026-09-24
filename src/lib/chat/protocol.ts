@@ -47,9 +47,16 @@ export type ChatAction =
   | { name: "navigate"; section: SectionId }
   | { name: "prefill_contact"; message: string };
 
+/**
+ * `rate_limited` is this visitor asking too often (the route's per-IP limit).
+ * `busy` is the model provider refusing or overloaded (a 429 or 5xx from
+ * Gemini, or a gateway timeout): nothing the visitor did, so they are told to
+ * try again shortly. The terminal turns each code into its own plain message.
+ */
 export type ChatErrorCode =
   | "offline"
   | "rate_limited"
+  | "busy"
   | "too_long"
   | "bad_request"
   | "upstream";

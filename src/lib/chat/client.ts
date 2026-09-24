@@ -21,6 +21,10 @@ export async function streamChat(
     return;
   }
 
+  // A gateway timeout or overload arrives as an HTML page, not as events.
+  const failCode =
+    response.status === 429 || response.status >= 500 ? "busy" : "upstream";
+
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
@@ -34,7 +38,7 @@ export async function streamChat(
       // A line that is not JSON is a proxy error page, not an event. Report
       // it once and ignore the rest of the page.
       garbled = true;
-      onEvent({ type: "error", code: "upstream", message: "Uplink failed." });
+      onEvent({ type: "error", code: failCode, message: "Uplink failed." });
     }
   };
 
