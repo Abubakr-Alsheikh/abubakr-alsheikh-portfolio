@@ -243,7 +243,10 @@ export default function Projects({ data }: { data: TopProject[] }) {
                 </div>
 
                 {/* PROJECT VISUAL (ORDER 2: Bottom on Mobile, Right on Desktop) */}
-                <div className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-2">
+                <div
+                  data-hud-target={`PROJ.${String(index + 1).padStart(2, "0")}.SCHEMATIC`}
+                  className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-2"
+                >
                   {/* Visual Selection Logic */}
                   {project.id === "SYS.MOD_01" ? (
                     <QaderVisual />

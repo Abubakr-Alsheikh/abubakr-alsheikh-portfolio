@@ -15,6 +15,24 @@ export const contactData = {
   intro:
     "The descent is complete. The architecture is reviewed. Bring the problem and whatever it already runs on: the tools change from one project to the next, the engineering does not. Design, build, take over or repair, transmit your payload.",
   resumeLink: "/Abubakr_Alsheikh_Resume.pdf",
+  /**
+   * Chat apps. Each link only opens a conversation: the WhatsApp link carries
+   * no `?text=`, so nothing is prefilled or sent on the visitor's behalf.
+   */
+  messengers: [
+    {
+      name: "TELEGRAM",
+      handle: "@AbubakrAlsheikh",
+      url: "https://t.me/AbubakrAlsheikh",
+      icon: "telegram",
+    },
+    {
+      name: "WHATSAPP",
+      handle: "+963 980 235 562",
+      url: "https://wa.me/963980235562",
+      icon: "whatsapp",
+    },
+  ],
   socials: [
     {
       name: "GITHUB",

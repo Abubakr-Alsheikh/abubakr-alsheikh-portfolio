@@ -10,7 +10,9 @@ import {
   MapPin,
   Github,
   Linkedin,
+  MessageCircle,
 } from "lucide-react";
+import type { contactData } from "@/lib/data/contact";
 import GeometricBlackHole from "@/components/visuals/GeometricBlackHole";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
@@ -29,14 +31,7 @@ const getIcon = (iconName: string) => {
 export default function Horizon({
   contact,
 }: {
-  contact: {
-    email: string;
-    location: string;
-    headline: { lead: string; trail: string };
-    intro: string;
-    resumeLink: string;
-    socials: Array<{ name: string; url: string; icon: string }>;
-  };
+  contact: typeof contactData;
 }) {
   const [formState, setFormState] = useState<
     "idle" | "submitting" | "success" | "error"
@@ -171,12 +166,41 @@ export default function Horizon({
                   </span>
                   <a
                     href={`mailto:${contact.email}`}
+                    data-hud-target="COMMS.EMAIL"
                     className="text-xs font-mono tracking-widest text-slate-300 hover:text-[#3B82F6] transition-colors"
                   >
                     {contact.email}
                   </a>
                 </div>
               </div>
+
+              {/* Chat apps: open a conversation, send nothing. */}
+              {contact.messengers.map((m) => (
+                <a
+                  key={m.name}
+                  href={m.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-hud-target={`COMMS.${m.name}`}
+                  className="flex items-center gap-4 text-slate-400 group w-fit"
+                >
+                  <div className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-slate-800 group-hover:border-[#3B82F6] group-hover:text-[#3B82F6] transition-colors">
+                    {m.icon === "telegram" ? (
+                      <Send className="w-4 h-4" />
+                    ) : (
+                      <MessageCircle className="w-4 h-4" />
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-mono text-slate-400 tracking-widest uppercase">
+                      {m.name}
+                    </span>
+                    <span className="text-xs font-mono tracking-widest text-slate-300 group-hover:text-[#3B82F6] transition-colors">
+                      {m.handle}
+                    </span>
+                  </div>
+                </a>
+              ))}
 
               <div className="flex items-center gap-4 text-slate-400 group">
                 <div className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-slate-800 group-hover:border-[#F97316] group-hover:text-[#F97316] transition-colors">
@@ -198,6 +222,7 @@ export default function Horizon({
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
+            data-hud-target="COMMS.UPLINK"
             className="w-full relative group"
           >
             <motion.div
@@ -428,7 +453,7 @@ export default function Horizon({
             </div>
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
-              {contact.socials.map((social: { name: string; url: string; icon: string }, idx: number) => (
+              {contact.socials.map((social, idx) => (
                 <a
                   key={idx}
                   href={social.url}

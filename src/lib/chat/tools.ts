@@ -335,12 +335,17 @@ export const TOOLS: ChatTool[] = [
     side: "server",
     name: "get_contact",
     description:
-      "How to reach Abubakr: email, profiles, resume link, and the contact form on this page.",
+      "How to reach Abubakr: email, Telegram, WhatsApp, profiles, resume link, and the contact form on this page.",
     parameters: NO_ARGS,
     trace: () => "comms.read()",
     run: () => ({
       email: contactData.email,
       socials: contactData.socials.map((s) => ({ name: s.name, url: s.url })),
+      messengers: contactData.messengers.map((m) => ({
+        name: m.name,
+        handle: m.handle,
+        url: m.url,
+      })),
       // Absolute: given "/resume.pdf" the model guessed a domain for it.
       resume: new URL(contactData.resumeLink, SITE_URL).href,
       location: contactData.location,

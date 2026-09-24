@@ -73,7 +73,10 @@ export default function Journey({ data }: { data: JourneyEntry[] }) {
                   </div>
                 </motion.div>
 
-                <div className="relative border border-slate-800 bg-[#020617]/85 backdrop-blur-sm p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]">
+                <div
+                  data-hud-target={`JRNY.${String(index + 1).padStart(2, "0")}`}
+                  className="relative border border-slate-800 bg-[#020617]/85 backdrop-blur-sm p-6 md:p-8 hover:border-[#3B82F6]/50 transition-colors duration-300 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]"
+                >
                   
                   <motion.div
                     initial="hidden"

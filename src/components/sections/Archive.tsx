@@ -73,6 +73,7 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
             {projects.map((project, idx) => (
               <motion.a
                 key={idx}
+                data-hud-target={`ARCH.${String(idx + 1).padStart(2, "0")}`}
                 href={project.link !== "#" ? project.link : undefined}
                 target={project.link !== "#" ? "_blank" : undefined}
                 rel="noopener noreferrer"
@@ -217,6 +218,7 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
               href="https://github.com/Abubakr-Alsheikh"
               target="_blank"
               rel="noreferrer"
+              data-hud-target="ARCH.REPOSITORY"
               className="flex items-center gap-2 text-[#3B82F6] hover:text-[#F97316] font-mono text-xs uppercase tracking-widest transition-colors group"
             >
               Inspect Full Repository

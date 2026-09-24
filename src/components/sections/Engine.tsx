@@ -241,6 +241,7 @@ export default function Engine({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.05 }}
+                data-hud-target={`CERT.${String(idx + 1).padStart(2, "0")}`}
                 className={`group relative flex flex-col p-4 md:p-6 bg-[#020617] border border-slate-800 transition-colors duration-300 ${cert.inProgress ? "hover:border-[#3B82F6]" : "hover:border-[#F97316]"}`}
               >
                 <div

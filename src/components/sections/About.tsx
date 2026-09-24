@@ -139,6 +139,7 @@ export default function About({
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
+                data-hud-target={`CORE.${String(index + 1).padStart(2, "0")}`}
                 className="relative p-8 bg-[#020617]/85 backdrop-blur-sm border border-slate-800 group hover:border-[#F97316]/50 transition-colors"
               >
                 {/* ⚡ HARDWARE CIRCUIT TRIGGER FOR RIGHT CARDS */}

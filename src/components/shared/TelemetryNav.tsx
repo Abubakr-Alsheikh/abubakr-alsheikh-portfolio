@@ -100,6 +100,16 @@ function Screws() {
   );
 }
 
+/**
+ * The terminal is easy to miss, so it asks for attention once per visit until
+ * a visitor has opened it: after ATTENTION_MS the button pings and a callout
+ * names what it does, then the callout folds down to a blinking dot. Opening
+ * the terminal ends it for good (TERMINAL_SEEN_KEY).
+ */
+const ATTENTION_MS = 14000;
+const CALLOUT_MS = 9000;
+const TERMINAL_SEEN_KEY = "orbital.terminal.opened";
+
 export default function TelemetryNav() {
   const { scrollYProgress, scrollY } = useScroll();
   const lenis = useLenisInstance();
@@ -118,6 +128,33 @@ export default function TelemetryNav() {
   const [machDisplay, setMachDisplay] = useState("0.00");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [beacon, setBeacon] = useState<"off" | "callout" | "dot">("off");
+
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(TERMINAL_SEEN_KEY)) return;
+    } catch {}
+    let fold = 0;
+    const show = window.setTimeout(() => {
+      setBeacon("callout");
+      fold = window.setTimeout(
+        () => setBeacon((b) => (b === "callout" ? "dot" : b)),
+        CALLOUT_MS,
+      );
+    }, ATTENTION_MS);
+    return () => {
+      window.clearTimeout(show);
+      window.clearTimeout(fold);
+    };
+  }, []);
+
+  const openTerminal = () => {
+    setIsTerminalOpen(true);
+    setBeacon("off");
+    try {
+      window.localStorage.setItem(TERMINAL_SEEN_KEY, "1");
+    } catch {}
+  };
   const [activeSection, setActiveSection] = useState("hero");
 
   const panelRef = useRef<HTMLDivElement>(null);
@@ -291,15 +328,71 @@ export default function TelemetryNav() {
                   </span>
                 </div>
 
-                <button
-                  onClick={() => setIsTerminalOpen(true)}
-                  aria-label="Open root terminal (backtick)"
-                  title="Root terminal  [ ` ]"
-                  className="flex items-center gap-1.5 border border-slate-800 px-2 py-1.5 font-mono text-[9px] uppercase tracking-widest text-slate-400 transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6]"
-                >
-                  <TerminalSquare className="h-3.5 w-3.5" />
-                  <span className="hidden xl:inline">`</span>
-                </button>
+                <span className="relative flex">
+                  <button
+                    onClick={openTerminal}
+                    aria-label="Open root terminal (backtick)"
+                    title="Root terminal  [ ` ]"
+                    className={`relative flex items-center gap-1.5 border px-2 py-1.5 font-mono text-[9px] uppercase tracking-widest transition-colors hover:border-[#3B82F6]/50 hover:text-[#3B82F6] ${
+                      beacon === "off"
+                        ? "border-slate-800 text-slate-400"
+                        : "border-[#F97316]/70 text-[#F97316]"
+                    }`}
+                  >
+                    <TerminalSquare className="h-3.5 w-3.5" />
+                    <span className="hidden xl:inline">`</span>
+                    {beacon !== "off" && (
+                      <>
+                        {/* Ping ring, then a dot that stays until opened. */}
+                        <span
+                          aria-hidden="true"
+                          className="hud-ping pointer-events-none absolute -inset-1 border border-[#F97316] motion-reduce:hidden"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="hud-blink absolute -right-1 -top-1 h-1.5 w-1.5 bg-[#F97316]"
+                        />
+                      </>
+                    )}
+                  </button>
+
+                  <AnimatePresence>
+                    {beacon === "callout" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ type: "spring", stiffness: 260, damping: 30 }}
+                        className="absolute right-0 top-full z-10 mt-3 w-60 border border-[#F97316]/50 bg-[#020617] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)]"
+                      >
+                        {/* Pointer notch up to the button. */}
+                        <span
+                          aria-hidden="true"
+                          className="absolute -top-[5px] right-3 h-2 w-2 rotate-45 border-l border-t border-[#F97316]/50 bg-[#020617]"
+                        />
+                        <button
+                          onClick={openTerminal}
+                          className="block w-full px-3 pb-2.5 pt-3 text-left"
+                        >
+                          <span className="mb-1 flex items-center gap-2 font-mono text-[9px] uppercase tracking-widest text-[#F97316]">
+                            <span className="hud-blink h-1.5 w-1.5 bg-[#F97316]" />
+                            Incoming // Ask_ARCH
+                          </span>
+                          <span className="block font-mono text-[11px] leading-relaxed text-slate-300">
+                            Questions about my work? Ask the terminal. It answers live.
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => setBeacon("dot")}
+                          aria-label="Dismiss"
+                          className="absolute right-1.5 top-1.5 p-1 text-slate-400 hover:text-slate-100"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </span>
 
                 <button
                   onClick={() => setIsMenuOpen((open) => !open)}
@@ -365,7 +458,7 @@ export default function TelemetryNav() {
 
       <AdminTerminal
         isOpen={isTerminalOpen}
-        onOpen={() => setIsTerminalOpen(true)}
+        onOpen={openTerminal}
         onClose={() => setIsTerminalOpen(false)}
         onNavigate={scrollToSection}
       />
