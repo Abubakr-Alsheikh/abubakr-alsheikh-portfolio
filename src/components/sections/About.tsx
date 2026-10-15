@@ -105,7 +105,7 @@ export default function About({
             </h2>
             <h3 className="text-5xl md:text-7xl font-space font-bold text-slate-100 leading-[1] tracking-tighter mb-8">
               Precision in <br />
-              <span className="text-slate-600">execution.</span>
+              <span className="text-slate-500">execution.</span>
             </h3>
 
             {/* ⚡ ACTIVE LEFT BORDER TRACE ON MANIFESTO */}

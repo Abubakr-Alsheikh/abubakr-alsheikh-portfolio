@@ -205,7 +205,7 @@ export default function Engine({
               <Cpu className="w-5 h-5 text-[#F97316]" />
             </div>
             <h2 className="text-5xl md:text-7xl font-space font-bold text-slate-100 tracking-tighter leading-[1]">
-              The <span className="text-slate-600">Engine.</span>
+              The <span className="text-slate-500">Engine.</span>
             </h2>
           </motion.div>
         </div>
@@ -303,10 +303,11 @@ export default function Engine({
                       href={cert.verifyLink}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`Verify ${cert.title}`}
                       className={`flex items-center gap-2 transition-colors group/link ${
                         cert.inProgress
-                          ? "text-slate-500 hover:text-[#3B82F6]"
-                          : "text-slate-500 hover:text-[#F97316]"
+                          ? "text-slate-400 hover:text-[#3B82F6]"
+                          : "text-slate-400 hover:text-[#F97316]"
                       }`}
                     >
                       <span className="text-[10px] font-mono uppercase tracking-[0.2em] hidden sm:block">

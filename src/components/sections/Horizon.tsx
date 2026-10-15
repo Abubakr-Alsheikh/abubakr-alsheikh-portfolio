@@ -138,7 +138,7 @@ export default function Horizon({
               className="text-5xl md:text-7xl lg:text-8xl font-space font-bold text-slate-100 tracking-tighter leading-[0.95] mb-8"
             >
               {contact.headline.lead} <br />
-              <span className="text-slate-600">{contact.headline.trail}</span>
+              <span className="text-slate-500">{contact.headline.trail}</span>
             </motion.h2>
 
             <motion.p

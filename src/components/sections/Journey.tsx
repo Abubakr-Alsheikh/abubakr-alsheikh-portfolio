@@ -38,7 +38,7 @@ export default function Journey({ data }: { data: JourneyEntry[] }) {
               <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">Operations Log // Career Trajectory</span>
             </div>
             <h2 className="text-5xl md:text-7xl font-space font-bold text-slate-100 tracking-tighter leading-[1]">
-              The <span className="text-slate-600">Timeline.</span>
+              The <span className="text-slate-500">Timeline.</span>
             </h2>
           </motion.div>
 
