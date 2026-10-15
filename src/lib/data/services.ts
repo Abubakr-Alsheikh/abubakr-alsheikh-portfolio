@@ -1,10 +1,11 @@
 /**
  * The Services section: what a client can hire Abubakr for.
  *
- * Written for people who do not write code. Each package says what the
- * client gets in plain words first; the tools sit in `includes`, and every
- * package points at work already on this page (`proof`), so no claim stands
- * on its own.
+ * Every package reads two ways. `summary`/`includes` are for someone who
+ * does not write code: what they get, in plain words. `technical` is the same
+ * work for an engineer or a CTO: the stack, the patterns, the guarantees. The
+ * section shows the plain view by default and swaps on a toggle. Both point at
+ * the same `proof`, work already on this page, so no claim stands on its own.
  *
  * Prices and timelines are the owner's business decisions. A package with no
  * `startingAt` shows "Scoped per project"; fill it in (e.g. "$400") and the
@@ -19,6 +20,11 @@ export interface ServiceProof {
   href: string;
 }
 
+export interface ServiceView {
+  summary: string;
+  includes: string[];
+}
+
 export interface Service {
   /** Reticle and readout id, e.g. "SVC.01". */
   id: string;
@@ -27,6 +33,8 @@ export interface Service {
   /** What the client gets, in plain words. */
   summary: string;
   includes: string[];
+  /** The same package for a technical reader. */
+  technical: ServiceView;
   proof: ServiceProof[];
   /** e.g. "$400". Leave out until the owner sets a price. */
   startingAt?: string;
@@ -45,6 +53,7 @@ export interface ServicesContent {
   titleTrail: string;
   intro: string;
   arabicFirst: { label: string; body: string };
+  views: { business: string; technical: string; hint: string };
   services: Service[];
   custom: { title: string; body: string; action: string };
   process: ProcessStep[];
@@ -61,6 +70,12 @@ export const servicesData: ServicesContent = {
   titleTrail: "Launchpad.",
   intro:
     "You bring the problem; I build the thing that solves it and keep it running. Every package below links to work you can open on this page.",
+
+  views: {
+    business: "Business",
+    technical: "Technical",
+    hint: "Same work, two ways to read it.",
+  },
 
   arabicFirst: {
     label: "Arabic-first // RTL by default",
@@ -80,6 +95,16 @@ export const servicesData: ServicesContent = {
         "Database and API built to grow",
         "Deployed on your own domain",
       ],
+      technical: {
+        summary:
+          "Full-stack product from schema to deploy: a Django REST or Node API, a Next.js and TypeScript frontend, auth with role-based access, and a production pipeline.",
+        includes: [
+          "Data model, migrations and seed data",
+          "JWT or session auth with object-level permissions",
+          "Next.js App Router, TypeScript, Tailwind",
+          "Docker, Nginx and CI/CD to a VPS or managed host",
+        ],
+      },
       proof: [
         { label: "Mizan", href: "/projects/mizan" },
         { label: "Falak HR", href: "#archive" },
@@ -97,6 +122,16 @@ export const servicesData: ServicesContent = {
         "Background jobs and scheduled tasks",
         "Third-party integrations",
       ],
+      technical: {
+        summary:
+          "Versioned REST APIs behind an OpenAPI contract, on PostgreSQL, with background workers and WebSockets where live updates matter.",
+        includes: [
+          "Django REST Framework or Express, OpenAPI docs",
+          "PostgreSQL schema, indexes and migrations",
+          "Celery or BullMQ workers with retries and schedules",
+          "WebSockets, webhooks and third-party APIs",
+        ],
+      },
       proof: [
         { label: "Qader", href: "/projects/qader" },
         { label: "NexusDesk AI", href: "#archive" },
@@ -114,6 +149,16 @@ export const servicesData: ServicesContent = {
         "Contact and booking forms",
         "Fast loading and search-engine basics",
       ],
+      technical: {
+        summary:
+          "A statically generated Next.js site, right-to-left correct, fast on a phone, with its forms wired to email.",
+        includes: [
+          "Next.js and Tailwind, statically generated",
+          "RTL and LTR with logical CSS properties and i18n",
+          "Core Web Vitals, SEO metadata and Open Graph images",
+          "Serverless form handling with spam filtering",
+        ],
+      },
       proof: [
         { label: "Coaching Booking Site", href: "#archive" },
         { label: "Falak HR", href: "#archive" },
@@ -131,6 +176,16 @@ export const servicesData: ServicesContent = {
         "Voice notes and photos turned into data",
         "Fallback between AI providers",
       ],
+      technical: {
+        summary:
+          "LLM features built to fail safely: tool calling over your own data, validated structured output, and a provider fallback chain inside a budget.",
+        includes: [
+          "Tool-calling agents (like this site's terminal)",
+          "Structured JSON validated with Zod or Pydantic",
+          "Speech-to-text and image input pipelines",
+          "Provider fallback, caching and rate limits",
+        ],
+      },
       proof: [
         { label: "Mizan", href: "/projects/mizan" },
         { label: "NanoManga Studio", href: "/projects/nanomanga-studio" },
@@ -149,6 +204,16 @@ export const servicesData: ServicesContent = {
         "Monitoring and backups",
         "Monthly maintenance",
       ],
+      technical: {
+        summary:
+          "Production operations for a small team: containers behind a reverse proxy, a CI pipeline, monitoring, and backups on a schedule.",
+        includes: [
+          "Docker Compose, Nginx and TLS",
+          "GitHub Actions: lint, test, build, deploy",
+          "Prometheus and Grafana, or Sentry",
+          "Scheduled encrypted database backups",
+        ],
+      },
       proof: [
         { label: "Qader", href: "/projects/qader" },
         { label: "Mizan", href: "/projects/mizan" },

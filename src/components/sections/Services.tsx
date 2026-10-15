@@ -13,7 +13,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { WarpLink } from "@/components/shared/PageTransition";
 import { useLenisInstance } from "@/components/shared/LenisProvider";
 import TracePacket from "@/components/shared/TracePacket";
@@ -35,6 +35,8 @@ const ICONS: Record<ServiceIcon, LucideIcon> = {
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
+
+type View = "business" | "technical";
 
 const CHIP =
   "inline-flex items-center gap-1 px-2 h-6 border border-slate-800 text-[10px] font-mono uppercase tracking-widest text-slate-300 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors group/chip";
@@ -99,15 +101,18 @@ function ProofLink({ proof }: { proof: ServiceProof }) {
 function ServiceCard({
   service,
   index,
+  view,
   onQuote,
   quote,
 }: {
   service: Service;
   index: number;
+  view: View;
   onQuote: (title: string) => void;
   quote: ServicesContent["quote"];
 }) {
   const Icon = ICONS[service.icon];
+  const copy = view === "technical" ? service.technical : service;
   return (
     <motion.article
       initial={{ opacity: 0, y: 16 }}
@@ -132,13 +137,23 @@ function ServiceCard({
           <h3 className="text-xl md:text-2xl font-space font-bold text-slate-100 tracking-tight leading-tight">
             {service.title}
           </h3>
-          <p className="text-sm font-mono text-slate-400 leading-relaxed">{service.summary}</p>
+          <motion.p
+            key={view}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.25 }}
+            className="text-sm font-mono text-slate-400 leading-relaxed"
+          >
+            {copy.summary}
+          </motion.p>
         </div>
 
-        <ul className="flex flex-col gap-2">
-          {service.includes.map((item) => (
+        <ul key={view} className="flex flex-col gap-2">
+          {copy.includes.map((item) => (
             <li key={item} className="flex items-start gap-3 text-xs font-mono text-slate-300">
-              <span className="mt-1.5 w-1 h-1 shrink-0 bg-[#3B82F6]" />
+              <span
+                className={`mt-1.5 w-1 h-1 shrink-0 ${view === "technical" ? "bg-[#F97316]" : "bg-[#3B82F6]"}`}
+              />
               {item}
             </li>
           ))}
@@ -184,6 +199,7 @@ export default function Services({ data }: { data: ServicesContent }) {
   const traceRef = useRef<HTMLDivElement>(null);
   const { fill, packetOpacity } = useTraceFill(traceRef);
   const requestQuote = useQuote();
+  const [view, setView] = useState<View>("business");
 
   return (
     <section id="services" className="relative w-full flex justify-center z-20 overflow-x-clip">
@@ -246,12 +262,46 @@ export default function Services({ data }: { data: ServicesContent }) {
           </span>
         </motion.div>
 
+        {/* One set of packages, read two ways: plain outcomes for a client,
+            the stack and patterns for an engineer. */}
+        <div className="relative z-10 mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div
+            role="group"
+            aria-label="Read the packages as"
+            data-hud-target="SVC.VIEW"
+            className="flex border border-slate-800 bg-[#020617]"
+          >
+            {(["business", "technical"] as const).map((v) => {
+              const on = view === v;
+              return (
+                <button
+                  key={v}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => setView(v)}
+                  className={`h-9 px-4 text-[10px] font-mono uppercase tracking-widest transition-colors ${
+                    on
+                      ? "bg-[#F97316]/10 text-[#F97316] shadow-[inset_0_-2px_0_#F97316]"
+                      : "text-slate-400 hover:text-[#3B82F6]"
+                  }`}
+                >
+                  {data.views[v]}
+                </button>
+              );
+            })}
+          </div>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">
+            {data.views.hint}
+          </span>
+        </div>
+
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
           {data.services.map((service, i) => (
             <ServiceCard
               key={service.id}
               service={service}
               index={i}
+              view={view}
               onQuote={requestQuote}
               quote={data.quote}
             />

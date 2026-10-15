@@ -354,6 +354,7 @@ export const TOOLS: ChatTool[] = [
         title: s.title,
         summary: s.summary,
         includes: s.includes,
+        technical: s.technical,
         proof: s.proof.map((p) => p.label),
         price: s.startingAt ? `from ${s.startingAt}` : servicesData.quote.unpriced,
         timeline: s.timeline,
