@@ -49,6 +49,11 @@ export const buildLogData: Record<string, BuildLogLine[]> = {
     { t: "0.788", op: "bench", detail: "backend.throughput nominal", status: "ok" },
     { t: "0.803", op: "attest", detail: "certifications signed", status: "ok" },
   ],
+  services: [
+    { t: "0.851", op: "load", detail: "services.manifest -> 5 packages", status: "ok" },
+    { t: "0.866", op: "bind", detail: "quote -> contact.form", status: "ok" },
+    { t: "0.879", op: "await", detail: "brief from client", status: "run" },
+  ],
   contact: [
     { t: "0.912", op: "open", detail: "uplink smtp://contact" },
     { t: "0.930", op: "handshake", detail: "channel secured", status: "ok" },

@@ -38,7 +38,8 @@ const NAV_LINKS: NavLink[] = [
   { id: "archive", name: "03. ARCHIVE", short: "ARCH" },
   { id: "journey", name: "04. JOURNEY", short: "JRNY" },
   { id: "engine", name: "05. ENGINE", short: "ENG" },
-  { id: "contact", name: "06. HORIZON", short: "HRZN" },
+  { id: "services", name: "06. LAUNCHPAD", short: "SVC" },
+  { id: "contact", name: "07. HORIZON", short: "HRZN" },
 ];
 
 /** Samples per second for the velocity trace. */

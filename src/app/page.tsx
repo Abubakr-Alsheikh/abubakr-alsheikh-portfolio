@@ -10,6 +10,7 @@ import Projects from "@/components/sections/Projects";
 import Archive from "@/components/sections/Archive";
 import Journey from "@/components/sections/Journey";
 import Engine from "@/components/sections/Engine";
+import Services from "@/components/sections/Services";
 import Horizon from "@/components/sections/Horizon";
 
 import TelemetryNav from "@/components/shared/TelemetryNav";
@@ -96,6 +97,8 @@ export default function Home() {
               certs={portfolioData.certifications}
               badges={portfolioData.badges}
             />
+
+            <Services data={portfolioData.services} />
 
             <Horizon contact={portfolioData.contact} />
           </div>

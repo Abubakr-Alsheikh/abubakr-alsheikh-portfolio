@@ -17,6 +17,7 @@ export const SECTIONS = [
   "archive",
   "journey",
   "engine",
+  "services",
   "contact",
 ] as const;
 

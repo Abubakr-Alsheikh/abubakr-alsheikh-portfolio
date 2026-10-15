@@ -3,6 +3,7 @@ import {
   archiveProjectsData,
   certificationsData,
   contactData,
+  servicesData,
   heroData,
   journeyData,
   skillsData,
@@ -342,6 +343,27 @@ export const TOOLS: ChatTool[] = [
   },
   {
     side: "server",
+    name: "get_services",
+    description:
+      "What Abubakr offers clients: each package with what it includes, the projects that prove it, its starting price when one is set, and how a project runs.",
+    parameters: NO_ARGS,
+    trace: () => "services.read()",
+    run: () => ({
+      arabicFirst: servicesData.arabicFirst.body,
+      packages: servicesData.services.map((s) => ({
+        title: s.title,
+        summary: s.summary,
+        includes: s.includes,
+        proof: s.proof.map((p) => p.label),
+        price: s.startingAt ? `from ${s.startingAt}` : servicesData.quote.unpriced,
+        timeline: s.timeline,
+      })),
+      custom: servicesData.custom.body,
+      process: servicesData.process,
+    }),
+  },
+  {
+    side: "server",
     name: "get_contact",
     description:
       "How to reach Abubakr: email, Telegram, WhatsApp, profiles, resume link, and the contact form on this page.",
@@ -373,7 +395,7 @@ export const TOOLS: ChatTool[] = [
           type: "string",
           enum: SECTIONS,
           description:
-            "hero=top, about=profile, projects=featured, archive=other projects, journey=experience, engine=skills and certifications, contact=form.",
+            "hero=top, about=profile, projects=featured, archive=other projects, journey=experience, engine=skills and certifications, services=what he offers and prices, contact=form.",
         },
       },
       required: ["section"],
