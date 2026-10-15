@@ -28,7 +28,8 @@ type Cert = {
 type Badge = {
   title: string;
   image: string;
-  url: string;
+  /** Public verification page. A badge without one renders unlinked. */
+  url?: string;
   inProgress: boolean;
 };
 
@@ -63,6 +64,19 @@ const DataStream = ({
     </div>
   );
 };
+
+const BADGE_FACE =
+  "relative w-[70px] h-[70px] md:w-[140px] md:h-[140px] flex items-center justify-center opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 z-10";
+
+const BadgeImage = ({ badge }: { badge: Badge }) => (
+  <Image
+    src={badge.image}
+    alt={badge.title}
+    width={140}
+    height={140}
+    className="w-[70px] h-[70px] md:w-[140px] md:h-[140px]"
+  />
+);
 
 const BadgeMarquee = ({ badges }: { badges: Badge[] }) => {
   // Quadrupling the array ensures ultra-wide monitors are always filled.
@@ -110,21 +124,19 @@ const BadgeMarquee = ({ badges }: { badges: Badge[] }) => {
                   </span>
                 </div>
               </div>
-            ) : (
+            ) : badge.url ? (
               <a
                 href={badge.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative w-[70px] h-[70px] md:w-[140px] md:h-[140px] flex items-center justify-center opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 z-10"
+                className={BADGE_FACE}
               >
-                <Image
-                  src={badge.image}
-                  alt={badge.title}
-                  width={140}
-                  height={140}
-                  className="w-[70px] h-[70px] md:w-[140px] md:h-[140px]"
-                />
+                <BadgeImage badge={badge} />
               </a>
+            ) : (
+              <div className={BADGE_FACE}>
+                <BadgeImage badge={badge} />
+              </div>
             )}
 
             <div className="absolute -bottom-6 md:-bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">

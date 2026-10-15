@@ -1,9 +1,25 @@
-export const certificationsData = [
+export interface Certification {
+  issuer: string;
+  title: string;
+  date: string;
+  verifyLink?: string;
+  inProgress?: boolean;
+}
+
+export interface CredentialBadge {
+  title: string;
+  image: string;
+  /** Public verification page. A badge without one renders unlinked. */
+  url?: string;
+  inProgress: boolean;
+}
+
+export const certificationsData: Certification[] = [
   {
     issuer: "Meta",
-    title: "Android Developer Professional",
-    date: "",
-    inProgress: true,
+    title: "Android Developer Specialization",
+    date: "Oct 2026",
+    verifyLink: "https://coursera.org/verify/specialization/B1OVI6VV69TQ",
   },
   {
     issuer: "Meta",
@@ -56,7 +72,7 @@ export const certificationsData = [
   },
 ];
 
-export const badgesData = [
+export const badgesData: CredentialBadge[] = [
   {
     title: "Front-End Developer",
     image: "/credly_badges/Meta Front-End Developer Certificate.png",
@@ -83,8 +99,15 @@ export const badgesData = [
   },
   {
     title: "Android Developer",
-    image: "/credly_badges/Meta Database Engineer Professional Certificate.png",
-    url: "#",
-    inProgress: true,
+    image: "/credly_badges/Meta Android Developer Certificate.png",
+    url: "https://www.credly.com/badges/16e74307-bb6e-4d32-bf62-75a479ba6f13/public_url",
+    inProgress: false,
+  },
+  {
+    // Earned for completing the Front-End, Back-End, Database and Android
+    // programs, but never issued on Credly, so there is no public URL to link.
+    title: "Generalist Software Engineer",
+    image: "/credly_badges/Meta Generalist Software Engineer Certificate.png",
+    inProgress: false,
   },
 ];

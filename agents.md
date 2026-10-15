@@ -235,6 +235,7 @@ Content is decoupled from UI. Follow the established schema in `src/lib/data/`.
 - **Extending Data**: When adding a new project or journey item, you **must** update the corresponding file in `src/lib/data/` first.
 - **Centralized Export**: All data must be funneled through `src/lib/data.ts` and exported via the `portfolioData` object to maintain a clean import path for components.
 - **Strict Typing**: If the data structure changes, you must update the type definitions in the component's props to reflect the change. No loose objects.
+- **Credentials**: `certifications.ts` types its arrays (`Certification`, `CredentialBadge`), so `inProgress` stays valid when no course is in progress. A badge's `url` is optional: the Generalist Software Engineer badge was earned but never issued on Credly, so it renders unlinked. Never point a badge at `#` or at another badge's page.
 
 ## 18. Debugging & System Logs (The "Telemetry" Rule)
 

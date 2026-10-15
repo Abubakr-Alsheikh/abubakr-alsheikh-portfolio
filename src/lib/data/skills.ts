@@ -3,6 +3,8 @@ export const skillsData = {
     "TypeScript",
     "Next.js",
     "React.js",
+    "Kotlin",
+    "Android / Jetpack",
     "UI Architecture",
     "State Management",
     "JavaScript",
