@@ -100,6 +100,17 @@ const TargetReticle = React.memo(() => {
   // re-querying the DOM by label.
   const lockedEl = useRef<Element | null>(null);
 
+  // The locked element also carries `data-hud-locked`, so the page can react to
+  // a lock in CSS (`group-data-[hud-locked]:`), e.g. an archive row lighting its
+  // preview on a phone. One attribute write per lock change, never per frame.
+  const setLocked = useCallback((el: Element | null) => {
+    lockedEl.current?.removeAttribute("data-hud-locked");
+    el?.setAttribute("data-hud-locked", "");
+    lockedEl.current = el;
+  }, []);
+
+  useEffect(() => () => setLocked(null), [setLocked]);
+
   // Box geometry in viewport coordinates. Position and size are separate motion
   // values so idle -> lock is one continuous spring, not a component swap.
   const boxX = useMotionValue(0);
@@ -161,7 +172,7 @@ const TargetReticle = React.memo(() => {
 
       if (!el) {
         if (lockedEl.current) {
-          lockedEl.current = null;
+          setLocked(null);
           setLabel(null);
         }
         return;
@@ -172,7 +183,7 @@ const TargetReticle = React.memo(() => {
       const next = el.getAttribute("data-hud-target");
       if (!next) return;
 
-      lockedEl.current = el;
+      setLocked(el);
       setLabel(next);
       applyRect(toRect(el.getBoundingClientRect()));
     };
@@ -198,7 +209,7 @@ const TargetReticle = React.memo(() => {
       window.removeEventListener("scroll", remeasure);
       window.removeEventListener("resize", remeasure);
     };
-  }, [mode, applyRect]);
+  }, [mode, applyRect, setLocked]);
 
   // ---- Touch: scroll drives the lock ----
   useEffect(() => {
@@ -212,7 +223,7 @@ const TargetReticle = React.memo(() => {
 
       if (el !== lockedEl.current) {
         const wasEmpty = lockedEl.current === null;
-        lockedEl.current = el;
+        setLocked(el);
         setLabel(el ? el.getAttribute("data-hud-target") : null);
         if (el) applyRect(clampToViewport(toRect(el.getBoundingClientRect())), wasEmpty);
         return;
@@ -238,7 +249,7 @@ const TargetReticle = React.memo(() => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [mode, applyRect]);
+  }, [mode, applyRect, setLocked]);
 
   if (!mode) return null;
 

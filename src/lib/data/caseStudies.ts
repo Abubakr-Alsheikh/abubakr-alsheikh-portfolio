@@ -101,67 +101,144 @@ export const caseStudiesData: Record<string, CaseStudy> = {
     ],
   },
 
-  "max-cli": {
-    context: "Open source · published on PyPI · docs on GitHub Pages",
+  mizan: {
+    context: "Own product · free to use · live on Netlify · source private",
     summary:
-      "A terminal assistant that turns media, PDF, image and file chores into short commands you can remember.",
+      "A household money companion: log spending in seconds from Telegram or the web, and get one number back, what you can safely spend today.",
     problem:
-      "Compressing a video, merging PDFs or tidying a downloads folder each means a different tool and a page of flags. Max puts those jobs behind one command, `max`, with sane defaults, and adds an undo for anything that touches your files.",
+      "I kept my family's budget in an Excel sheet for four years, then stopped. Entering a purchase meant opening a laptop and finding the row, and only one person could do it, so the rest of the family never joined in. Mizan's goal is a purchase logged in under five seconds from apps the family already uses, turned into a number everyone trusts.",
     architecture: [
       {
-        name: "interface/",
+        name: "Clients",
         detail:
-          "Typer command groups, one per domain: video, audio, PDF, images, files, grab, AI, config.",
+          "A Telegram bot that takes text, voice notes and receipt photos, and a right-to-left Next.js PWA with a quick-entry keypad. Both call the same services.",
       },
       {
-        name: "core/engines/",
+        name: "API",
         detail:
-          "The work itself: media, PDF, image, AI, network and file-organiser engines, plus a task queue for downloads.",
+          "A Hono app mounted inside Next.js at /api/v1, with zod schemas that drive validation, types and the OpenAPI output. Routes stay thin and hand off to a service layer, then to Drizzle repositories.",
       },
       {
-        name: "plugins/",
+        name: "AI",
         detail:
-          "A PluginManager that loads drop-in `.py` files from plugin folders and remembers which are enabled in ~/.max_cli/plugins.json.",
+          "The Vercel AI SDK over free tiers: Gemini Flash-Lite, then Gemini Flash, then two Groq models for text; Groq Whisper, then Gladia, then Gemini for voice.",
       },
       {
-        name: "common/",
+        name: "Data",
+        detail: "Supabase Postgres and Auth through Drizzle, with SQL migrations.",
+      },
+      {
+        name: "Operations",
         detail:
-          "Shared plumbing: the transaction log, retry, caching, events and the FFmpeg resolver.",
+          "Netlify through OpenNext, a service worker built with Serwist, Sentry for errors, and scheduled GitHub Actions for jobs and the weekly backup.",
       },
     ],
     decisions: [
       {
-        title: "File operations can be undone",
-        body: "Each command that renames, moves or deletes files writes its operations as one JSON group in ~/.max_cli/transactions/. `max files undo` reverses the whole group. The log keeps 50 groups for 30 days.",
+        title: "Code before the model",
+        body: "A pattern parser reads the common cases, such as \"bread 500\" or a currency exchange, in Arabic or Latin digits. Only what it cannot read goes to a model, which keeps free quotas for the hard messages.",
       },
       {
-        title: "FFmpeg finds itself",
-        body: "Video and audio commands check for FFmpeg on first use and offer to download it into ~/.max_cli/bin/, so a new user gets an install prompt in place of a missing-binary error.",
+        title: "A message never waits on one quota",
+        body: "A limit, an outage, a timeout or an answer that misses the schema moves the message to the next provider in the chain. A real bug stops instead, keeps the message for review, and tells the sender the fault is ours.",
       },
       {
-        title: "Plugins are just files",
-        body: "Drop a Python file into a plugin folder and Max discovers it through importlib, runs its lifecycle hooks and registers its commands on the CLI.",
+        title: "Money keeps the rate of its day",
+        body: "Amounts are numeric columns, never floats, and every transaction stores its currency, its rate to the base currency and its base amount. Prices move fast, so history keeps the rate that applied when the money was spent.",
       },
       {
-        title: "Any model, or none online",
-        body: "The AI commands speak the OpenAI API, so they run against Gemini, OpenAI or a local Ollama model by changing the base URL and key.",
+        title: "Access is checked in the service layer",
+        body: "The ORM connects with full rights, so database row policies cannot be the guard. Every service checks household membership before it reads or writes.",
       },
       {
-        title: "Tested where it runs",
-        body: "CI lints with Ruff and runs Pytest with coverage on Ubuntu, macOS and Windows across Python 3.9 to 3.12. Separate workflows publish the docs and release to PyPI.",
+        title: "A webhook that answers fast and once",
+        body: "The Telegram route checks the secret header in constant time, records each update_id once so a retry is ignored, answers at once and does the work in Next.js after().",
+      },
+      {
+        title: "Weekly encrypted backups",
+        body: "A scheduled workflow takes an encrypted pg_dump every Friday and keeps it for 90 days.",
       },
     ],
     facts: [
-      { value: "21", label: "commands in the README" },
-      { value: "12", label: "CI jobs: 3 OS × 4 Pythons" },
-      { value: "19", label: "test modules" },
-      { value: "120+", label: "commits" },
+      { value: "3", label: "languages: Arabic, English, Turkish" },
+      { value: "102", label: "test files" },
+      { value: "24", label: "database migrations" },
+      { value: "114", label: "commits" },
     ],
     sources: [
-      "github.com/Abubakr-Alsheikh/max-cli README.md, pyproject.toml",
-      ".github/workflows/ci.yml, docs.yml, release.yml",
-      "src/max_cli/plugins/manager.py (commits fbe7581, ad67ce2)",
-      "src/max_cli/common/transaction_log.py (commit 8e14b85)",
+      "Private repo Abubakr-Alsheikh/mizan: README.md, docs/01-product.md, docs/02-architecture.md, docs/08-decisions-and-risks.md (decisions 2, 8, 41)",
+      "src/server/ai/pattern-parser.ts, src/server/api/routes/telegram.ts, src/server/telegram/secret.ts, .github/workflows/backup.yml",
+      "drizzle/*.sql, messages/{ar,en,tr}.json, git log (2026-09-20 to 2026-10-13)",
+      "mizans.netlify.app",
+    ],
+  },
+
+  "max-cli": {
+    context: "Open source · v1.2.0 on PyPI · docs on GitHub Pages",
+    summary:
+      "A terminal assistant that turns media, PDF, image, download and file chores into short commands, and runs them for you from plain words.",
+    problem:
+      "Compressing a video, merging PDFs or tidying a downloads folder each means a different tool and a page of flags. Max puts those jobs behind one command, `max`, with sane defaults, lets you ask for them in plain words, and keeps an undo for anything that touches your files.",
+    architecture: [
+      {
+        name: "core/catalog/",
+        detail:
+          "One description per action: its parameters, defaults, danger level and batch rules. The CLI, the dashboard and the agent all read it, so they offer the same options.",
+      },
+      {
+        name: "core/operations/ + engines/",
+        detail:
+          "The work behind each action, over engines for FFmpeg, PDF, images, AI providers, downloads and the background task queue.",
+      },
+      {
+        name: "core/agent/",
+        detail:
+          "The AI agent: Max's own commands as its tools, a path scope it cannot leave, plans shown before multi-step work, and batch and parallel runs.",
+      },
+      {
+        name: "interface/",
+        detail:
+          "Typer command groups for video, audio, images, PDF, grab, files, AI, queue, tools, config and plugins, plus a Textual dashboard that a bare `max` opens.",
+      },
+      {
+        name: "common/ + plugins/",
+        detail:
+          "Shared plumbing (atomic writes, file locks, the undo log) and a loader for drop-in plugin files.",
+      },
+    ],
+    decisions: [
+      {
+        title: "One catalog, three front ends",
+        body: "Every action is described once. The command line, the dashboard and the agent are three views of the same catalog running the same operations, so a new action appears in all three.",
+      },
+      {
+        title: "The agent only uses Max",
+        body: "`max \"sort my Music folder by artist\"` plans with Max's own commands and nothing else. It stays inside the folders you name, asks before it moves, overwrites or deletes, and `max ai undo` puts back its last request.",
+      },
+      {
+        title: "File operations can be undone",
+        body: "Each command that renames, moves or deletes files writes its operations as one group in an undo log. The log keeps 50 groups for 30 days.",
+      },
+      {
+        title: "A main model and a fallback",
+        body: "You pick a main AI and a fallback from OpenAI, OpenRouter, Gemini or a local Ollama model. When the main one fails, Max switches to the fallback.",
+      },
+      {
+        title: "Tested where it runs",
+        body: "CI runs Pytest on Ubuntu, macOS and Windows across Python 3.9 to 3.12, holds type errors under a mypy baseline that may not rise, and builds the package. Separate workflows publish the docs and release to PyPI.",
+      },
+    ],
+    facts: [
+      { value: "73", label: "commands in the README" },
+      { value: "14", label: "CI jobs per push" },
+      { value: "92", label: "test modules" },
+      { value: "417", label: "commits" },
+    ],
+    sources: [
+      "github.com/Abubakr-Alsheikh/max-cli README.md (command table, cheat sheets, \"How the code fits together\"), CHANGELOG.md, pyproject.toml (v1.2.0)",
+      ".github/workflows/ci.yml (3 OS x 4 Pythons, typecheck, build), docs.yml, release.yml",
+      "src/max_cli/plugins/manager.py (commit ad67ce2), src/max_cli/common/transaction_log.py",
+      "git log at ba834d6 (2026-10-13)",
     ],
   },
 

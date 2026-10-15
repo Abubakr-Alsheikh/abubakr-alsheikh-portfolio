@@ -108,7 +108,7 @@ function PageFrame({
               <div className="absolute left-0 right-0 top-0 h-px bg-[#10B981] shadow-[0_0_10px_#10B981]" />
             </div>
           ))}
-        <span className="absolute bottom-0.5 right-1 text-[5px] lg:text-[6px] text-slate-500">
+        <span className="absolute bottom-0.5 right-1 text-[5px] lg:text-[6px] text-slate-400">
           {id}
         </span>
       </div>
@@ -177,7 +177,7 @@ export default function NanoMangaVisual() {
           <div className="hud-pulse [--hud-dur:1.5s] w-1.5 h-1.5 bg-[#F97316]" />
           <div className="w-1.5 h-1.5 bg-[#3B82F6]" />
         </div>
-        <span className="text-[10px] text-slate-500 uppercase tracking-widest truncate pl-2">
+        <span className="text-[10px] text-slate-400 uppercase tracking-widest truncate pl-2">
           Gemini_MultiModal_Pipeline.exe
         </span>
       </div>

@@ -60,14 +60,14 @@ const CodeDiff = React.memo(({ file, commit, lines }: CodeDiffProps) => {
       aria-hidden="true"
     >
       <div className="flex items-center justify-between gap-3 border-b border-slate-800/80 px-3 py-1.5 font-mono text-[9px] tracking-widest">
-        <span className="truncate text-slate-600">
-          {file} <span className="text-slate-700">@{commit}</span>
+        <span className="truncate text-slate-400">
+          {file} <span className="text-slate-400">@{commit}</span>
         </span>
         <span className="flex shrink-0 items-center gap-2">
           <span className="text-[#3B82F6]">+{added}</span>
           <span className="text-[#F97316]">-{removed}</span>
           <span
-            className={`transition-colors duration-500 ${settled ? "text-slate-500" : "text-slate-700"}`}
+            className={`transition-colors duration-500 ${settled ? "text-slate-300" : "text-slate-400"}`}
           >
             {settled ? "APPLIED" : "STAGED"}
           </span>
@@ -116,8 +116,8 @@ const CodeDiff = React.memo(({ file, commit, lines }: CodeDiffProps) => {
                   isAdd
                     ? "text-slate-300"
                     : isDel
-                      ? "text-slate-400 line-through decoration-transparent group-data-applied/diff:text-slate-600 group-data-applied/diff:decoration-[#F97316]/50"
-                      : "text-slate-500"
+                      ? "text-slate-400 line-through decoration-transparent group-data-applied/diff:decoration-[#F97316]/50"
+                      : "text-slate-400"
                 }`}
                 style={{ transitionDelay: `${after}ms` }}
               >

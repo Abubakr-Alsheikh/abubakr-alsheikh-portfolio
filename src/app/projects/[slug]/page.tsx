@@ -9,11 +9,16 @@ import {
   Github,
   Globe,
 } from "lucide-react";
-import { topProjectsData, type TopProject } from "@/lib/data/topProjects";
+import {
+  retiredProjectsData,
+  topProjectsData,
+  type TopProject,
+} from "@/lib/data/topProjects";
 import { caseStudiesData } from "@/lib/data/caseStudies";
 import DeepSpaceEnvironment from "@/components/visuals/DeepSpaceEnvironment";
 import CodeDiff from "@/components/visuals/CodeDiff";
 import QaderVisual from "@/components/visuals/QaderVisual";
+import MizanVisual from "@/components/visuals/MizanVisual";
 import MaxCLIVisual from "@/components/visuals/MaxCLIVisual";
 import NanoMangaVisual from "@/components/visuals/NanoMangaVisual";
 import SchoolManagementVisual from "@/components/visuals/SchoolManagementVisual";
@@ -33,7 +38,10 @@ export function generateStaticParams() {
 type Params = Promise<{ slug: string }>;
 
 function find(slug: string) {
-  const project = topProjectsData.find((p) => p.slug === slug);
+  // Retired projects left the Projects section but keep their page.
+  const project = [...topProjectsData, ...retiredProjectsData].find(
+    (p) => p.slug === slug,
+  );
   const study = caseStudiesData[slug];
   return project && study ? { project, study } : null;
 }
@@ -61,6 +69,7 @@ export async function generateMetadata({
 
 const VISUALS: Record<string, React.ComponentType> = {
   qader: QaderVisual,
+  mizan: MizanVisual,
   "max-cli": MaxCLIVisual,
   "nanomanga-studio": NanoMangaVisual,
   "school-management-system": SchoolManagementVisual,
@@ -170,7 +179,12 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
   const Visual = VISUALS[slug];
   const facts = study.facts ?? [];
   const featured = topProjectsData.filter((p) => caseStudiesData[p.slug]);
+  // indexOf is -1 for a retired project, so its "next" is the first featured one.
   const next = featured[(featured.indexOf(project) + 1) % featured.length];
+  // A retired project is reached from its archive row, so it returns there.
+  const back = featured.includes(project)
+    ? { href: "/#projects", label: "The_Arsenal" }
+    : { href: "/#archive", label: "The_Archive" };
   const commitUrl =
     project.code && project.links.repo
       ? `${project.links.repo}/commit/${project.code.commit}`
@@ -184,13 +198,13 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
         {/* Top bar */}
         <nav className="flex items-center justify-between gap-4 mb-20 font-mono text-[10px] md:text-xs tracking-widest uppercase">
           <WarpLink
-            href="/#projects"
-            warp={{ kicker: "Return // The_Arsenal", title: "Back to base" }}
+            href={back.href}
+            warp={{ kicker: `Return // ${back.label}`, title: "Back to base" }}
             data-hud-target="CASE.BACK"
             className="flex items-center gap-2 px-3 h-9 border border-slate-800 bg-[#020617] text-slate-300 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors group/back"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover/back:-translate-x-0.5 transition-transform" />
-            The_Arsenal
+            {back.label}
           </WarpLink>
           <span className="text-slate-400">
             {project.id}

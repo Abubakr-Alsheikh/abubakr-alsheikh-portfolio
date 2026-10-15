@@ -103,7 +103,7 @@ export default function QaderVisual() {
           <div className="hud-pulse [--hud-dur:2s] w-1.5 h-1.5 bg-[#3B82F6]" />
           <div className="w-1.5 h-1.5 bg-[#F97316]" />
         </div>
-        <span className="text-[10px] text-slate-500 uppercase tracking-widest truncate pl-2">
+        <span className="text-[10px] text-slate-400 uppercase tracking-widest truncate pl-2">
           Qader_Topology_Live_Feed.exe
         </span>
       </div>

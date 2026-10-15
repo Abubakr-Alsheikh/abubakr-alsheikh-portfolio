@@ -92,14 +92,14 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-const hasLink = (link: string) => link && link !== "#";
-
 // --- The index: every record, flattened once --------------------------------
 
 interface Project {
   slug: string;
   title: string;
-  tier: "featured" | "archive";
+  tier: "featured" | "archive" | "legacy";
+  year?: number;
+  kinds?: string[];
   stack: string[];
   description: string;
   link?: string;
@@ -125,13 +125,22 @@ const PROJECTS: Project[] = [
       ? new URL(`/projects/${p.slug}`, SITE_URL).href
       : undefined,
   })),
+  // Archive and legacy rows. A row with no links is client or company code:
+  // the agent gets its general shape and nothing to open.
   ...archiveProjectsData.map((p) => ({
-    slug: slugify(p.title),
+    slug: p.slug,
     title: p.title,
-    tier: "archive" as const,
+    tier: p.tier,
+    year: p.year,
+    kinds: [...p.kinds, ...(p.flags ?? [])],
     stack: p.stack,
-    description: p.description,
-    link: hasLink(p.link) ? p.link : undefined,
+    description: p.summary,
+    link: p.links.live ?? p.links.source,
+    repo: p.links.source,
+    live: p.links.live,
+    caseStudy: p.links.caseStudy
+      ? new URL(`/projects/${p.links.caseStudy}`, SITE_URL).href
+      : undefined,
   })),
 ];
 
@@ -253,13 +262,13 @@ export const TOOLS: ChatTool[] = [
     side: "server",
     name: "list_projects",
     description:
-      "Lists projects with slug, title and stack. 'featured' are the four flagship systems, 'archive' the smaller builds.",
+      "Lists projects with slug, title, year and stack. 'featured' are the flagship systems, 'archive' other real projects (client, AI, backend, mobile, coursework), 'legacy' earlier work kept as a record.",
     parameters: {
       type: "object",
       properties: {
         scope: {
           type: "string",
-          enum: ["featured", "archive", "all"],
+          enum: ["featured", "archive", "legacy", "all"],
           description: "Which projects to list. Defaults to 'all'.",
         },
       },
@@ -269,7 +278,7 @@ export const TOOLS: ChatTool[] = [
     run: (args) => {
       const scope = str(args, "scope") || "all";
       return PROJECTS.filter((p) => scope === "all" || p.tier === scope).map(
-        (p) => ({ slug: p.slug, title: p.title, tier: p.tier, stack: p.stack }),
+        (p) => ({ slug: p.slug, title: p.title, tier: p.tier, year: p.year, stack: p.stack }),
       );
     },
   },

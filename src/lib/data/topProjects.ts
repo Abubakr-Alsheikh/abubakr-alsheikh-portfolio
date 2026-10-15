@@ -1,6 +1,7 @@
 /**
- * The featured projects: the cards in the Projects section, and the index the
- * case-study pages under /projects/[slug] are built from.
+ * The featured projects: the cards in the Projects section, and, with
+ * `retiredProjectsData`, the index the case-study pages under /projects/[slug]
+ * are built from.
  *
  * `code` is the excerpt `CodeDiff` plays inside each card. It must be a real
  * hunk from a real commit in the project's public repo, copied verbatim, with
@@ -52,17 +53,26 @@ export const topProjectsData: TopProject[] = [
     slug: "qader",
     title: "Qader Platform (LMS)",
     description:
-      "Architected a highly scalable, modular backend infrastructure featuring versioned RESTful APIs. Established a modern, type-safe frontend with robust i18n support, engineered for production-grade reliability using asynchronous task processing.",
+      "Arabic-first exam-prep platform for Saudi students and schools. Full-stack work across modular Django REST services, real-time features over WebSockets, background jobs, and a right-to-left Next.js web app.",
     stack: ["Django", "Next.js", "Celery", "Redis", "PostgreSQL + pgvector", "WebSockets"],
     links: { live: "https://qader.vip/" },
   },
   {
     id: "SYS.MOD_02",
-    slug: "max-cli",
-    title: "Max CLI: Developer Tool",
+    slug: "mizan",
+    title: "Mizan: Household Budget Companion",
     description:
-      "Designed and published an open-source, framework-agnostic CLI for automating complex developer workflows. Created an extensible custom plugin system and established a robust CI/CD pipeline utilizing GitHub Actions for automated testing.",
-    stack: ["Python", "Typer", "FFmpeg", "Pytest", "GitHub Actions"],
+      "Free budget companion for a person or a whole family. Log spending from Telegram by text, voice note or receipt photo, or from a web keypad, and Mizan answers with one number: what you can safely spend today. Arabic, English and Turkish, running on free tiers.",
+    stack: ["Next.js", "Hono", "Supabase", "Drizzle", "Telegram Bot API", "Gemini"],
+    links: { live: "https://mizans.netlify.app" },
+  },
+  {
+    id: "SYS.MOD_03",
+    slug: "max-cli",
+    title: "Max CLI: Terminal Assistant",
+    description:
+      "Open-source terminal assistant on PyPI. 73 commands turn video, audio, PDF, image, download and file chores into short commands, an AI agent runs them from plain words, and a dashboard shows every action as a form with progress and undo.",
+    stack: ["Python", "Typer", "Textual", "FFmpeg", "OpenAI SDK", "Pytest"],
     links: {
       repo: "https://github.com/Abubakr-Alsheikh/max-cli",
       docs: "https://abubakr-alsheikh.github.io/max-cli/",
@@ -81,7 +91,7 @@ export const topProjectsData: TopProject[] = [
     },
   },
   {
-    id: "SYS.MOD_03",
+    id: "SYS.MOD_04",
     slug: "nanomanga-studio",
     title: "NanoManga Studio",
     description:
@@ -104,12 +114,19 @@ export const topProjectsData: TopProject[] = [
       ],
     },
   },
+];
+
+/**
+ * Former featured projects. They left the Projects section but keep their
+ * case-study pages, which the archive rows link to. Not shown as cards.
+ */
+export const retiredProjectsData: TopProject[] = [
   {
-    id: "SYS.MOD_04",
+    id: "SYS.ARC_01",
     slug: "school-management-system",
     title: "School Management System",
     description:
-      "Developed a comprehensive administrative desktop application managing complex operational schedules. Designed and normalized a robust relational database schema utilizing custom SQL scripts for strict data validation alongside stateful UI components.",
+      "University assignment: a Windows Forms desktop app that keeps a school's students, staff, classes, grades and weekly schedules in one Oracle database, with every query going through a single parameterised gateway.",
     stack: ["C#", "Windows Forms", "Oracle Database", "SQL"],
     links: {
       repo: "https://github.com/Abubakr-Alsheikh/school-management-system",

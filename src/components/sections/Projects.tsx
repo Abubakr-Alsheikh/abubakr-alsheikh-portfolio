@@ -6,14 +6,29 @@ import { WarpLink } from "@/components/shared/PageTransition";
 import { useRef } from "react";
 import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholder";
 import QaderVisual from "@/components/visuals/QaderVisual";
-import MaxCLIVisual from "../visuals/MaxCLIVisual";
-import NanoMangaVisual from "../visuals/NanoMangaVisual";
-import SchoolManagementVisual from "../visuals/SchoolManagementVisual";
+import MizanVisual from "@/components/visuals/MizanVisual";
+import MaxCLIVisual from "@/components/visuals/MaxCLIVisual";
+import NanoMangaVisual from "@/components/visuals/NanoMangaVisual";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 import CodeDiff from "@/components/visuals/CodeDiff";
 import type { TopProject } from "@/lib/data/topProjects";
 import { caseStudiesData } from "@/lib/data/caseStudies";
+
+/** Schematic per project, keyed by slug so reordering the list never
+ *  hands a project another one's visual. */
+const VISUALS: Record<string, React.ComponentType> = {
+  qader: QaderVisual,
+  mizan: MizanVisual,
+  "max-cli": MaxCLIVisual,
+  "nanomanga-studio": NanoMangaVisual,
+};
+
+function ProjectVisual({ project, index }: { project: TopProject; index: number }) {
+  const Visual = VISUALS[project.slug];
+  if (!Visual) return <SystemWindowPlaceholder index={index} title={project.title} />;
+  return <Visual />;
+}
 
 const ACTION =
   "flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest transition-colors group/link";
@@ -52,12 +67,12 @@ export default function Projects({ data }: { data: TopProject[] }) {
           <div className="mb-24">
             <div className="flex items-center gap-3 mb-6">
               <Rocket className="w-5 h-5 text-[#3B82F6]" />
-              <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">
+              <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">
                 System Modules // Deployed Architectures
               </span>
             </div>
             <h2 className="text-5xl md:text-7xl font-space font-bold text-slate-100 tracking-tighter leading-[1]">
-              The <span className="text-slate-600">Arsenal.</span>
+              The <span className="text-slate-500">Arsenal.</span>
             </h2>
           </div>
 
@@ -170,7 +185,7 @@ export default function Projects({ data }: { data: TopProject[] }) {
                     {project.stack.map((tech, i) => (
                       <span
                         key={i}
-                        className="text-[10px] font-mono text-slate-500 uppercase tracking-widest"
+                        className="text-[10px] font-mono text-slate-400 uppercase tracking-widest"
                       >
                         {i !== 0 && (
                           <span className="text-slate-800 mr-3">|</span>
@@ -248,21 +263,7 @@ export default function Projects({ data }: { data: TopProject[] }) {
                   data-hud-target={`PROJ.${String(index + 1).padStart(2, "0")}.SCHEMATIC`}
                   className="xl:col-span-7 relative w-full aspect-[4/3] xl:aspect-auto order-2"
                 >
-                  {/* Visual Selection Logic */}
-                  {project.id === "SYS.MOD_01" ? (
-                    <QaderVisual />
-                  ) : project.id === "SYS.MOD_02" ? (
-                    <MaxCLIVisual />
-                  ) : project.id === "SYS.MOD_03" ? (
-                    <NanoMangaVisual />
-                  ) : project.id === "SYS.MOD_04" ? (
-                    <SchoolManagementVisual />
-                  ) : (
-                    <SystemWindowPlaceholder
-                      index={index}
-                      title={project.title}
-                    />
-                  )}
+                  <ProjectVisual project={project} index={index} />
                 </div>
               </motion.div>
             ))}

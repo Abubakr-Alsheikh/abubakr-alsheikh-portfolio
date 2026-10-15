@@ -102,8 +102,8 @@ const COMMANDS = [
     color: "#3B82F6",
   },
   {
-    cmd: 'max ai ask "Make this smaller"',
-    log: "[AI_ENGINE] Ollama context loaded. Resolving intent...",
+    cmd: 'max "shrink every video in this folder"',
+    log: "[AI_AGENT] Plan ready: 1 batch, 6 files. Awaiting go-ahead.",
     target: 1,
     color: "#F97316",
   },
@@ -115,7 +115,7 @@ const COMMANDS = [
   },
   {
     cmd: 'max grab download "youtube.com/..."',
-    log: "[NETWORK_ENGINE] WSS stream connected. Quality: 1080p.",
+    log: "[DOWNLOAD_ENGINE] Queued in background. Quality: 1080p.",
     target: 3,
     color: "#8B5CF6",
   },
@@ -155,7 +155,7 @@ export default function MaxCLIVisual() {
           <div className="hud-pulse [--hud-dur:2s] w-1.5 h-1.5 bg-[#3B82F6]" />
           <div className="w-1.5 h-1.5 bg-[#F97316]" />
         </div>
-        <span className="text-[10px] text-slate-500 uppercase tracking-widest truncate pl-2">
+        <span className="text-[10px] text-slate-400 uppercase tracking-widest truncate pl-2">
           Max_CLI_Kernel_v0.4.exe
         </span>
       </div>
@@ -203,7 +203,7 @@ export default function MaxCLIVisual() {
           <WireLabel
             key={mod.key}
             at={legMid(BUS_X, anchor(mod.node, "left"))}
-            tone={current.target === i ? mod.text : "text-slate-600"}
+            tone={current.target === i ? mod.text : "text-slate-400"}
           >
             {mod.carries}
           </WireLabel>
@@ -245,10 +245,10 @@ export default function MaxCLIVisual() {
                 className="text-slate-500 mt-2 flex flex-col gap-1"
               >
                 <span style={{ color: current.color }}>{current.log}</span>
-                <span className="text-slate-600">
+                <span className="text-slate-400">
                   Resolving dependencies... OK
                 </span>
-                <span className="text-slate-600">Executing pipeline...</span>
+                <span className="text-slate-400">Executing pipeline...</span>
 
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-emerald-500">Processing</span>
