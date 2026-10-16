@@ -349,7 +349,6 @@ export const TOOLS: ChatTool[] = [
     parameters: NO_ARGS,
     trace: () => "services.read()",
     run: () => ({
-      arabicFirst: servicesData.arabicFirst.body,
       packages: servicesData.services.map((s) => ({
         title: s.title,
         summary: s.summary,

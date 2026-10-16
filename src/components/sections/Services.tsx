@@ -7,7 +7,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   Globe,
-  Languages,
   Rocket,
   Server,
   Sparkles,
@@ -235,31 +234,6 @@ export default function Services({ data }: { data: ServicesContent }) {
           <p className="text-sm md:text-base font-mono text-slate-400 leading-relaxed max-w-lg">
             {data.intro}
           </p>
-        </motion.div>
-
-        {/* Arabic-first: the one thing most of the market cannot do well. */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          data-hud-target="SVC.ARABIC"
-          className="relative z-10 mb-6 grid grid-cols-1 md:grid-cols-[auto_1fr_auto] items-center gap-4 md:gap-8 p-5 md:p-6 bg-[#020617] border border-[#3B82F6]/40"
-        >
-          <div className="absolute -top-1 -left-1 w-2 h-2 bg-[#3B82F6]" />
-          <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-[#F97316]" />
-          <span className="flex items-center gap-3 text-[11px] font-mono uppercase tracking-widest text-[#60A5FA]">
-            <Languages className="w-4 h-4" />
-            {data.arabicFirst.label}
-          </span>
-          <p className="text-sm font-mono text-slate-300 leading-relaxed">{data.arabicFirst.body}</p>
-          <span
-            lang="ar"
-            dir="rtl"
-            aria-hidden="true"
-            className="hidden md:block text-3xl font-bold text-slate-100 whitespace-nowrap"
-          >
-            عربي أولاً
-          </span>
         </motion.div>
 
         {/* One set of packages, read two ways: plain outcomes for a client,

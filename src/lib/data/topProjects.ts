@@ -53,7 +53,7 @@ export const topProjectsData: TopProject[] = [
     slug: "qader",
     title: "Qader Platform (LMS)",
     description:
-      "Arabic-first exam-prep platform for Saudi students and schools. Full-stack work across modular Django REST services, real-time features over WebSockets, background jobs, and a right-to-left Next.js web app.",
+      "Exam-prep platform for Saudi students and schools. Full-stack work across modular Django REST services, real-time features over WebSockets, background jobs, and a right-to-left Next.js web app.",
     stack: ["Django", "Next.js", "Celery", "Redis", "PostgreSQL + pgvector", "WebSockets"],
     links: { live: "https://qader.vip/" },
   },

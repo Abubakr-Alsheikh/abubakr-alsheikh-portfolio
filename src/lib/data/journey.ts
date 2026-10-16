@@ -14,7 +14,7 @@ export const journeyData: JourneyEntry[] = [
     title: "Full-Stack Software Engineer",
     subtitle: "Qader // E-Learning Platform",
     description:
-      "Full-stack engineer on Qader, an Arabic-first exam-prep platform for the Saudi market. I work across the backend, the web frontend and the infrastructure: APIs, real-time features, deployment and monitoring.",
+      "Full-stack engineer on Qader, an exam-prep platform for the Saudi market. I work across the backend, the web frontend and the infrastructure: APIs, real-time features, deployment and monitoring.",
     tags: ["Django", "Next.js", "Real-Time Systems", "DevOps"],
     caseStudy: "qader",
   },

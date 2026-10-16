@@ -52,7 +52,6 @@ export interface ServicesContent {
   titleLead: string;
   titleTrail: string;
   intro: string;
-  arabicFirst: { label: string; body: string };
   views: { business: string; technical: string; hint: string };
   services: Service[];
   custom: { title: string; body: string; action: string };
@@ -75,11 +74,6 @@ export const servicesData: ServicesContent = {
     business: "Business",
     technical: "Technical",
     hint: "Same work, two ways to read it.",
-  },
-
-  arabicFirst: {
-    label: "Arabic-first // RTL by default",
-    body: "Right-to-left layouts and Arabic content are the starting point, with English as the second language, from the database to the screen. Qader, Mizan, Falak HR and Ghosn were all built this way.",
   },
 
   services: [
@@ -145,16 +139,16 @@ export const servicesData: ServicesContent = {
         "A fast site that explains what you do and turns visitors into messages, in Arabic, English or both.",
       includes: [
         "Looks right on every screen size",
-        "Arabic and English, right to left done properly",
+        "Arabic, English or both languages",
         "Contact and booking forms",
         "Fast loading and search-engine basics",
       ],
       technical: {
         summary:
-          "A statically generated Next.js site, right-to-left correct, fast on a phone, with its forms wired to email.",
+          "A statically generated Next.js site, fast on a phone, with its forms wired to email.",
         includes: [
           "Next.js and Tailwind, statically generated",
-          "RTL and LTR with logical CSS properties and i18n",
+          "Multilingual with i18n",
           "Core Web Vitals, SEO metadata and Open Graph images",
           "Serverless form handling with spam filtering",
         ],
