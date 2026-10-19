@@ -16,6 +16,12 @@ export interface CredentialBadge {
 
 export const certificationsData: Certification[] = [
   {
+    issuer: "AWS",
+    title: "Solutions Architect - Associate",
+    date: "",
+    inProgress: true,
+  },
+  {
     issuer: "Meta",
     title: "Android Developer Specialization",
     date: "Oct 2026",
