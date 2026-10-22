@@ -15,7 +15,8 @@
 export type ProjectKind = "ai" | "backend" | "web" | "client" | "mobile" | "course";
 
 /** Status flags shown as tags beside the kind. */
-export type ProjectFlag = "unfinished" | "hackathon" | "team" | "company";
+/** `concept`: a self-initiated piece for a fictional client, labelled as such. */
+export type ProjectFlag = "unfinished" | "hackathon" | "team" | "company" | "concept";
 
 export interface ArchiveLinks {
   /** The running product. Only when it still works. */
@@ -43,6 +44,22 @@ export interface ArchiveProject {
 }
 
 export const archiveProjectsData: ArchiveProject[] = [
+  {
+    slug: "roastline",
+    title: "Roastline",
+    year: 2026,
+    tier: "archive",
+    kinds: ["web"],
+    flags: ["concept"],
+    summary:
+      "Landing site for a fictional Lisbon roastery: a roast curve that draws as you scroll, a brew calculator with a step-by-step timer, a live open-now status and a working reservation form. Lighthouse mobile 96, 118 unit tests.",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Motion", "Zod", "Vitest", "Netlify Forms"],
+    links: {
+      live: "https://roastline-app.netlify.app/",
+      source: "https://github.com/Abubakr-Alsheikh/roastline",
+    },
+    preview: "/projects/previews/roastline.webp",
+  },
   {
     slug: "nexusdesk-ai",
     title: "NexusDesk AI",

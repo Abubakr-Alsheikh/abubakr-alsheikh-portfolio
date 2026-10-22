@@ -49,6 +49,7 @@ const FLAG_LABEL: Record<ProjectFlag, string> = {
   hackathon: "Hackathon",
   team: "Team",
   company: "Company",
+  concept: "Concept",
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
