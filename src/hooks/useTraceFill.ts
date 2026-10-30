@@ -16,6 +16,11 @@ export type TraceFill = {
   progress: MotionValue<number>;
   /** Lights the travelling data packet only while the front is on this leg. */
   packetOpacity: MotionValue<number>;
+  /**
+   * Pixels the front has passed the segment's top. Never clamped, and blind to
+   * the segment's length. Stays 0 while the rail is hidden (no box to measure).
+   */
+  travel: MotionValue<number>;
 };
 
 /**
@@ -86,6 +91,11 @@ export function useTraceFill(ref: RefObject<HTMLElement | null>): TraceFill {
 
   const front = shared ?? unsmoothed;
 
+  const travel = useTransform<number, number>(
+    [front, top, length],
+    ([position, start, span]) => (span > 0 ? position - start : 0),
+  );
+
   const fillPx = useTransform<number, number>(
     [front, top, length],
     ([position, start, span]) => {
@@ -110,5 +120,5 @@ export function useTraceFill(ref: RefObject<HTMLElement | null>): TraceFill {
     [0, 1, 1, 0],
   );
 
-  return { fill, progress, packetOpacity };
+  return { fill, progress, packetOpacity, travel };
 }

@@ -54,6 +54,9 @@ const FLAG_LABEL: Record<ProjectFlag, string> = {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
+/** Scroll distance, in px, over which Neptune drifts from +60 to -60. */
+const NEPTUNE_DRIFT_RUN = 2400;
+
 const LINK =
   "flex items-center gap-1.5 border px-2.5 h-8 text-[10px] font-mono uppercase tracking-widest transition-colors group/link";
 const ARROW =
@@ -340,9 +343,10 @@ function LegacyRow({ project, target }: { project: ArchiveProject; target: strin
 
 export default function Archive({ projects }: { projects: ArchiveProject[] }) {
   const traceRef = useRef<HTMLDivElement>(null);
-  const { fill, progress, packetOpacity } = useTraceFill(traceRef);
-  // Neptune drifts upward as the section passes through centre.
-  const neptuneDrift = useTransform(progress, [0, 1], [60, -60]);
+  const { fill, packetOpacity, travel } = useTraceFill(traceRef);
+  // Neptune drifts upward as the section passes through centre. It reads pixels
+  // scrolled, not progress, which would jump whenever the section changes height.
+  const neptuneDrift = useTransform(travel, [0, NEPTUNE_DRIFT_RUN], [60, -60]);
   // The monitor's scan line and the row previews loop; freeze them off screen.
   const { ref: sectionRef, offscreen } = useOffscreen<HTMLElement>();
 
@@ -365,9 +369,9 @@ export default function Archive({ projects }: { projects: ArchiveProject[] }) {
       id="archive"
       className="relative w-full flex justify-center z-0"
     >
-      {/* No scroll anchoring here: the layer stretches with the section, so
-          when the legacy drawer opens Neptune re-centres, and Chrome, anchored
-          to it, scrolled the page 272px to follow it. */}
+      {/* No scroll anchoring here: the layer stretches with the section, and
+          Chrome, anchored to it, once scrolled the page 272px when the legacy
+          drawer opened. */}
       <motion.div
         style={{ y: neptuneDrift }}
         className="absolute inset-0 pointer-events-none [overflow-anchor:none]"

@@ -7,12 +7,16 @@ import { useSmilPause } from "@/hooks/useSmilPause";
  * Archive: a small, sharply inclined world. The rings sit at three different
  * inclinations, so each crosses the disc at its own angle and the occlusion is
  * visibly different on each one.
+ *
+ * The centre is pinned in pixels from the section's top. The section's height
+ * changes with the filter and the legacy drawer, and a percentage from its
+ * bottom sent the planet more than 2000px up and down with it.
  */
 export default function GeometricNeptune() {
   const svgRef = useSmilPause();
 
   return (
-    <div className="absolute bottom-[-10%] right-[-50%] md:right-[-28%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.65] pointer-events-none z-0">
+    <div className="absolute top-[420px] md:top-[620px] -translate-y-1/2 right-[-50%] md:right-[-28%] w-[200%] md:w-[150%] max-w-[2400px] aspect-square opacity-[0.65] pointer-events-none z-0">
       {/* data-planet: PlanetTag finds the body by it to aim its leader. */}
       <svg
         ref={svgRef}
