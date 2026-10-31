@@ -67,6 +67,9 @@ export async function generateMetadata({
   };
 }
 
+/** A visual people can use stays in the accessibility tree; the rest are decoration. */
+const INTERACTIVE_VISUALS = new Set(["mizan"]);
+
 const VISUALS: Record<string, React.ComponentType> = {
   qader: QaderVisual,
   mizan: MizanVisual,
@@ -228,7 +231,7 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
 
         {Visual && (
           <div
-            aria-hidden="true"
+            aria-hidden={INTERACTIVE_VISUALS.has(slug) ? undefined : true}
             className="relative w-full mb-24 border border-slate-800"
           >
             <Visual />

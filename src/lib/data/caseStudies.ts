@@ -121,7 +121,7 @@ export const caseStudiesData: Record<string, CaseStudy> = {
       {
         name: "AI",
         detail:
-          "The Vercel AI SDK over free tiers: Gemini Flash-Lite, then Gemini Flash, then two Groq models for text; Groq Whisper, then Gladia, then Gemini for voice.",
+          "The Vercel AI SDK over free tiers, for three jobs: reading a loose message, reading a receipt photo, and turning a voice note into text. Each job falls back to another model when one is busy or down.",
       },
       {
         name: "Data",
@@ -140,7 +140,7 @@ export const caseStudiesData: Record<string, CaseStudy> = {
       },
       {
         title: "A message never waits on one quota",
-        body: "A limit, an outage, a timeout or an answer that misses the schema moves the message to the next provider in the chain. A real bug stops instead, keeps the message for review, and tells the sender the fault is ours.",
+        body: "A limit, an outage, a timeout or an answer that misses the schema moves the message to the next model in line. A real bug stops instead, keeps the message for review, and tells the sender the fault is ours.",
       },
       {
         title: "Money keeps the rate of its day",

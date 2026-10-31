@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "framer-motion";
-import { ArrowLeft, Play, Power, Wallet, X, ZoomIn } from "lucide-react";
+import { ArrowLeft, Pause, Play, Power, SkipBack, SkipForward, Wallet, X, ZoomIn } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -53,8 +53,11 @@ import {
  * units, so the server's first frame lands correctly at any panel size and
  * nothing shifts when the loop takes over.
  *
- * It plays by itself until a visitor picks something, stops off screen, and
- * holds still under reduced motion, where the buttons do the walking instead.
+ * Each step stays long enough to read its caption, and the transport beside
+ * the trace can pause it or walk it by hand. Pointing at a part, or opening a
+ * card or a layer, holds the run too: nothing changes under someone who is
+ * reading. It plays by itself until a visitor picks something, stops off screen,
+ * and holds still under reduced motion, where the buttons do the walking.
  */
 
 const BLUE = "#3B82F6";
@@ -89,11 +92,13 @@ const FOCUS_SPREAD = 58;
 const FLIGHT_MS = 240;
 
 /** World units per second along a wire. */
-const PACKET_SPEED = 170;
-const MIN_STEP_MS = 650;
+const PACKET_SPEED = 130;
+/** A step lasts its wire plus the time to read its caption. */
+const MIN_READ_MS = 1800;
+const READ_MS_PER_CHAR = 52;
 const EXPLODE_MS = 1300;
 /** Pause on the finished reply before the next input plays. */
-const AUTOPLAY_GAP_MS = 2400;
+const AUTOPLAY_GAP_MS = 3500;
 /** After a visitor picks something, the panel leaves them alone this long. */
 const VISITOR_HOLD_MS = 12000;
 
@@ -115,6 +120,9 @@ const easeOutBack = (t: number) => {
 };
 
 const EMPTY: ReadonlySet<string> = new Set();
+
+const TRANSPORT =
+  "w-6 h-6 flex items-center justify-center border border-slate-700 text-slate-300 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors";
 
 interface LayerPaths {
   plane: SVGPathElement | null;
@@ -164,6 +172,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
   /** What this run shows offline: the visitor's choices plus any scripted demo. */
   const [shownOffline, setShownOffline] = useState<ReadonlySet<string>>(EMPTY);
   const [userRan, setUserRan] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   const scenario = system.scenarios[scenarioIndex];
   const step = steps[stepIndex] ?? steps[0];
@@ -199,6 +208,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
   };
   const nodeLabels = useRef<(HTMLElement | null)[]>([]);
   const layerLabels = useRef<(HTMLElement | null)[]>([]);
+  const readBar = useRef<HTMLDivElement>(null);
 
   /** Everything the loop owns. It lives in a ref so a frame never re-renders. */
   const live = useRef({
@@ -234,6 +244,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
     phase: "idle" as "idle" | "walking" | "parked" | "done",
     holdUntil: 0,
     counted: false,
+    paused: false,
     balanceSpent: 0,
     dirty: true,
     scan: 0,
@@ -262,7 +273,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
   const stepSeconds = useCallback(
     (all: HoloStep[], start: string, at: number) => {
       const travel = pathLength(stepPath(system, start, all, at)) / PACKET_SPEED;
-      return Math.max(travel, MIN_STEP_MS / 1000) + (all[at].hold ?? 0) / 1000;
+      return travel + Math.max(MIN_READ_MS, all[at].caption.length * READ_MS_PER_CHAR) / 1000;
     },
     [system],
   );
@@ -281,15 +292,16 @@ export default function Hologram({ system }: { system: HoloSystem }) {
     [system],
   );
 
-  /** Parks the packet on a step of the current run. */
+  /** Parks the packet on a step of the current run, paused until Play. */
   const seek = useCallback(
     (at: number) => {
       const s = live.current;
       s.step = at;
       s.elapsed = stepSeconds(s.steps, s.start, at);
       s.phase = "parked";
-      s.holdUntil = performance.now() + VISITOR_HOLD_MS;
+      s.paused = true;
       s.dirty = true;
+      setPaused(true);
       setStepIndex(at);
       if (at === s.steps.length - 1) addSpend(system.scenarios[s.scenario].amount);
     },
@@ -314,6 +326,10 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       s.phase = "walking";
       s.counted = false;
       s.dirty = true;
+      if (byVisitor) {
+        s.paused = false;
+        setPaused(false);
+      }
       setScenarioIndex(index);
       setSteps(resolved);
       setStepIndex(0);
@@ -352,6 +368,38 @@ export default function Hologram({ system }: { system: HoloSystem }) {
     focusOn(null);
     begin(index, true);
     if (reduce) seek(live.current.steps.length - 1);
+  };
+
+  /** Resumes from wherever the run is: a parked step moves on, a finished run starts the next. */
+  const togglePlay = () => {
+    const s = live.current;
+    setUserRan(true);
+    if (reduce) {
+      stepBy(1);
+      return;
+    }
+    s.paused = !s.paused;
+    setPaused(s.paused);
+    if (!s.paused) {
+      if (s.phase === "parked") s.phase = "walking";
+      if (s.phase === "done") s.holdUntil = 0;
+    }
+    s.dirty = true;
+  };
+
+  /** One step by hand. Past the last step comes the next input's first. */
+  const stepBy = (delta: number) => {
+    const s = live.current;
+    setUserRan(true);
+    const at = s.step + delta;
+    if (at < 0) return;
+    if (at >= s.steps.length) {
+      const next = (s.scenario + 1) % system.scenarios.length;
+      begin(next, true);
+      seek(0);
+      return;
+    }
+    seek(at);
   };
 
   const applyOffline = (next: ReadonlySet<string>, scenarioId?: string) => {
@@ -408,14 +456,21 @@ export default function Hologram({ system }: { system: HoloSystem }) {
           s.step = s.steps.length - 1;
           s.elapsed = stepSeconds(s.steps, s.start, s.step);
           s.phase = "parked";
+          s.paused = true;
+          setPaused(true);
           setStepIndex(s.step);
         }
       }
 
+      // Nothing changes under someone who is reading.
+      const held = s.paused || s.selected !== null || s.focusLayer !== null || s.hover !== null;
+
       if (s.phase === "walking") {
-        moving = true;
-        s.elapsed += dt / 1000;
-        if (s.elapsed >= stepSeconds(s.steps, s.start, s.step)) {
+        if (!held) {
+          moving = true;
+          s.elapsed += dt / 1000;
+        }
+        if (!held && s.elapsed >= stepSeconds(s.steps, s.start, s.step)) {
           if (s.step < s.steps.length - 1) {
             s.step += 1;
             s.elapsed = 0;
@@ -430,8 +485,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
         (s.phase === "done" || s.phase === "parked") &&
         !reduce &&
         now > s.holdUntil &&
-        !s.selected &&
-        !s.focusLayer
+        !held
       ) {
         begin(s.phase === "done" ? (s.scenario + 1) % system.scenarios.length : s.scenario, false);
       }
@@ -464,7 +518,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       s.camera.lookY = approach(s.camera.lookY, s.focusLayer ? layerY(system, s.focusLayer) : 0);
       s.spread = approach(s.spread, inFocus ? FOCUS_SPREAD : 0);
 
-      if (!reduce) {
+      if (!reduce && !s.paused) {
         const rested = !s.dragging && now - s.lastInput > SWAY_REST_MS;
         const target = rested ? (inFocus ? SWAY_IN_FOCUS : 1) : 0;
         s.swayAmount += (target - s.swayAmount) * 0.02;
@@ -519,6 +573,15 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       p.out?.setAttribute("d", f.out);
       p.back?.setAttribute("d", f.back);
       p.packet?.setAttribute("transform", packetTransform(f.packet));
+      if (readBar.current) {
+        const share =
+          s.phase === "walking"
+            ? Math.min(s.elapsed / stepSeconds(s.steps, s.start, s.step), 1)
+            : s.phase === "idle"
+              ? 0
+              : 1;
+        readBar.current.style.transform = `scaleX(${share.toFixed(3)})`;
+      }
       f.nodeLabels.forEach((at, i) => {
         const el = nodeLabels.current[i];
         if (el) el.style.transform = labelTransform(at);
@@ -609,7 +672,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       ref={ref}
       data-offscreen={offscreen || undefined}
       onKeyDown={onKeyDown}
-      className="relative w-full h-full min-h-[600px] xl:min-h-[520px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300"
+      className="relative w-full h-full aspect-[16/9] min-h-[600px] xl:min-h-[520px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300"
     >
       {/* Hardware header */}
       <div className="h-8 border-b border-slate-800 flex items-center px-4 justify-between gap-3 shrink-0">
@@ -966,9 +1029,14 @@ export default function Hologram({ system }: { system: HoloSystem }) {
                 style={{ transform: labelTransform(first.nodeLabels[i]) }}
                 aria-pressed={node.id === selected}
                 aria-label={`${node.label}, ${node.tech}: ${node.detail}`}
-                onMouseEnter={() => setHover(node.id)}
-                onMouseLeave={() => setHover(null)}
-                onFocus={() => setHover(node.id)}
+                onPointerEnter={(e) => {
+                  // A tap has no leave to end it, and would hold the run for good.
+                  if (e.pointerType === "mouse") setHover(node.id);
+                }}
+                onPointerLeave={() => setHover(null)}
+                onFocus={(e) => {
+                  if (e.currentTarget.matches(":focus-visible")) setHover(node.id);
+                }}
                 onBlur={() => setHover(null)}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -999,7 +1067,36 @@ export default function Hologram({ system }: { system: HoloSystem }) {
           Two rows are always reserved on phones: a long route wraps, and the
           table must not change size when the input does. */}
       <div className="border-t border-slate-800 px-3 pt-2 pb-2.5 shrink-0 bg-[#020617]">
-        <div className="h-[52px] sm:h-6 flex flex-wrap content-start items-center gap-x-1 gap-y-1">
+        <div className="flex items-start gap-2">
+          <div role="group" aria-label="Control the walkthrough" className="flex gap-1 shrink-0">
+            <button
+              type="button"
+              aria-label="Previous step"
+              disabled={stepIndex === 0}
+              onClick={() => stepBy(-1)}
+              className={`${TRANSPORT} disabled:opacity-40 disabled:hover:border-slate-700 disabled:hover:text-slate-300`}
+            >
+              <SkipBack className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              aria-label={paused ? "Play" : "Pause"}
+              onClick={togglePlay}
+              data-hud-target="HOLO.PLAY"
+              className={`${TRANSPORT} ${paused ? "border-[#F97316] text-[#F97316]" : ""}`}
+            >
+              {paused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+            </button>
+            <button
+              type="button"
+              aria-label="Next step"
+              onClick={() => stepBy(1)}
+              className={TRANSPORT}
+            >
+              <SkipForward className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="h-[52px] sm:h-6 flex-1 min-w-0 flex flex-wrap content-start items-center gap-x-1 gap-y-1">
           {steps.map((s, i) => (
             <button
               key={`${scenario.id}-${i}-${s.to}`}
@@ -1022,10 +1119,15 @@ export default function Hologram({ system }: { system: HoloSystem }) {
               {s.title}
             </button>
           ))}
+          </div>
+        </div>
+        {/* How long this step has left, so the text never seems to vanish at random. */}
+        <div className="mt-2 h-px w-full bg-slate-800">
+          <div ref={readBar} className="h-full w-full origin-left bg-[#3B82F6] scale-x-0" />
         </div>
         <p
           aria-live={userRan ? "polite" : "off"}
-          className="mt-2 h-[42px] sm:h-[28px] text-[11px] leading-[14px] text-slate-300 overflow-hidden"
+          className="mt-1.5 h-[42px] sm:h-[28px] text-[11px] leading-[14px] text-slate-300 overflow-hidden"
         >
           {hoverNode ? (
             <>

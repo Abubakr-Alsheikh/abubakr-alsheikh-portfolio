@@ -63,7 +63,7 @@ export const topProjectsData: TopProject[] = [
     title: "Mizan: Household Budget Companion",
     description:
       "Free budget companion for a person or a whole family. Log spending from Telegram by text, voice note or receipt photo, or from a web keypad, and Mizan answers with one number: what you can safely spend today. Arabic, English and Turkish, running on free tiers.",
-    stack: ["Next.js", "Hono", "Supabase", "Drizzle", "Telegram Bot API", "Gemini"],
+    stack: ["Next.js", "Hono", "Supabase", "Drizzle", "Telegram Bot API", "Vercel AI SDK"],
     links: { live: "https://mizans.netlify.app" },
   },
   {

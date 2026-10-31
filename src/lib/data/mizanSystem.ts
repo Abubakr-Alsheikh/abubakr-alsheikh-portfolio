@@ -43,6 +43,7 @@ export const mizanSystem: HoloSystem = {
   nodes: [
     {
       id: "chat",
+      shape: "bubble",
       label: "CHAT BOT",
       tech: "telegram webhook",
       detail: "Where most entries start. Send a message, a voice note or a photo of a receipt, from an app you already use.",
@@ -55,6 +56,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "web",
+      shape: "phone",
       label: "WEB APP",
       tech: "next.js pwa",
       detail: "A simple app with a number keypad, in Arabic, English and Turkish.",
@@ -67,6 +69,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "door",
+      shape: "gate",
       label: "FRONT DOOR",
       tech: "hono api + zod",
       detail: "Every entry passes through here. It checks the message is genuine and that you belong to this household.",
@@ -79,6 +82,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "quick",
+      shape: "bolt",
       label: "QUICK READER",
       tech: "pattern matching",
       detail: 'Plain code that reads common entries like "bread 500" instantly. No AI, so it is fast and free.',
@@ -91,6 +95,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "voice",
+      shape: "orb",
       label: "VOICE TO TEXT",
       tech: "speech model",
       detail: "Turns a voice note into text. That text then goes to the quick reader, just like a typed message.",
@@ -104,6 +109,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "voiceBackup",
+      shape: "spike",
       label: "BACKUP",
       tech: "failover",
       detail: "If voice to text hits a limit or goes down, this takes over, so the note never waits.",
@@ -117,6 +123,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "message",
+      shape: "gem",
       label: "READS MESSAGES",
       tech: "language model",
       detail: "Understands messy sentences the quick reader cannot, and pulls out the amount and what it was for.",
@@ -130,6 +137,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "messageBackup",
+      shape: "spike",
       label: "BACKUP",
       tech: "failover",
       detail: "If the main model hits a limit or goes down, this takes over, so the message never waits.",
@@ -143,6 +151,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "photo",
+      shape: "camera",
       label: "READS PHOTOS",
       tech: "vision model",
       detail: "Looks at a photo of a receipt and works out what you bought and what you paid.",
@@ -156,6 +165,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "photoBackup",
+      shape: "spike",
       label: "BACKUP",
       tech: "failover",
       detail: "If the main model hits a limit or goes down, this takes over, so the photo never waits.",
@@ -169,6 +179,7 @@ export const mizanSystem: HoloSystem = {
     },
     {
       id: "ledger",
+      shape: "drum",
       label: "HOUSEHOLD LEDGER",
       tech: "postgres",
       detail: "Where every entry is saved. Each amount keeps the exchange rate of its day, so old records stay true.",
@@ -208,7 +219,6 @@ export const mizanSystem: HoloSystem = {
           to: "chat",
           title: "Chat",
           caption: 'You text the bot "bread 500".',
-          hold: 500,
         },
         {
           to: "door",
@@ -220,7 +230,6 @@ export const mizanSystem: HoloSystem = {
           title: "Reader",
           caption: "The quick reader understands it right away. No AI called, nothing spent.",
           tag: "UNDERSTOOD",
-          hold: 400,
         },
         { to: "ledger", title: "Ledger", caption: SAVED },
         {
@@ -243,7 +252,6 @@ export const mizanSystem: HoloSystem = {
           to: "chat",
           title: "Chat",
           caption: 'You write it the way you would say it: "paid the plumber five thousand".',
-          hold: 500,
         },
         {
           to: "door",
@@ -255,14 +263,12 @@ export const mizanSystem: HoloSystem = {
           title: "Reader",
           caption: "The quick reader tries first. This one is too loose for plain code, so it asks for help.",
           tag: "NOT SURE",
-          hold: 400,
         },
         {
           to: "message",
           title: "AI",
           caption: "AI reads the sentence and pulls out the amount and what it was for.",
           tag: "READ IT",
-          hold: 400,
           fallback: {
             backup: "messageBackup",
             downCaption: "The main AI service is offline. The message does not wait: it moves on.",
@@ -292,7 +298,6 @@ export const mizanSystem: HoloSystem = {
           to: "chat",
           title: "Chat",
           caption: "You send a four-second voice note instead of typing.",
-          hold: 500,
         },
         {
           to: "door",
@@ -304,7 +309,6 @@ export const mizanSystem: HoloSystem = {
           title: "AI",
           caption: "AI writes out what you said.",
           tag: "LISTENING",
-          hold: 500,
           fallback: {
             backup: "voiceBackup",
             downCaption: "The main speech service is offline. The note does not wait: it moves on.",
@@ -318,7 +322,6 @@ export const mizanSystem: HoloSystem = {
           title: "Reader",
           caption: "Now it is text, so it takes the same path as a typed message: plain code first.",
           tag: "UNDERSTOOD",
-          hold: 300,
         },
         { to: "ledger", title: "Ledger", caption: SAVED },
         {
@@ -342,7 +345,6 @@ export const mizanSystem: HoloSystem = {
           to: "chat",
           title: "Chat",
           caption: "You send a photo of the receipt.",
-          hold: 500,
         },
         {
           to: "door",
@@ -354,7 +356,6 @@ export const mizanSystem: HoloSystem = {
           title: "AI",
           caption: "AI looks at the receipt and works out what you bought and what you paid.",
           tag: "READ IT",
-          hold: 500,
           fallback: {
             backup: "photoBackup",
             downCaption: "The main photo service is offline. The photo does not wait: it moves on.",
@@ -384,14 +385,12 @@ export const mizanSystem: HoloSystem = {
           to: "web",
           title: "App",
           caption: "You tap 12,000 on the keypad in the web app.",
-          hold: 500,
         },
         {
           to: "door",
           title: "Door",
           caption: "The same front door as the bot. The numbers are already clear, so no AI is needed.",
           tag: "VALID",
-          hold: 300,
         },
         { to: "ledger", title: "Ledger", caption: SAVED },
         {
