@@ -44,7 +44,23 @@ export type HoloShape =
   | "gem"
   | "camera"
   | "spike"
-  | "drum";
+  | "drum"
+  | "terminal"
+  | "stack"
+  | "shield"
+  | "gear"
+  | "undo"
+  | "screen"
+  | "page"
+  | "sheets"
+  | "brush"
+  | "window"
+  | "cube"
+  | "funnel"
+  | "hex";
+
+/** The outline of a layer's plate, so each system stands on its own table. */
+export type HoloPlate = "rect" | "disc" | "hex" | "diamond" | "octagon";
 
 export interface HoloNode {
   id: string;
@@ -55,8 +71,10 @@ export interface HoloNode {
   tech: string;
   /** What it does, in words anyone can follow. */
   detail: string;
-  receives: string;
-  sends: string;
+  receives?: string;
+  sends?: string;
+  /** The real names behind it, shown on its card. */
+  tools?: string[];
   layer: string;
   x: number;
   z: number;
@@ -89,6 +107,18 @@ export interface HoloStep {
   /** A reply: the wire lights green instead of blue. */
   back?: boolean;
   fallback?: HoloFallback;
+  /** Lines this step prints to the system's instrument. */
+  log?: string[];
+  /** Left out of the route while its node is offline. */
+  optional?: boolean;
+  /** What this step says instead while another node is offline. */
+  ifOffline?: { node: string; caption: string; tag?: string; log?: string[] };
+  /** Stops here until the visitor answers; a run nobody asked for answers yes. */
+  confirm?: {
+    question: string;
+    /** Where the route goes on a no. */
+    denied: HoloStep[];
+  };
 }
 
 export interface HoloScenario {
@@ -111,7 +141,17 @@ export interface HoloSystem {
   /** Wires drawn at rest, as [upper or source node, other node]. */
   links: [string, string][];
   scenarios: HoloScenario[];
-  readout: {
+  /** The word beside the input buttons. */
+  runLabel?: string;
+  /** What the header says this panel is. */
+  badge?: string;
+  /** Node labels show their small line only when selected or zoomed, for a crowded table. */
+  quietTech?: boolean;
+  plate?: HoloPlate;
+  /** A bare axis through every layer, for a system drawn without wires. */
+  spine?: boolean;
+  camera?: { yaw: number; pitch: number };
+  readout?: {
     label: string;
     unit: string;
     balance: number;
@@ -185,15 +225,61 @@ const line = (points: Vec[], l: Lens, close = false) => {
   return close ? `${d}Z` : d;
 };
 
-const planeCorners = (y: number): Vec[] => [
-  { x: -PLANE_X, y, z: -PLANE_Z },
-  { x: PLANE_X, y, z: -PLANE_Z },
-  { x: PLANE_X, y, z: PLANE_Z },
-  { x: -PLANE_X, y, z: PLANE_Z },
-];
+const DISC_R = 108;
+const HEX_R = 118;
+const POLY_SIDES: Partial<Record<HoloPlate, number>> = { hex: 6, diamond: 4, octagon: 8 };
 
-function grid(y: number, l: Lens) {
+const ringAt = (r: number, count: number, y: number, turn = 0): Vec[] => {
+  const out: Vec[] = [];
+  for (let i = 0; i < count; i++) {
+    const t = turn + (i / count) * Math.PI * 2;
+    out.push({ x: Math.cos(t) * r, y, z: Math.sin(t) * r * 0.82 });
+  }
+  return out;
+};
+
+function plateOutline(plate: HoloPlate, y: number): Vec[] {
+  if (plate === "disc") return ringAt(DISC_R, 56, y);
+  const sides = POLY_SIDES[plate];
+  if (sides) return ringAt(HEX_R, sides, y, sides === 8 ? Math.PI / 8 : 0);
+  return [
+    { x: -PLANE_X, y, z: -PLANE_Z },
+    { x: PLANE_X, y, z: -PLANE_Z },
+    { x: PLANE_X, y, z: PLANE_Z },
+    { x: -PLANE_X, y, z: PLANE_Z },
+  ];
+}
+
+/** Four points on a plate's rim, for the table's light pillars. */
+const plateCorners = (plate: HoloPlate, y: number): Vec[] => {
+  const outline = plateOutline(plate, y);
+  const step = outline.length / 4;
+  return [0, 1, 2, 3].map((i) => outline[Math.floor(i * step)]);
+};
+
+function grid(plate: HoloPlate, y: number, l: Lens) {
   let d = "";
+  if (plate === "disc") {
+    for (const r of [DISC_R * 0.36, DISC_R * 0.68]) d += line(ringAt(r, 40, y), l, true);
+    for (const t of [0, Math.PI / 2]) {
+      d += line(
+        [
+          { x: Math.cos(t) * DISC_R, y, z: Math.sin(t) * DISC_R * 0.82 },
+          { x: -Math.cos(t) * DISC_R, y, z: -Math.sin(t) * DISC_R * 0.82 },
+        ],
+        l,
+      );
+    }
+    return d;
+  }
+  const sides = POLY_SIDES[plate];
+  if (sides) {
+    const turn = sides === 8 ? Math.PI / 8 : 0;
+    for (const r of [HEX_R * 0.36, HEX_R * 0.68]) d += line(ringAt(r, sides, y, turn), l, true);
+    const rim = ringAt(HEX_R, sides, y, turn);
+    for (let i = 0; i < sides / 2; i++) d += line([rim[i], rim[i + sides / 2]], l);
+    return d;
+  }
   for (let x = -PLANE_X + 40.67; x < PLANE_X; x += 40.67) {
     d += line([{ x, y, z: -PLANE_Z }, { x, y, z: PLANE_Z }], l);
   }
@@ -280,7 +366,7 @@ function bubbleModel(s: number): Model {
 /** A phone standing up, its keypad on the face toward the viewer. */
 function phoneModel(s: number): Model {
   const w = s * 0.62;
-  const h = s * 1.9;
+  const h = s * 1.5;
   const d = s * 0.14;
   const front = -d;
   const m = w * 0.18;
@@ -402,6 +488,212 @@ function drumModel(s: number): Model {
   return { lines, faces: [top], height: h };
 }
 
+/** A terminal with a prompt on its face. */
+function terminalModel(s: number): Model {
+  const w = s;
+  const h = s * 0.9;
+  const d = s * 0.42;
+  const f = -d;
+  const lines = prism(-w, w, 0, h, -d, d);
+  lines.push(
+    [v(-w * 0.62, h * 0.7, f), v(-w * 0.28, h * 0.48, f), v(-w * 0.62, h * 0.26, f)],
+    [v(-w * 0.14, h * 0.24, f), v(w * 0.38, h * 0.24, f)],
+  );
+  return { lines, faces: [[v(-w, 0, f), v(w, 0, f), v(w, h, f), v(-w, h, f)]], height: h };
+}
+
+/** A pile of plates: many entries, one source. */
+function stackModel(s: number): Model {
+  const t = s * 0.16;
+  const gap = s * 0.3;
+  const lines: Vec[][] = [];
+  let top: Vec[] = [];
+  for (let i = 0; i < 3; i++) {
+    const y = i * gap;
+    const o = (i - 1) * s * 0.1;
+    lines.push(...prism(-s + o, s + o, y, y + t, -s * 0.72, s * 0.72));
+    top = [v(-s + o, y + t, -s * 0.72), v(s + o, y + t, -s * 0.72), v(s + o, y + t, s * 0.72), v(-s + o, y + t, s * 0.72)];
+  }
+  return { lines, faces: [top], height: 2 * gap + t };
+}
+
+/** A shield standing guard, with a check on its face. */
+function shieldModel(s: number): Model {
+  const w = s * 0.82;
+  const h = s * 1.7;
+  const d = s * 0.14;
+  const outline = (z: number) => [
+    v(-w, h, z),
+    v(w, h, z),
+    v(w, h * 0.46, z),
+    v(0, 0, z),
+    v(-w, h * 0.46, z),
+    v(-w, h, z),
+  ];
+  const front = outline(-d);
+  const back = outline(d);
+  const lines = [front, back];
+  for (let i = 0; i < 5; i++) lines.push([front[i], back[i]]);
+  lines.push([v(-w * 0.42, h * 0.62, -d), v(-w * 0.08, h * 0.38, -d), v(w * 0.48, h * 0.82, -d)]);
+  return { lines, faces: [front.slice(0, 5)], height: h };
+}
+
+/** A gear lying flat: the part that does the work. */
+function gearModel(s: number): Model {
+  const h = s * 0.42;
+  const teeth = 8;
+  const outline = (y: number) => {
+    const pts: Vec[] = [];
+    for (let i = 0; i < teeth; i++) {
+      const t = (i / teeth) * Math.PI * 2;
+      const u = (Math.PI * 2) / teeth;
+      for (const [r, a] of [[s * 0.76, -0.5], [s, -0.28], [s, 0.08], [s * 0.76, 0.28]] as const) {
+        pts.push(v(Math.cos(t + a * u) * r, y, Math.sin(t + a * u) * r));
+      }
+    }
+    pts.push(pts[0]);
+    return pts;
+  };
+  const top = outline(h);
+  const lines = [outline(0), top, flat(s * 0.3, 16, h)];
+  for (let i = 0; i < top.length - 1; i += 2) lines.push([v(top[i].x, 0, top[i].z), top[i]]);
+  return { lines, faces: [top], height: h };
+}
+
+/** A curved arrow standing up: everything here can be put back. */
+function undoModel(s: number): Model {
+  const r = s * 0.78;
+  const c = r + 4;
+  const arc = (z: number) => {
+    const pts: Vec[] = [];
+    for (let i = 0; i <= 18; i++) {
+      const t = -Math.PI * 0.25 + (i / 18) * Math.PI * 1.5;
+      pts.push(v(Math.cos(t) * r, c + Math.sin(t) * r, z));
+    }
+    return pts;
+  };
+  const front = arc(-s * 0.1);
+  const end = front[front.length - 1];
+  const lines = [front, arc(s * 0.1)];
+  lines.push(
+    [v(end.x - r * 0.42, end.y + r * 0.1, end.z), end, v(end.x + r * 0.08, end.y + r * 0.44, end.z)],
+    [v(0, 0, 0), v(0, 3, 0)],
+  );
+  return { lines, faces: [], height: c + r };
+}
+
+/** A monitor on a stand. */
+function screenModel(s: number): Model {
+  const w = s;
+  const b = s * 0.34;
+  const h = b + s * 1.1;
+  const d = s * 0.1;
+  const f = -d;
+  const lines = prism(-w, w, b, h, -d, d);
+  lines.push(
+    [v(0, b, 0), v(0, 0, 0)],
+    [v(-w * 0.45, 0, 0), v(w * 0.45, 0, 0)],
+    [v(-w * 0.72, b + s * 0.82, f), v(w * 0.1, b + s * 0.82, f)],
+    [v(-w * 0.72, b + s * 0.56, f), v(w * 0.62, b + s * 0.56, f)],
+    [v(-w * 0.72, b + s * 0.3, f), v(w * 0.36, b + s * 0.3, f)],
+  );
+  return { lines, faces: [[v(-w, b, f), v(w, b, f), v(w, h, f), v(-w, h, f)]], height: h };
+}
+
+/** A comic page standing up, ruled into panels. */
+function pageModel(s: number): Model {
+  const w = s * 0.74;
+  const h = s * 2;
+  const d = s * 0.06;
+  const f = -d;
+  const lines = prism(-w, w, 0, h, -d, d);
+  lines.push(
+    [v(-w, h * 0.64, f), v(w, h * 0.7, f)],
+    [v(-w, h * 0.3, f), v(w, h * 0.3, f)],
+    [v(-w * 0.1, h * 0.67, f), v(w * 0.1, h, f)],
+    [v(w * 0.2, h * 0.3, f), v(-w * 0.05, 0, f)],
+  );
+  return { lines, faces: [[v(-w, 0, f), v(w, 0, f), v(w, h, f), v(-w, h, f)]], height: h };
+}
+
+/** Character sheets fanned out, each with a head on it. */
+function sheetsModel(s: number): Model {
+  const w = s * 0.56;
+  const h = s * 1.6;
+  const lines: Vec[][] = [];
+  let front: Vec[] = [];
+  for (const [ox, oz] of [[s * 0.5, s * 0.34], [0, s * 0.14], [-s * 0.5, -s * 0.08]] as const) {
+    const card = [v(ox - w, 0, oz), v(ox + w, 0, oz), v(ox + w, h, oz), v(ox - w, h, oz), v(ox - w, 0, oz)];
+    lines.push(card);
+    lines.push(loop(w * 0.42, 12, (a, b) => v(ox + a, h * 0.66 + b, oz)));
+    lines.push([v(ox - w * 0.55, h * 0.16, oz), v(ox - w * 0.35, h * 0.38, oz), v(ox + w * 0.35, h * 0.38, oz), v(ox + w * 0.55, h * 0.16, oz)]);
+    front = card.slice(0, 4);
+  }
+  return { lines, faces: [front], height: h };
+}
+
+/** A pen standing on its point. */
+function brushModel(s: number): Model {
+  const r = s * 0.28;
+  const tip = s * 0.62;
+  const h = s * 2;
+  const low = flat(r, 6, tip);
+  const high = flat(r, 6, h);
+  const lines = [low, high];
+  for (let i = 0; i < 6; i++) lines.push([v(0, 0, 0), low[i]], [low[i], high[i]]);
+  return { lines, faces: [high], height: h };
+}
+
+/** A desktop window: title bar, close box and a few fields. */
+function windowModel(s: number): Model {
+  const w = s;
+  const h = s * 1.45;
+  const d = s * 0.08;
+  const f = -d;
+  const bar = h * 0.82;
+  const lines = prism(-w, w, 0, h, -d, d);
+  lines.push(
+    [v(-w, bar, f), v(w, bar, f)],
+    [v(w * 0.72, h * 0.95, f), v(w * 0.86, h * 0.86, f)],
+    [v(w * 0.86, h * 0.95, f), v(w * 0.72, h * 0.86, f)],
+    [v(-w * 0.76, h * 0.6, f), v(w * 0.76, h * 0.6, f)],
+    [v(-w * 0.76, h * 0.4, f), v(w * 0.76, h * 0.4, f)],
+    [v(w * 0.2, h * 0.14, f), v(w * 0.76, h * 0.14, f), v(w * 0.76, h * 0.26, f), v(w * 0.2, h * 0.26, f), v(w * 0.2, h * 0.14, f)],
+  );
+  return { lines, faces: [[v(-w, 0, f), v(w, 0, f), v(w, h, f), v(-w, h, f)]], height: h };
+}
+
+/** A plain block with the lines of a class on its lid. */
+function cubeModel(s: number): Model {
+  const h = s * 1.1;
+  const lines = prism(-s, s, 0, h, -s, s);
+  lines.push(
+    [v(-s, h, -s * 0.34), v(s, h, -s * 0.34)],
+    [v(-s, h, s * 0.34), v(s, h, s * 0.34)],
+  );
+  return { lines, faces: [[v(-s, h, -s), v(s, h, -s), v(s, h, s), v(-s, h, s)]], height: h };
+}
+
+/** A funnel: everything narrows down to one way through. */
+function funnelModel(s: number): Model {
+  const h = s * 1.2;
+  const top = flat(s, 24, h);
+  const neck = flat(s * 0.3, 24, h * 0.28);
+  const foot = flat(s * 0.3, 24, 0);
+  const lines = [top, neck, foot];
+  for (let i = 0; i < 24; i += 6) lines.push([top[i], neck[i]], [neck[i], foot[i]]);
+  return { lines, faces: [top], height: h };
+}
+
+/** A plain hexagonal block. */
+function hexModel(s: number): Model {
+  const h = s * 0.7;
+  const top = flat(s, 6, h, Math.PI / 6);
+  const lines = [flat(s, 6, 0, Math.PI / 6), top, flat(s * 0.42, 6, h, Math.PI / 6)];
+  for (let i = 0; i < 6; i++) lines.push([v(top[i].x, 0, top[i].z), top[i]]);
+  return { lines, faces: [top], height: h };
+}
+
 const MODELS: Record<HoloShape, (size: number) => Model> = {
   bubble: bubbleModel,
   phone: phoneModel,
@@ -412,6 +704,19 @@ const MODELS: Record<HoloShape, (size: number) => Model> = {
   camera: cameraModel,
   spike: spikeModel,
   drum: drumModel,
+  terminal: terminalModel,
+  stack: stackModel,
+  shield: shieldModel,
+  gear: gearModel,
+  undo: undoModel,
+  screen: screenModel,
+  page: pageModel,
+  sheets: sheetsModel,
+  brush: brushModel,
+  window: windowModel,
+  cube: cubeModel,
+  funnel: funnelModel,
+  hex: hexModel,
 };
 
 function drawModel(model: Model, node: HoloNode, y: number, l: Lens) {
@@ -566,9 +871,15 @@ export function resolveRoute(
 ): { steps: HoloStep[]; saved: boolean } {
   const steps: HoloStep[] = [];
   for (const step of scenario.steps) {
+    if (step.optional && offline.has(step.to)) continue;
     const fallback = step.fallback;
     if (!fallback || !offline.has(step.to)) {
-      steps.push(step);
+      const swap = step.ifOffline && offline.has(step.ifOffline.node) ? step.ifOffline : null;
+      steps.push(
+        swap
+          ? { ...step, caption: swap.caption, tag: swap.tag ?? step.tag, log: swap.log ?? step.log }
+          : step,
+      );
       continue;
     }
     steps.push({ ...step, caption: fallback.downCaption, tag: "OFFLINE" });
@@ -682,6 +993,7 @@ export function holoFrame(
   scanY: number,
 ): HoloFrame {
   const l = lens(camera);
+  const plate = system.plate ?? "rect";
   const order = layersBottomUp(system);
   const point = marks.selected ?? marks.hover;
   const linked = linkedTo(system, point);
@@ -689,8 +1001,8 @@ export function holoFrame(
   const layers: HoloLayerFrame[] = order.map((layer) => {
     const y = heightOf(system, layer, view);
     return {
-      plane: line(planeCorners(y), l, true),
-      grid: grid(y, l),
+      plane: line(plateOutline(plate, y), l, true),
+      grid: grid(plate, y, l),
       roofs: "",
       idle: "",
     };
@@ -698,6 +1010,11 @@ export function holoFrame(
 
   let wires = "";
   let lit = "";
+  if (system.spine && order.length > 0) {
+    const low = heightOf(system, order[0], view);
+    const high = heightOf(system, order[order.length - 1], view);
+    wires += line([{ x: 0, y: low, z: 0 }, { x: 0, y: high, z: 0 }], l);
+  }
   for (const [a, b] of system.links) {
     const d = line(leg(system, a, b, view), l);
     if (a === point || b === point) lit += d;
@@ -722,7 +1039,7 @@ export function holoFrame(
 
   const bottom = order[0] ? heightOf(system, order[0], view) : 0;
   const ringY = bottom - RING_GAP;
-  const pillars = planeCorners(bottom)
+  const pillars = plateCorners(plate, bottom)
     .map((corner) => line([corner, { ...corner, y: ringY }], l))
     .join("");
 
@@ -740,7 +1057,7 @@ export function holoFrame(
 
   return {
     layers,
-    scan: line(planeCorners(scanY), l, true),
+    scan: line(plateOutline(plate, scanY), l, true),
     ring: ring(ringY, l),
     pillars,
     wires,

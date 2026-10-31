@@ -11,6 +11,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type PointerEvent,
+  type ReactNode,
 } from "react";
 import { useOffscreen } from "@/hooks/useOffscreen";
 import {
@@ -30,6 +31,7 @@ import {
   type Camera,
   type HoloFrame,
   type HoloRoute,
+  type HoloScenario,
   type HoloStep,
   type HoloSystem,
   type HoloView,
@@ -65,7 +67,7 @@ const ORANGE = "#F97316";
 const GREEN = "#10B981";
 const RED = "#EF4444";
 
-const START_CAMERA: Camera = { yaw: 0.3, pitch: 0.4, zoom: 1, lookY: 0 };
+const START_ANGLE = { yaw: 0.3, pitch: 0.4 };
 const PITCH_MIN = 0.2;
 const PITCH_MAX = 1.1;
 /** Radians per dragged pixel. */
@@ -121,6 +123,29 @@ const easeOutBack = (t: number) => {
 
 const EMPTY: ReadonlySet<string> = new Set();
 
+/** What an instrument can read: the run as it stands, and the one answer it can give. */
+export interface HoloRun {
+  scenario: HoloScenario;
+  steps: HoloStep[];
+  stepIndex: number;
+  /** The route reached its end. */
+  finished: boolean;
+  /** Every line the steps so far have printed. */
+  log: string[];
+  offline: ReadonlySet<string>;
+  /** The route is stopped on a question. */
+  awaiting: string | null;
+  /** The answer to this run's question, once there is one. */
+  answer: boolean | null;
+  respond: (yes: boolean) => void;
+}
+
+const RUN_COLS: Record<number, string> = {
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+};
+
 const TRANSPORT =
   "w-6 h-6 flex items-center justify-center border border-slate-700 text-slate-300 hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors";
 
@@ -154,9 +179,20 @@ const layerTransform = ([x, y]: [number, number]) => `translate(${x}cqw, ${y}cqw
 const packetTransform = (p: [number, number] | null) =>
   p ? `translate(${p[0]} ${p[1]})` : "translate(-99 -99)";
 
-export default function Hologram({ system }: { system: HoloSystem }) {
+export default function Hologram({
+  system,
+  instrument,
+}: {
+  system: HoloSystem;
+  /** This project's own read-out, in a column beside the table (a strip on phones). */
+  instrument?: (run: HoloRun) => ReactNode;
+}) {
   const reduce = useReducedMotion();
   const { ref, offscreen } = useOffscreen();
+  const startCamera = useMemo<Camera>(
+    () => ({ ...START_ANGLE, ...system.camera, zoom: 1, lookY: 0 }),
+    [system],
+  );
 
   const order = layersBottomUp(system);
 
@@ -173,6 +209,9 @@ export default function Hologram({ system }: { system: HoloSystem }) {
   const [shownOffline, setShownOffline] = useState<ReadonlySet<string>>(EMPTY);
   const [userRan, setUserRan] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const [awaiting, setAwaiting] = useState<string | null>(null);
+  const [answer, setAnswer] = useState<boolean | null>(null);
 
   const scenario = system.scenarios[scenarioIndex];
   const step = steps[stepIndex] ?? steps[0];
@@ -182,8 +221,8 @@ export default function Hologram({ system }: { system: HoloSystem }) {
   const linked = useMemo(() => linkedTo(system, selected), [system, selected]);
 
   const first = useMemo<HoloFrame>(
-    () => holoFrame(system, START_CAMERA, OPEN_VIEW, NO_ROUTE, NO_MARKS, -SCAN_RANGE),
-    [system],
+    () => holoFrame(system, startCamera, OPEN_VIEW, NO_ROUTE, NO_MARKS, -SCAN_RANGE),
+    [system, startCamera],
   );
 
   const paths = useRef<Paths>({
@@ -212,7 +251,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
 
   /** Everything the loop owns. It lives in a ref so a frame never re-renders. */
   const live = useRef({
-    camera: { ...START_CAMERA },
+    camera: { ...startCamera },
     velocity: 0,
     dragging: false,
     captured: false,
@@ -244,6 +283,10 @@ export default function Hologram({ system }: { system: HoloSystem }) {
     phase: "idle" as "idle" | "walking" | "parked" | "done",
     holdUntil: 0,
     counted: false,
+    byVisitor: false,
+    /** The current run's question has its answer, or it never had one. */
+    answered: false,
+    awaiting: false,
     paused: false,
     balanceSpent: 0,
     dirty: true,
@@ -284,7 +327,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       if (s.counted) return;
       s.counted = true;
       // With every service down the entry never reached the ledger.
-      if (!s.saved) return;
+      if (!s.saved || !system.readout) return;
       s.balanceSpent += amount;
       if (s.balanceSpent > system.readout.balance * REFILL_AT) s.balanceSpent = amount;
       setSpent(s.balanceSpent);
@@ -303,7 +346,10 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       s.dirty = true;
       setPaused(true);
       setStepIndex(at);
-      if (at === s.steps.length - 1) addSpend(system.scenarios[s.scenario].amount);
+      if (at === s.steps.length - 1) {
+        addSpend(system.scenarios[s.scenario].amount);
+        setFinished(true);
+      }
     },
     [addSpend, stepSeconds, system],
   );
@@ -325,7 +371,13 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       s.elapsed = 0;
       s.phase = "walking";
       s.counted = false;
+      s.byVisitor = byVisitor;
+      s.answered = false;
+      s.awaiting = false;
       s.dirty = true;
+      setFinished(false);
+      setAwaiting(null);
+      setAnswer(null);
       if (byVisitor) {
         s.paused = false;
         setPaused(false);
@@ -347,12 +399,12 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       // The shortest way round to the layer's reading angle.
       const turns = Math.round(s.camera.yaw / (Math.PI * 2));
       s.flyYaw = id ? turns * Math.PI * 2 + FOCUS_YAW : null;
-      s.flyPitch = id ? FOCUS_PITCH : START_CAMERA.pitch;
+      s.flyPitch = id ? FOCUS_PITCH : startCamera.pitch;
       s.velocity = 0;
       s.dirty = true;
       setFocusLayer(id);
     },
-    [],
+    [startCamera],
   );
 
   const select = useCallback((id: string | null) => {
@@ -369,6 +421,22 @@ export default function Hologram({ system }: { system: HoloSystem }) {
     begin(index, true);
     if (reduce) seek(live.current.steps.length - 1);
   };
+
+  /** The visitor's answer to the question this run stopped on. */
+  const respond = useCallback((yes: boolean) => {
+    const s = live.current;
+    const step = s.steps[s.step];
+    s.awaiting = false;
+    s.answered = true;
+    s.dirty = true;
+    setAwaiting(null);
+    setAnswer(yes);
+    if (!yes && step.confirm) {
+      s.steps = [...s.steps.slice(0, s.step + 1), ...step.confirm.denied];
+      s.saved = false;
+      setSteps(s.steps);
+    }
+  }, []);
 
   /** Resumes from wherever the run is: a parked step moves on, a finished run starts the next. */
   const togglePlay = () => {
@@ -391,6 +459,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
   const stepBy = (delta: number) => {
     const s = live.current;
     setUserRan(true);
+    if (delta > 0 && s.awaiting) respond(true);
     const at = s.step + delta;
     if (at < 0) return;
     if (at >= s.steps.length) {
@@ -459,6 +528,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
           s.paused = true;
           setPaused(true);
           setStepIndex(s.step);
+          setFinished(true);
         }
       }
 
@@ -471,7 +541,21 @@ export default function Hologram({ system }: { system: HoloSystem }) {
           s.elapsed += dt / 1000;
         }
         if (!held && s.elapsed >= stepSeconds(s.steps, s.start, s.step)) {
-          if (s.step < s.steps.length - 1) {
+          const question = s.steps[s.step].confirm;
+          if (question && !s.answered) {
+            if (s.byVisitor) {
+              if (!s.awaiting) {
+                s.awaiting = true;
+                setAwaiting(question.question);
+              }
+            } else {
+              s.answered = true;
+              setAnswer(true);
+            }
+          }
+          if (s.awaiting) {
+            // Stopped on the question until the visitor answers.
+          } else if (s.step < s.steps.length - 1) {
             s.step += 1;
             s.elapsed = 0;
             setStepIndex(s.step);
@@ -479,6 +563,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
             addSpend(system.scenarios[s.scenario].amount);
             s.phase = "done";
             s.holdUntil = now + (userRan ? VISITOR_HOLD_MS : AUTOPLAY_GAP_MS);
+            setFinished(true);
           }
         }
       } else if (
@@ -662,9 +747,20 @@ export default function Hologram({ system }: { system: HoloSystem }) {
     s.dirty = true;
   };
 
-  const { balance, days, label: readoutLabel, unit } = system.readout;
-  const safe = Math.floor((balance - spent) / days);
+  const readout = system.readout;
+  const safe = readout ? Math.floor((readout.balance - spent) / readout.days) : 0;
   const activeNode = step.to;
+  const runState: HoloRun = {
+    scenario,
+    steps,
+    stepIndex,
+    finished,
+    log: steps.slice(0, stepIndex + 1).flatMap((s) => s.log ?? []),
+    offline: shownOffline,
+    awaiting,
+    answer,
+    respond,
+  };
   const anyPoint = selected !== null;
 
   return (
@@ -672,7 +768,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       ref={ref}
       data-offscreen={offscreen || undefined}
       onKeyDown={onKeyDown}
-      className="relative w-full h-full aspect-[16/9] min-h-[600px] xl:min-h-[520px] bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300"
+      className={`relative w-full h-full aspect-[16/9] ${instrument ? "min-h-[680px] sm:min-h-[600px] xl:min-h-[520px]" : "min-h-[600px] xl:min-h-[520px]"} bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300`}
     >
       {/* Hardware header */}
       <div className="h-8 border-b border-slate-800 flex items-center px-4 justify-between gap-3 shrink-0">
@@ -682,7 +778,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
           <div className="w-1.5 h-1.5 bg-[#F97316]" />
         </div>
         <span className="text-[10px] text-slate-400 uppercase tracking-widest truncate">
-          {system.title} {"//"} Simulation
+          {system.title} {"//"} {system.badge ?? "Simulation"}
         </span>
       </div>
 
@@ -690,9 +786,13 @@ export default function Hologram({ system }: { system: HoloSystem }) {
       <div className="flex items-center gap-3 px-3 py-2 border-b border-slate-800 shrink-0">
         <span className="hidden sm:flex items-center gap-1.5 text-[10px] tracking-widest text-slate-400">
           <Play className="w-3 h-3 text-[#F97316]" />
-          RUN
+          {system.runLabel ?? "RUN"}
         </span>
-        <div role="group" aria-label="Run an entry through the system" className="grid grid-cols-5 gap-1.5 flex-1">
+        <div
+          role="group"
+          aria-label="Run an example through the system"
+          className={`grid ${RUN_COLS[system.scenarios.length] ?? "grid-cols-5"} gap-1.5 flex-1`}
+        >
           {system.scenarios.map((sc, i) => {
             const on = i === scenarioIndex;
             return (
@@ -715,25 +815,33 @@ export default function Hologram({ system }: { system: HoloSystem }) {
         </div>
       </div>
 
-      {/* The table. The outer box measures, the inner one keeps the aspect. */}
-      <div className="flex-1 relative min-h-0 overflow-hidden [container-type:size] bg-[linear-gradient(to_right,rgba(30,41,59,0.45)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,41,59,0.45)_1px,transparent_1px)] bg-[size:3rem_3rem]">
-        <div className="absolute bottom-2 right-2 sm:bottom-auto sm:top-3 sm:right-3 z-20 w-[136px] border border-slate-800 bg-[#020617]/90 p-2 pointer-events-none">
-          <div className="flex items-center gap-1.5 text-[9px] text-slate-400 tracking-widest">
-            <Wallet className="w-3 h-3 text-emerald-500" />
-            {readoutLabel}
-          </div>
-          <div className="mt-1 text-sm font-bold text-emerald-500 tracking-wider tabular-nums">
-            {fmt(safe)} <span className="text-[9px] font-normal text-slate-400">{unit}</span>
-          </div>
-          <div className="mt-1 h-0.5 w-full bg-slate-800">
-            <div
-              className="h-full bg-emerald-500 transition-[width] duration-700"
-              style={{ width: `${Math.round(((balance - spent) / balance) * 100)}%` }}
-            />
-          </div>
-          <div className="mt-1 text-[9px] text-slate-400 truncate">{scenario.input}</div>
-          <div className="text-[8px] tracking-widest text-slate-400">ILLUSTRATIVE</div>
+      <div className="flex-1 min-h-0 flex flex-col sm:flex-row">
+      {instrument && (
+        <div className="order-first sm:order-last shrink-0 h-[112px] sm:h-auto sm:w-[34%] sm:max-w-[260px] border-b sm:border-b-0 sm:border-l border-slate-800 bg-[#020617] overflow-hidden">
+          {instrument(runState)}
         </div>
+      )}
+      {/* The table. The outer box measures, the inner one keeps the aspect. */}
+      <div className="flex-1 min-w-0 relative min-h-0 overflow-hidden [container-type:size] bg-[linear-gradient(to_right,rgba(30,41,59,0.45)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,41,59,0.45)_1px,transparent_1px)] bg-[size:3rem_3rem]">
+        {readout && (
+          <div className="absolute bottom-2 right-2 sm:bottom-auto sm:top-3 sm:right-3 z-20 w-[136px] border border-slate-800 bg-[#020617]/90 p-2 pointer-events-none">
+            <div className="flex items-center gap-1.5 text-[9px] text-slate-400 tracking-widest">
+              <Wallet className="w-3 h-3 text-emerald-500" />
+              {readout.label}
+            </div>
+            <div className="mt-1 text-sm font-bold text-emerald-500 tracking-wider tabular-nums">
+              {fmt(safe)} <span className="text-[9px] font-normal text-slate-400">{readout.unit}</span>
+            </div>
+            <div className="mt-1 h-0.5 w-full bg-slate-800">
+              <div
+                className="h-full bg-emerald-500 transition-[width] duration-700"
+                style={{ width: `${Math.round(((readout.balance - spent) / readout.balance) * 100)}%` }}
+              />
+            </div>
+            <div className="mt-1 text-[9px] text-slate-400 truncate">{scenario.input}</div>
+            <div className="text-[8px] tracking-widest text-slate-400">ILLUSTRATIVE</div>
+          </div>
+        )}
 
         <div className="absolute top-2 left-2 z-30 flex flex-col items-start gap-1">
           {focusLayer && (
@@ -1006,7 +1114,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
                 }`}
               >
                 L{system.layers.indexOf(layer) + 1}
-                <span className="hidden @[420px]:inline"> {"//"} {layer.label}</span>
+                <span className="hidden @[380px]:inline"> {"//"} {layer.label}</span>
               </button>
             );
           })}
@@ -1018,7 +1126,12 @@ export default function Hologram({ system }: { system: HoloSystem }) {
             const faded =
               (focusLayer !== null && node.layer !== focusLayer) ||
               (selected !== null && node.id !== selected && !linked.has(node.id));
-            const showTech = node.layer === focusLayer || node.id === selected;
+            const techClass =
+              node.layer === focusLayer || node.id === selected
+                ? "block"
+                : node.size <= 11 || system.quietTech
+                  ? "hidden"
+                  : "hidden @[380px]:block";
             return (
               <button
                 key={node.id}
@@ -1042,7 +1155,7 @@ export default function Hologram({ system }: { system: HoloSystem }) {
                   e.stopPropagation();
                   select(node.id === selected ? null : node.id);
                 }}
-                className={`absolute left-0 top-0 px-1 py-0.5 text-[8px] @[420px]:text-[9px] leading-none tracking-wider text-center whitespace-nowrap bg-[#020617]/80 border cursor-pointer transition-[opacity,color,border-color] duration-300 ${
+                className={`absolute left-0 top-0 px-1 py-0.5 text-[8px] @[380px]:text-[9px] leading-none tracking-wider text-center whitespace-nowrap bg-[#020617]/80 border cursor-pointer transition-[opacity,color,border-color] duration-300 ${
                   faded ? "opacity-30" : ""
                 } ${
                   down
@@ -1054,13 +1167,12 @@ export default function Hologram({ system }: { system: HoloSystem }) {
               >
                 {node.label}
                 {tag && <span className="ml-1 text-slate-100">{tag}</span>}
-                {showTech && (
-                  <span className="block mt-0.5 text-[7px] tracking-normal text-slate-400">{node.tech}</span>
-                )}
+                <span className={`${techClass} mt-0.5 text-[7px] tracking-normal text-slate-400`}>{node.tech}</span>
               </button>
             );
           })}
         </div>
+      </div>
       </div>
 
       {/* Trace: the same route as text. Each stop can be walked by tapping it.
@@ -1164,16 +1276,34 @@ export default function Hologram({ system }: { system: HoloSystem }) {
             </button>
           </div>
           <p className="mt-1.5 text-[11px] leading-[15px] text-slate-200">{selectedNode.detail}</p>
-          <dl className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[10px] leading-[14px]">
-            <div>
-              <dt className="inline text-[#60A5FA]">GETS </dt>
-              <dd className="inline text-slate-300">{selectedNode.receives}</dd>
+          {(selectedNode.receives || selectedNode.sends) && (
+            <dl className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[10px] leading-[14px]">
+              {selectedNode.receives && (
+                <div>
+                  <dt className="inline text-[#60A5FA]">GETS </dt>
+                  <dd className="inline text-slate-300">{selectedNode.receives}</dd>
+                </div>
+              )}
+              {selectedNode.sends && (
+                <div>
+                  <dt className="inline text-emerald-500">SENDS </dt>
+                  <dd className="inline text-slate-300">{selectedNode.sends}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+          {selectedNode.tools && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {selectedNode.tools.map((tool) => (
+                <span
+                  key={tool}
+                  className="px-1.5 py-0.5 border border-slate-800 text-[9px] tracking-wider text-[#60A5FA]"
+                >
+                  {tool}
+                </span>
+              ))}
             </div>
-            <div>
-              <dt className="inline text-emerald-500">SENDS </dt>
-              <dd className="inline text-slate-300">{selectedNode.sends}</dd>
-            </div>
-          </dl>
+          )}
           <div className="mt-2 flex flex-wrap gap-1.5">
             {focusLayer !== selectedNode.layer && (
               <button

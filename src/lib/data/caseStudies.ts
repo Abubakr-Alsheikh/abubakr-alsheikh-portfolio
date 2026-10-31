@@ -121,7 +121,7 @@ export const caseStudiesData: Record<string, CaseStudy> = {
       {
         name: "AI",
         detail:
-          "The Vercel AI SDK over free tiers, for three jobs: reading a loose message, reading a receipt photo, and turning a voice note into text. Each job falls back to another model when one is busy or down.",
+          "The Vercel AI SDK over free tiers: Gemini and Groq read loose messages, Gemini reads receipt photos, and Groq Whisper and Gladia turn voice notes into text. Each job falls back to another model when one is busy or down.",
       },
       {
         name: "Data",

@@ -68,7 +68,7 @@ export async function generateMetadata({
 }
 
 /** A visual people can use stays in the accessibility tree; the rest are decoration. */
-const INTERACTIVE_VISUALS = new Set(["mizan"]);
+const INTERACTIVE_VISUALS = new Set(["qader", "mizan", "max-cli", "nanomanga-studio", "school-management-system"]);
 
 const VISUALS: Record<string, React.ComponentType> = {
   qader: QaderVisual,

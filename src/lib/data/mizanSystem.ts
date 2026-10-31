@@ -1,11 +1,10 @@
 import type { HoloSystem } from "@/lib/holo";
 
 /**
- * Mizan as a hologram, in words anyone can follow: what each service does,
- * never which vendor or model runs it. Every route follows the real code path,
- * including what happens when a service is down. The amounts and the balance
- * are illustrative, and the panel says so. Mizan's source is private, so
- * nothing here goes beyond the public case study.
+ * Mizan as a hologram, in words anyone can follow, with the real tools named
+ * small beside each part. The order of the fallback chain stays out of it. Every
+ * route follows the real code path, including what happens when a service is
+ * down. The amounts and the balance are illustrative, and the panel says so.
  */
 
 const SAVED = "Saved to the household ledger. The amount keeps the exchange rate of its day.";
@@ -45,7 +44,8 @@ export const mizanSystem: HoloSystem = {
       id: "chat",
       shape: "bubble",
       label: "CHAT BOT",
-      tech: "telegram webhook",
+      tech: "telegram bot api",
+      tools: ["Telegram Bot API", "Next.js after()"],
       detail: "Where most entries start. Send a message, a voice note or a photo of a receipt, from an app you already use.",
       receives: "Your message, voice note or photo",
       sends: "The entry, to the front door",
@@ -59,6 +59,7 @@ export const mizanSystem: HoloSystem = {
       shape: "phone",
       label: "WEB APP",
       tech: "next.js pwa",
+      tools: ["Next.js", "Serwist", "Tailwind CSS"],
       detail: "A simple app with a number keypad, in Arabic, English and Turkish.",
       receives: "The amount you tap in",
       sends: "The entry, to the front door",
@@ -71,7 +72,8 @@ export const mizanSystem: HoloSystem = {
       id: "door",
       shape: "gate",
       label: "FRONT DOOR",
-      tech: "hono api + zod",
+      tech: "hono + zod",
+      tools: ["Hono", "Zod", "OpenAPI"],
       detail: "Every entry passes through here. It checks the message is genuine and that you belong to this household.",
       receives: "Entries from the chat bot and the web app",
       sends: "Each entry to whichever service can handle it",
@@ -84,7 +86,8 @@ export const mizanSystem: HoloSystem = {
       id: "quick",
       shape: "bolt",
       label: "QUICK READER",
-      tech: "pattern matching",
+      tech: "pattern parser",
+      tools: ["TypeScript", "no AI call"],
       detail: 'Plain code that reads common entries like "bread 500" instantly. No AI, so it is fast and free.',
       receives: "Typed messages and voice transcripts",
       sends: "Clear entries to the ledger, anything else to AI",
@@ -97,7 +100,8 @@ export const mizanSystem: HoloSystem = {
       id: "voice",
       shape: "orb",
       label: "VOICE TO TEXT",
-      tech: "speech model",
+      tech: "groq whisper",
+      tools: ["Groq Whisper", "Gladia"],
       detail: "Turns a voice note into text. That text then goes to the quick reader, just like a typed message.",
       receives: "Voice notes",
       sends: "The written text, to the quick reader",
@@ -125,7 +129,8 @@ export const mizanSystem: HoloSystem = {
       id: "message",
       shape: "gem",
       label: "READS MESSAGES",
-      tech: "language model",
+      tech: "gemini + groq",
+      tools: ["Gemini", "Groq", "Vercel AI SDK"],
       detail: "Understands messy sentences the quick reader cannot, and pulls out the amount and what it was for.",
       receives: "Messages the quick reader could not read",
       sends: "A clean entry, to the ledger",
@@ -153,7 +158,8 @@ export const mizanSystem: HoloSystem = {
       id: "photo",
       shape: "camera",
       label: "READS PHOTOS",
-      tech: "vision model",
+      tech: "gemini vision",
+      tools: ["Gemini", "Vercel AI SDK"],
       detail: "Looks at a photo of a receipt and works out what you bought and what you paid.",
       receives: "Receipt photos",
       sends: "The purchase, to the ledger",
@@ -181,7 +187,8 @@ export const mizanSystem: HoloSystem = {
       id: "ledger",
       shape: "drum",
       label: "HOUSEHOLD LEDGER",
-      tech: "postgres",
+      tech: "supabase + drizzle",
+      tools: ["Supabase Postgres", "Drizzle ORM"],
       detail: "Where every entry is saved. Each amount keeps the exchange rate of its day, so old records stay true.",
       receives: "Finished entries from every route",
       sends: "Today's safe-to-spend number",
