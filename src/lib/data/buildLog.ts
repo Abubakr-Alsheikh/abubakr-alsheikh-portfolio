@@ -35,7 +35,7 @@ export const buildLogData: Record<string, BuildLogLine[]> = {
     { t: "0.334", op: "emit", detail: "chunk projects 4.2kb", status: "ok" },
   ],
   archive: [
-    { t: "0.452", op: "index", detail: "archive/*.meta -> 9 records" },
+    { t: "0.452", op: "index", detail: "archive/*.meta -> 11 records" },
     { t: "0.468", op: "sort", detail: "by commit.timestamp desc" },
     { t: "0.477", op: "cache", detail: "archive.manifest warm", status: "ok" },
   ],

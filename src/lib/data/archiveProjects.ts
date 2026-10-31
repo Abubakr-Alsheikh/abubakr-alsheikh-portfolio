@@ -45,6 +45,22 @@ export interface ArchiveProject {
 
 export const archiveProjectsData: ArchiveProject[] = [
   {
+    slug: "storefront-ops",
+    title: "Storefront Ops",
+    year: 2026,
+    tier: "archive",
+    kinds: ["web", "backend"],
+    flags: ["concept"],
+    summary:
+      "Operations dashboard for a fictional homeware shop: new orders arrive live and update the charts, and about 145,000 orders scroll in one virtualised table with every filter kept in the URL. Status changes and restocks apply instantly, and the demo data resets nightly.",
+    stack: ["Next.js", "Hono", "Zod", "Drizzle", "PostgreSQL", "TanStack Query", "TanStack Virtual", "Recharts"],
+    links: {
+      live: "https://storefront-ops.netlify.app/",
+      source: "https://github.com/Abubakr-Alsheikh/storefront-ops",
+    },
+    preview: "/projects/previews/storefront-ops.webp",
+  },
+  {
     slug: "roastline",
     title: "Roastline",
     year: 2026,
