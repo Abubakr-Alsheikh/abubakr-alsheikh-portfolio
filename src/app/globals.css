@@ -364,6 +364,25 @@
   }
 }
 
+/* A bar drawing itself once, from the left. */
+@keyframes hud-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.hud-grow {
+  transform-origin: left;
+  animation: hud-grow 0.45s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-grow {
+    animation: none;
+  }
+}
+
 @keyframes hud-traverse-x {
   from {
     transform: translateX(-100%);

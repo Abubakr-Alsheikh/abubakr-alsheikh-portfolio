@@ -1,82 +1,66 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
 import Hologram, { type HoloRun } from "./Hologram";
+import { logLines } from "./holoLog";
 import { qaderSystem } from "@/lib/data/qaderSystem";
 
 /**
- * Qader's panel is about the tools, not the product: a stack manifest that ticks
- * off each tool as the scan reaches it. It is company work, so nothing here
- * traces how the product behaves, and the footer says as much.
+ * A network waterfall beside the hologram, the view an engineer opens first in
+ * DevTools: each hop gets a bar, stepping down and across as the request travels,
+ * with what it travels over at the end of the row. The bars show order, not
+ * measured time. Qader is company work, so the footer says these are simplified
+ * flows with placeholder paths.
  */
-function Manifest({ run }: { run: HoloRun }) {
-  const seen = useRef(new Set<string>());
-  const [, setTicks] = useState(0);
-  const current = run.steps[run.stepIndex]?.to;
-
-  useEffect(() => {
-    if (!current || seen.current.has(current)) return;
-    seen.current.add(current);
-    setTicks(seen.current.size);
-  }, [current]);
-
-  const groups = useMemo(
-    () =>
-      qaderSystem.layers.map((layer) => ({
-        id: layer.id,
-        label: layer.label,
-        tools: qaderSystem.nodes.filter((n) => n.layer === layer.id),
-      })),
-    [],
-  );
-  const total = qaderSystem.nodes.length;
+function Waterfall({ run }: { run: HoloRun }) {
+  const rows = logLines(run).map((line) => {
+    const [kind, title, protocol] = line.split("|");
+    return { back: kind === "back", title, protocol };
+  });
+  const lanes = Math.max(run.steps.length, 1);
+  const last = run.steps[run.steps.length - 1];
+  const verb = run.scenario.input;
 
   return (
     <div className="h-full flex flex-col">
-      <div className="h-6 shrink-0 flex items-center justify-between px-2 border-b border-slate-800 text-[9px] tracking-widest text-slate-400">
-        <span>STACK.MANIFEST</span>
-        <span className="tabular-nums text-[#60A5FA]">
-          {seen.current.size}/{total}
-        </span>
+      <div className="h-6 shrink-0 flex items-center justify-between gap-2 px-2 border-b border-slate-800 text-[9px] tracking-widest text-slate-400">
+        <span className="truncate">NETWORK</span>
+        <span className="text-[#F97316] truncate">{verb}</span>
       </div>
-      <div className="flex-1 min-h-0 overflow-hidden p-2 grid grid-cols-3 sm:grid-cols-1 gap-x-3 gap-y-1.5 content-start">
-        {groups.map((group) => (
-          <div key={group.id} className="min-w-0">
-            <div className={`text-[8px] tracking-widest ${group.id === run.scenario.id ? "text-[#F97316]" : "text-slate-400"}`}>
-              {group.label}
+      <div
+        role="log"
+        aria-label="Request trace"
+        className="flex-1 min-h-0 overflow-hidden flex flex-col justify-end sm:justify-start p-2 gap-1.5"
+      >
+        {rows.map((row, i) => (
+          <div key={`${run.scenario.id}-${i}`} className="text-[9px] leading-[11px]">
+            <div className="flex justify-between gap-2">
+              <span className={row.back ? "text-emerald-500" : "text-slate-200"}>{row.title}</span>
+              <span className="text-slate-400 truncate">{row.protocol}</span>
             </div>
-            <ul className="hidden sm:block">
-              {group.tools.map((tool) => {
-                const on = tool.id === current;
-                const done = seen.current.has(tool.id);
-                return (
-                  <li
-                    key={tool.id}
-                    className={`flex justify-between gap-2 text-[9px] leading-[13px] ${
-                      on ? "text-[#F97316]" : done ? "text-slate-200" : "text-slate-400"
-                    }`}
-                  >
-                    <span className="truncate">{tool.label.toLowerCase()}</span>
-                    <span aria-hidden="true" className={done ? "text-emerald-500" : "text-slate-700"}>
-                      {done ? "ok" : "--"}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-            <div className="sm:hidden text-[9px] leading-[13px] text-slate-300 truncate">
-              {group.tools.filter((tool) => seen.current.has(tool.id)).length}/{group.tools.length} scanned
+            <div className="mt-0.5 h-1 w-full bg-slate-800/60">
+              <div
+                className={`hud-grow h-full ${row.back ? "bg-emerald-500" : "bg-[#3B82F6]"}`}
+                style={{
+                  marginLeft: `${(i / lanes) * 100}%`,
+                  width: `${(1 / lanes) * 100}%`,
+                }}
+              />
             </div>
           </div>
         ))}
+        {run.finished && (
+          <div className="mt-1 text-[9px] tracking-widest text-emerald-500">
+            {last?.back ? "COMPLETE" : "DONE"}
+          </div>
+        )}
       </div>
       <p className="hidden sm:block shrink-0 px-2 pb-1.5 text-[8px] leading-[11px] tracking-wide text-slate-400">
-        COMPANY PRODUCT. TOOLS ONLY, NO INTERNALS.
+        SIMPLIFIED FLOWS. COMPANY PRODUCT, NO INTERNALS.
       </p>
     </div>
   );
 }
 
 export default function QaderVisual() {
-  return <Hologram system={qaderSystem} instrument={(run) => <Manifest run={run} />} />;
+  return <Hologram system={qaderSystem} instrument={(run) => <Waterfall run={run} />} />;
 }

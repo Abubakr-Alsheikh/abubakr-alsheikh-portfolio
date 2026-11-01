@@ -144,6 +144,7 @@ const RUN_COLS: Record<number, string> = {
   3: "grid-cols-3",
   4: "grid-cols-4",
   5: "grid-cols-5",
+  6: "grid-cols-6",
 };
 
 const TRANSPORT =
@@ -768,7 +769,7 @@ export default function Hologram({
       ref={ref}
       data-offscreen={offscreen || undefined}
       onKeyDown={onKeyDown}
-      className={`relative w-full h-full aspect-[16/9] ${instrument ? "min-h-[680px] sm:min-h-[600px] xl:min-h-[520px]" : "min-h-[600px] xl:min-h-[520px]"} bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300`}
+      className={`relative w-full h-full aspect-[16/9] ${instrument ? "min-h-[680px] sm:min-h-[600px] xl:min-h-[600px]" : "min-h-[600px] xl:min-h-[520px]"} bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300`}
     >
       {/* Hardware header */}
       <div className="h-8 border-b border-slate-800 flex items-center px-4 justify-between gap-3 shrink-0">
