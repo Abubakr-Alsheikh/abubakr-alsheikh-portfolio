@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ShieldCheck, Cpu, ExternalLink, Hexagon } from "lucide-react";
 import { useRef } from "react";
 import Image from "next/image";
-import GeometricMars from "@/components/visuals/GeometricMars";
+import { GeometricMars } from "@/components/visuals/LazyPlanets";
 import PlanetTag from "@/components/visuals/PlanetTag";
 import { planetNotes } from "@/lib/data/planets";
 import { useTraceFill } from "@/hooks/useTraceFill";
@@ -118,8 +118,8 @@ const BadgeMarquee = ({ badges }: { badges: Badge[] }) => {
                   height={140}
                   className="relative z-10 w-[70px] h-[70px] md:w-[140px] md:h-[140px]"
                 />
-                <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#020617]/70 backdrop-blur-[2px] border border-[#3B82F6]">
-                  <span className="text-[8px] md:text-[10px] font-mono text-[#3B82F6] font-bold tracking-widest uppercase animate-pulse">
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#020617]/85 border border-[#3B82F6]">
+                  <span className="text-[8px] md:text-[10px] font-mono text-[#3B82F6] font-bold tracking-widest uppercase hud-dim">
                     In_Progress
                   </span>
                 </div>
@@ -284,14 +284,14 @@ export default function Engine({
                   <div className="flex items-center gap-2">
                     {cert.inProgress ? (
                       <>
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] hud-dim shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
                         <span className="text-[10px] font-mono text-[#3B82F6] font-bold uppercase tracking-widest">
                           In Progress
                         </span>
                       </>
                     ) : (
                       <>
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] hud-dim shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                         <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
                           Verified
                         </span>

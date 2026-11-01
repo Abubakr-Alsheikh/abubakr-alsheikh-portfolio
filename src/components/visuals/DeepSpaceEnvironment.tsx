@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { onFrame, requestFastFrames } from "@/lib/frameClock";
 
 /**
  * The starfield behind the whole page.
@@ -79,7 +80,20 @@ const PARALLAX_MAX = 0.3;
 
 const WARP_GAIN = 3.2; // streak length per px/frame of velocity, per depth unit
 const WARP_MAX = 140; // cap so violent flicks don't smear the viewport
-const IDLE_SPEED = 0.35; // cruise speed (px/frame) when not scrolling
+const IDLE_SPEED = 0.35; // cruise speed (px per 60Hz frame) when not scrolling
+
+/** Stars are drawn in batches of tint x brightness x size, not one call each. */
+const ALPHA_LEVELS = 4;
+const ALPHA_STEP = 1 / ALPHA_LEVELS;
+/** Below this radius a star is a square, which fills far faster than an arc. */
+const DOT_RADIUS = 0.9;
+
+/** Everything here was tuned per frame at 60Hz; time is measured in those frames. */
+const FRAME_60HZ = 1000 / 60;
+/** How far the streaks lerp toward the scroll velocity in one 60Hz frame. */
+const VELOCITY_LERP = 0.12;
+/** Still moving this fast (px per 60Hz frame): stay on the clock's fast rate. */
+const FAST_VELOCITY = 0.4;
 
 /** Standard normal sample (Box-Muller), for the galactic band's falloff. */
 function gaussian(): number {
@@ -199,7 +213,7 @@ export default function DeepSpaceEnvironment() {
       resizeTimer = window.setTimeout(() => {
         setup();
         // With no loop running, the reseeded field has to be drawn by hand.
-        if (reduceMotion) render();
+        if (reduceMotion) render(FRAME_60HZ);
       }, 150);
     };
 
@@ -216,10 +230,18 @@ export default function DeepSpaceEnvironment() {
       delay: Math.random() * 300 + 60,
     }));
 
+    // Reused every frame, so a scroll allocates nothing per star.
+    const batches = Array.from({ length: TINTS.length * ALPHA_LEVELS }, () => ({
+      // Flat runs of plain numbers: x, y, then radius or streak length.
+      dots: [] as number[],
+      discs: [] as number[],
+      lines: [] as number[],
+    }));
+
     let lastScroll = window.scrollY;
     let velocity = 0;
     let drift = 0;
-    let frame = 0;
+    let stop: (() => void) | null = null;
     let tick = 0;
 
     // Wrap a scrolled y back into the viewport, handling JS's negative modulo.
@@ -228,42 +250,49 @@ export default function DeepSpaceEnvironment() {
       return m < 0 ? m + height : m;
     };
 
-    const render = () => {
-      tick++;
+    const render = (dtMs: number) => {
+      // Elapsed time in 60Hz frames, so the field moves at one speed at any rate.
+      const step = dtMs / FRAME_60HZ;
+      tick += step;
 
       ctx.globalAlpha = 1;
       ctx.fillStyle = "#020617";
       ctx.fillRect(0, 0, width, height);
 
       const scroll = window.scrollY;
-      const rawDelta = scroll - lastScroll;
+      const rawDelta = (scroll - lastScroll) / Math.max(step, 0.01);
       lastScroll = scroll;
       // Lerp toward the raw delta: mechanical response without jitter.
-      velocity += (rawDelta - velocity) * 0.12;
-      if (!reduceMotion) drift += IDLE_SPEED;
+      velocity += (rawDelta - velocity) * (1 - Math.pow(1 - VELOCITY_LERP, step));
+      if (!reduceMotion) drift += IDLE_SPEED * step;
+      // Streaks need the frames while the page moves. At rest, 30Hz is plenty.
+      const fast = Math.abs(velocity) > FAST_VELOCITY;
+      if (fast) requestFastFrames();
 
       const travel = scroll + drift;
 
       // ---- Stars ----
-      let currentTint = -1;
+      // One path per batch. A call per star was the page's single hottest
+      // function while scrolling, when every star turns into a streak.
       ctx.lineCap = "round";
+      for (const batch of batches) {
+        batch.dots.length = 0;
+        batch.discs.length = 0;
+        batch.lines.length = 0;
+      }
 
       for (const star of stars) {
-        if (star.tint !== currentTint) {
-          currentTint = star.tint;
-          ctx.fillStyle = TINTS[currentTint];
-          ctx.strokeStyle = TINTS[currentTint];
-        }
-
         const parallax =
           PARALLAX_MIN + star.depth * (PARALLAX_MAX - PARALLAX_MIN);
         const y = wrap(star.y - travel * parallax);
 
+        // Nobody can see a star twinkle while it is a streak.
         const shimmer =
-          star.twinkleSpeed && !reduceMotion
+          star.twinkleSpeed && !reduceMotion && !fast
             ? 0.72 + 0.28 * Math.sin(tick * star.twinkleSpeed + star.twinklePhase)
             : 1;
-        ctx.globalAlpha = star.alpha * shimmer;
+        const level = Math.min(ALPHA_LEVELS - 1, Math.floor((star.alpha * shimmer) / ALPHA_STEP));
+        const batch = batches[star.tint * ALPHA_LEVELS + level];
 
         const streak = reduceMotion
           ? 0
@@ -272,19 +301,41 @@ export default function DeepSpaceEnvironment() {
               Math.min(WARP_MAX, -velocity * parallax * WARP_GAIN),
             );
 
-        if (Math.abs(streak) > 1.5) {
-          ctx.lineWidth = Math.max(star.radius, 0.5);
+        if (Math.abs(streak) > 1.5) batch.lines.push(star.x, y, streak);
+        else if (star.radius < DOT_RADIUS) batch.dots.push(star.x, y, star.radius);
+        else batch.discs.push(star.x, y, star.radius);
+      }
+
+      ctx.lineWidth = 1;
+      for (let i = 0; i < batches.length; i++) {
+        const { dots, discs, lines } = batches[i];
+        if (dots.length + discs.length + lines.length === 0) continue;
+        const tint = TINTS[Math.floor(i / ALPHA_LEVELS)];
+        ctx.fillStyle = tint;
+        ctx.strokeStyle = tint;
+        ctx.globalAlpha = ((i % ALPHA_LEVELS) + 0.5) * ALPHA_STEP;
+
+        if (dots.length || discs.length) {
           ctx.beginPath();
-          ctx.moveTo(star.x, y);
-          ctx.lineTo(star.x, y + streak);
-          ctx.stroke();
-        } else if (star.radius < 0.9) {
-          const d = star.radius * 2;
-          ctx.fillRect(star.x - star.radius, y - star.radius, d, d);
-        } else {
-          ctx.beginPath();
-          ctx.arc(star.x, y, star.radius, 0, Math.PI * 2);
+          for (let d = 0; d < dots.length; d += 3) {
+            const r = dots[d + 2];
+            ctx.rect(dots[d] - r, dots[d + 1] - r, r * 2, r * 2);
+          }
+          for (let d = 0; d < discs.length; d += 3) {
+            const r = discs[d + 2];
+            ctx.moveTo(discs[d] + r, discs[d + 1]);
+            ctx.arc(discs[d], discs[d + 1], r, 0, Math.PI * 2);
+          }
           ctx.fill();
+        }
+
+        if (lines.length) {
+          ctx.beginPath();
+          for (let d = 0; d < lines.length; d += 3) {
+            ctx.moveTo(lines[d], lines[d + 1]);
+            ctx.lineTo(lines[d], lines[d + 1] + lines[d + 2]);
+          }
+          ctx.stroke();
         }
       }
 
@@ -322,7 +373,8 @@ export default function DeepSpaceEnvironment() {
 
         for (const m of meteors) {
           if (!m.active) {
-            if (--m.delay <= 0) {
+            m.delay -= step;
+            if (m.delay <= 0) {
               m.active = true;
               m.x = Math.random() * width + width * 0.5;
               m.y = Math.random() * height * 0.6;
@@ -330,8 +382,8 @@ export default function DeepSpaceEnvironment() {
             continue;
           }
 
-          m.x -= m.speed;
-          m.y += m.speed * 0.5;
+          m.x -= m.speed * step;
+          m.y += m.speed * 0.5 * step;
 
           const gradient = ctx.createLinearGradient(
             m.x,
@@ -357,14 +409,14 @@ export default function DeepSpaceEnvironment() {
         }
       }
 
-      // Reduced motion gets one still frame and no loop at all.
-      if (!reduceMotion) frame = requestAnimationFrame(render);
     };
 
-    render();
+    // Reduced motion gets one still frame and no loop at all.
+    render(FRAME_60HZ);
+    if (!reduceMotion) stop = onFrame((dt) => render(dt));
 
     return () => {
-      cancelAnimationFrame(frame);
+      stop?.();
       window.clearTimeout(resizeTimer);
       window.removeEventListener("resize", onResize);
     };

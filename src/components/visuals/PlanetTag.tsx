@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { onFrame } from "@/lib/frameClock";
 import type { PlanetNote } from "@/lib/data/planets";
 
 /**
@@ -16,9 +17,9 @@ import type { PlanetNote } from "@/lib/data/planets";
  * only the line moves.
  *
  * The line runs from the end of the tag's rule to the planet's centre, where
- * a lock marker sits. It is recomputed every frame while the section is on
- * screen (planets drift on scroll) by writing `d` directly, never through
- * React state. Off screen, the loop stops.
+ * a lock marker sits. Planets only drift on scroll, so it is recomputed while
+ * the page moves and for a moment after, by writing `d` directly, never through
+ * React state. Measuring forces layout, so at rest and off screen it does nothing.
  *
  * Render the tag before the content it sits beside, so later cards paint
  * over the leader rather than the leader over their text.
@@ -35,6 +36,9 @@ interface PlanetTagProps {
 }
 
 const ORANGE = "#F97316";
+
+/** The planet's drift eases out after the scroll stops; keep the line on it. */
+const SETTLE_MS = 1500;
 
 export default function PlanetTag({
   note,
@@ -56,15 +60,21 @@ export default function PlanetTag({
     const leader = leaderRef.current;
     const lock = lockRef.current;
     const section = overlay?.closest("section");
-    const body = section?.querySelector<SVGSVGElement>(
-      `[data-planet="${planet}"]`,
-    );
-    if (!overlay || !rule || !leader || !lock || !section || !body) return;
+    if (!overlay || !rule || !leader || !lock || !section) return;
 
-    let frame = 0;
-    let running = false;
+    let stop: (() => void) | null = null;
+    let lastMove = performance.now();
+    const moved = () => {
+      lastMove = performance.now();
+    };
 
     const draw = () => {
+      // Looked up each time: the planet may still be loading on the first draw.
+      const body = section.querySelector<SVGSVGElement>(`[data-planet="${planet}"]`);
+      if (!body) {
+        moved();
+        return;
+      }
       const o = overlay.getBoundingClientRect();
       const r = rule.getBoundingClientRect();
       const b = body.getBoundingClientRect();
@@ -85,28 +95,28 @@ export default function PlanetTag({
       lock.setAttribute("transform", `translate(${cx.toFixed(1)} ${cy.toFixed(1)})`);
     };
 
-    const loop = () => {
-      draw();
-      if (running) frame = requestAnimationFrame(loop);
-    };
-
     const io = new IntersectionObserver(([entry]) => {
-      running = entry.isIntersecting;
-      if (running) {
+      if (entry.isIntersecting) {
         setSeen(true);
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(loop);
+        moved();
+        stop ??= onFrame((_dt, now) => {
+          if (now - lastMove < SETTLE_MS) draw();
+        });
+      } else {
+        stop?.();
+        stop = null;
       }
     });
     io.observe(tagRef.current ?? section);
 
     draw();
     window.addEventListener("resize", draw);
+    window.addEventListener("scroll", moved, { passive: true });
     return () => {
-      running = false;
-      cancelAnimationFrame(frame);
+      stop?.();
       io.disconnect();
       window.removeEventListener("resize", draw);
+      window.removeEventListener("scroll", moved);
     };
   }, [planet]);
 

@@ -14,6 +14,8 @@ import {
   type ReactNode,
 } from "react";
 import { useOffscreen } from "@/hooks/useOffscreen";
+import { HOLO_SIZE, HOLO_SIZE_WITH_INSTRUMENT } from "./holoSize";
+import { onFrame, requestFastFrames } from "@/lib/frameClock";
 import {
   HOLO_H,
   HOLO_W,
@@ -50,8 +52,10 @@ import {
  * the same closeness and always has a way back.
  *
  * The geometry is `src/lib/holo.ts`, in the line-work the planets use. Like
- * `NavGlobe`, the rAF loop writes `d` and `transform` through refs and React
- * only re-renders when a step or a choice changes. Node labels sit in `cqw`
+ * `NavGlobe`, the loop writes `d` and `transform` through refs and React only
+ * re-renders when a step or a choice changes. It runs on the shared frame clock
+ * and writes only what changed: at rest the camera holds still, the slow sway is
+ * one transform on the line-art, and just the packet's wire is redrawn. Node labels sit in `cqw`
  * units, so the server's first frame lands correctly at any panel size and
  * nothing shifts when the loop takes over.
  *
@@ -77,12 +81,9 @@ const INERTIA = 0.93;
 const KEY_YAW = 0.2;
 const DRAG_START_PX = 4;
 
-const SWAY_RADIANS = 0.16;
-const SWAY_SPEED = 0.00032;
-/** How long the view stays where a visitor left it before it sways again. */
-const SWAY_REST_MS = 2500;
-/** A focused layer barely sways: it is there to be read. */
-const SWAY_IN_FOCUS = 0.2;
+const SWAY_DEGREES = 5;
+const SWAY_SPEED = 0.0002;
+const SWAY_PERSPECTIVE_PX = 1500;
 
 /** Close enough that the whole plane still fits at the stage's width. */
 const FOCUS_ZOOM = 1.42;
@@ -103,9 +104,6 @@ const EXPLODE_MS = 1300;
 const AUTOPLAY_GAP_MS = 3500;
 /** After a visitor picks something, the panel leaves them alone this long. */
 const VISITOR_HOLD_MS = 12000;
-
-/** Touch devices draw at 30fps: the page has a starfield to feed as well. */
-const COARSE_FRAME_MS = 33;
 
 const SCAN_MS = 7000;
 const SCAN_RANGE = 112;
@@ -189,7 +187,8 @@ export default function Hologram({
   instrument?: (run: HoloRun) => ReactNode;
 }) {
   const reduce = useReducedMotion();
-  const { ref, offscreen } = useOffscreen();
+  // No margin: the loop is the expensive part, so only a panel on screen runs it.
+  const { ref, offscreen } = useOffscreen("0px");
   const startCamera = useMemo<Camera>(
     () => ({ ...START_ANGLE, ...system.camera, zoom: 1, lookY: 0 }),
     [system],
@@ -249,6 +248,7 @@ export default function Hologram({
   const nodeLabels = useRef<(HTMLElement | null)[]>([]);
   const layerLabels = useRef<(HTMLElement | null)[]>([]);
   const readBar = useRef<HTMLDivElement>(null);
+  const lineArt = useRef<SVGSVGElement>(null);
 
   /** Everything the loop owns. It lives in a ref so a frame never re-renders. */
   const live = useRef({
@@ -259,8 +259,6 @@ export default function Hologram({
     lastX: 0,
     lastY: 0,
     lastInput: -Infinity,
-    swayAmount: 1,
-    swayClock: 0,
     explode: 1,
     played: false,
     /** Where the camera is flying to, until it lands or a visitor takes over. */
@@ -290,6 +288,7 @@ export default function Hologram({
     awaiting: false,
     paused: false,
     balanceSpent: 0,
+    swayClock: 0,
     dirty: true,
     scan: 0,
   });
@@ -497,9 +496,18 @@ export default function Hologram({
     if (offscreen) return;
     const s = live.current;
     const p = paths.current;
-    let frame = 0;
-    let last = performance.now();
-    const frameMs = window.matchMedia("(pointer: coarse)").matches ? COARSE_FRAME_MS : 0;
+    // A swaying camera changes every path, but a paused one changes almost none.
+    const wrote = new WeakMap<Element, string>();
+    const put = (el: Element | null | undefined, attr: string, value: string) => {
+      if (!el || wrote.get(el) === value) return;
+      wrote.set(el, value);
+      el.setAttribute(attr, value);
+    };
+    const place = (el: HTMLElement | SVGElement | null | undefined, value: string) => {
+      if (!el || wrote.get(el) === value) return;
+      wrote.set(el, value);
+      el.style.transform = value;
+    };
 
     if (!s.played) {
       s.played = true;
@@ -507,12 +515,8 @@ export default function Hologram({
       if (!reduce) s.explode = 0;
     }
 
-    const tick = (now: number) => {
-      frame = requestAnimationFrame(tick);
-      // A little slack, so a 33ms budget lands on every second 60Hz frame.
-      if (now - last < frameMs - 4) return;
-      const dt = Math.min(now - last, 50);
-      last = now;
+    const tick = (elapsed: number, now: number) => {
+      const dt = Math.min(elapsed, 50);
 
       let moving = false;
 
@@ -578,17 +582,22 @@ export default function Hologram({
 
       if (s.dragging) {
         moving = true;
+        requestFastFrames();
       } else if (Math.abs(s.velocity) > 0.0002) {
         s.camera.yaw += s.velocity;
         s.velocity *= INERTIA;
         moving = true;
+        requestFastFrames();
       }
 
       // The camera's flight. Reduced motion lands at once.
       const k = reduce ? 1 : 1 - Math.exp(-dt / FLIGHT_MS);
       const approach = (from: number, to: number) => {
         const next = from + (to - from) * k;
-        if (Math.abs(to - next) > 0.001) moving = true;
+        if (Math.abs(to - next) > 0.001) {
+          moving = true;
+          requestFastFrames();
+        }
         return Math.abs(to - next) > 0.001 ? next : to;
       };
       if (s.flyYaw !== null) {
@@ -605,21 +614,18 @@ export default function Hologram({
       s.spread = approach(s.spread, inFocus ? FOCUS_SPREAD : 0);
 
       if (!reduce && !s.paused) {
-        const rested = !s.dragging && now - s.lastInput > SWAY_REST_MS;
-        const target = rested ? (inFocus ? SWAY_IN_FOCUS : 1) : 0;
-        s.swayAmount += (target - s.swayAmount) * 0.02;
-        s.swayClock += dt;
         s.scan = (s.scan + dt) % SCAN_MS;
+        // A turn of the whole drawing, so it costs one write and no redraw of the
+        // paths. Only the line-art: a 3D transform would blur the labels' text, and
+        // at this angle they stay within a few pixels of their parts anyway.
+        if (!held) s.swayClock += dt;
         moving = true;
       }
 
       if (!moving && !s.dirty) return;
       s.dirty = false;
 
-      const camera: Camera = {
-        ...s.camera,
-        yaw: s.camera.yaw + Math.sin(s.swayClock * SWAY_SPEED) * SWAY_RADIANS * s.swayAmount,
-      };
+      const camera: Camera = s.camera;
       const view: HoloView = {
         explode: reduce ? 1 : easeOutBack(s.explode),
         spread: s.spread,
@@ -641,24 +647,28 @@ export default function Hologram({
       f.layers.forEach((layer, i) => {
         const el = p.layers[i];
         if (!el) return;
-        el.plane?.setAttribute("d", layer.plane);
-        el.edge?.setAttribute("d", layer.plane);
-        el.grid?.setAttribute("d", layer.grid);
-        el.roofs?.setAttribute("d", layer.roofs);
-        el.idle?.setAttribute("d", layer.idle);
+        put(el.plane, "d", layer.plane);
+        put(el.edge, "d", layer.plane);
+        put(el.grid, "d", layer.grid);
+        put(el.roofs, "d", layer.roofs);
+        put(el.idle, "d", layer.idle);
       });
-      p.scan?.setAttribute("d", reduce ? "" : f.scan);
-      p.ring?.setAttribute("d", f.ring);
-      p.pillars?.setAttribute("d", f.pillars);
-      p.wires?.setAttribute("d", f.wires);
-      p.lit?.setAttribute("d", f.lit);
-      p.visited?.setAttribute("d", f.visited);
-      p.active?.setAttribute("d", f.active);
-      p.linked?.setAttribute("d", f.linked);
-      p.offline?.setAttribute("d", f.offline);
-      p.out?.setAttribute("d", f.out);
-      p.back?.setAttribute("d", f.back);
-      p.packet?.setAttribute("transform", packetTransform(f.packet));
+      put(p.scan, "d", reduce ? "" : f.scan);
+      put(p.ring, "d", f.ring);
+      put(p.pillars, "d", f.pillars);
+      put(p.wires, "d", f.wires);
+      put(p.lit, "d", f.lit);
+      put(p.visited, "d", f.visited);
+      put(p.active, "d", f.active);
+      put(p.linked, "d", f.linked);
+      put(p.offline, "d", f.offline);
+      put(p.out, "d", f.out);
+      put(p.back, "d", f.back);
+      put(p.packet, "transform", packetTransform(f.packet));
+      place(
+        lineArt.current,
+        `perspective(${SWAY_PERSPECTIVE_PX}px) rotateY(${(Math.sin(s.swayClock * SWAY_SPEED) * SWAY_DEGREES).toFixed(2)}deg)`,
+      );
       if (readBar.current) {
         const share =
           s.phase === "walking"
@@ -669,17 +679,14 @@ export default function Hologram({
         readBar.current.style.transform = `scaleX(${share.toFixed(3)})`;
       }
       f.nodeLabels.forEach((at, i) => {
-        const el = nodeLabels.current[i];
-        if (el) el.style.transform = labelTransform(at);
+        place(nodeLabels.current[i], labelTransform(at));
       });
       f.layerLabels.forEach((at, i) => {
-        const el = layerLabels.current[i];
-        if (el) el.style.transform = layerTransform(at);
+        place(layerLabels.current[i], layerTransform(at));
       });
     };
 
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+    return onFrame(tick);
   }, [addSpend, begin, offscreen, reduce, routeFor, stepSeconds, system, userRan]);
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
@@ -769,13 +776,13 @@ export default function Hologram({
       ref={ref}
       data-offscreen={offscreen || undefined}
       onKeyDown={onKeyDown}
-      className={`relative w-full h-full aspect-[16/9] ${instrument ? "min-h-[680px] sm:min-h-[600px] xl:min-h-[600px]" : "min-h-[600px] xl:min-h-[520px]"} bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300`}
+      className={`relative w-full h-full ${instrument ? HOLO_SIZE_WITH_INSTRUMENT : HOLO_SIZE} bg-[#020617] border border-slate-800 flex flex-col group overflow-hidden font-mono text-slate-300`}
     >
       {/* Hardware header */}
       <div className="h-8 border-b border-slate-800 flex items-center px-4 justify-between gap-3 shrink-0">
         <div className="flex gap-2 shrink-0">
           <div className="w-1.5 h-1.5 bg-slate-700" />
-          <div className="hud-pulse [--hud-dur:2s] w-1.5 h-1.5 bg-[#3B82F6]" />
+          <div className="hud-dim w-1.5 h-1.5 bg-[#3B82F6]" />
           <div className="w-1.5 h-1.5 bg-[#F97316]" />
         </div>
         <span className="text-[10px] text-slate-400 uppercase tracking-widest truncate">
@@ -889,9 +896,10 @@ export default function Hologram({
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           onClick={onStageClick}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(100cqw,calc(100cqh*8/7))] aspect-[8/7] [container-type:inline-size] cursor-grab active:cursor-grabbing select-none touch-pan-y"
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(100cqw,calc(100cqh*8/7))] aspect-[8/7] [container-type:inline-size] cursor-grab active:cursor-grabbing select-none touch-pan-y`}
         >
           <svg
+            ref={lineArt}
             viewBox={`0 0 ${HOLO_W} ${HOLO_H}`}
             aria-hidden="true"
             className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"

@@ -201,69 +201,14 @@
   by transform, not background-position: animating background-position
   repaints the full viewport every frame, a transform is composited.
 */
-@keyframes hud-scanline-drift {
-  from {
-    transform: translateY(-60px);
-  }
-  to {
-    transform: translateY(0);
-  }
+/* Carets and small status dots share one phase, set on <html> by CockpitCanopy
+   on the frame clock. Keep them out of @keyframes: one running animation, however
+   small, recalculates style on every vsync while it runs. */
+html[data-hud-phase="1"] .hud-blink {
+  visibility: hidden;
 }
-
-.hud-scanlines {
-  animation: hud-scanline-drift 6s linear infinite;
-}
-
-/* Canopy hull tick: a sub-pixel drift of the frame chrome, on the compositor. */
-@keyframes hud-hull {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  25% {
-    transform: translate(1px, -1px);
-  }
-  50% {
-    transform: translate(-1.5px, 0.5px);
-  }
-  75% {
-    transform: translate(0.5px, -1.5px);
-  }
-}
-
-.hud-hull {
-  animation: hud-hull 11s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hud-scanlines,
-  .hud-hull {
-    animation: none;
-  }
-}
-
-/*
-  Terminal caret blink. `steps` makes it a hard on/off like a real cursor
-  rather than the soft fade of animate-pulse.
-*/
-@keyframes hud-blink {
-  0%,
-  100% {
-    visibility: visible;
-  }
-  50% {
-    visibility: hidden;
-  }
-}
-
-.hud-blink {
-  animation: hud-blink 1.05s steps(1, end) infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hud-blink {
-    animation: none;
-  }
+html[data-hud-phase="1"] .hud-dim {
+  opacity: 0.4;
 }
 
 /*
@@ -440,12 +385,6 @@
 .hud-flow {
   animation: hud-flow var(--hud-dur, 1.5s) linear infinite;
 }
-/* Big-body dash flow, updated --hud-steps times per run. Set all three
-   variables through flowStyle() in src/lib/flow.ts. */
-.hud-flow-stepped {
-  animation: hud-flow var(--hud-dur, 2s) steps(var(--hud-steps, 40)) infinite;
-}
-
 /* Marquee: shifts the track by one copy of its content and loops. -half for
    a doubled track, -third for a tripled one. */
 @keyframes hud-marquee-half {
@@ -479,7 +418,6 @@
   .hud-traverse-y-rev,
   .hud-traverse-x,
   .hud-flow,
-  .hud-flow-stepped,
   .hud-bob-sm,
   .hud-marquee-half,
   .hud-marquee-third {

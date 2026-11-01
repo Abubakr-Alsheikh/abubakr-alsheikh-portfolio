@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
-import GeometricNeptune from "@/components/visuals/GeometricNeptune";
+import { GeometricNeptune } from "@/components/visuals/LazyPlanets";
 import PlanetTag from "@/components/visuals/PlanetTag";
 import ProjectSchematic from "@/components/visuals/ProjectSchematic";
 import { WarpLink } from "@/components/shared/PageTransition";
@@ -263,7 +263,7 @@ function Monitor({ project }: { project: ArchiveProject }) {
       <div className="h-8 border-b border-slate-800 flex items-center justify-between px-3">
         <div className="flex gap-1.5">
           <div className="w-1.5 h-1.5 bg-slate-700" />
-          <div className="hud-pulse [--hud-dur:2s] w-1.5 h-1.5 bg-[#3B82F6]" />
+          <div className="hud-dim w-1.5 h-1.5 bg-[#3B82F6]" />
           <div className="w-1.5 h-1.5 bg-[#F97316]" />
         </div>
         <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest truncate pl-3">
@@ -280,7 +280,10 @@ function Monitor({ project }: { project: ArchiveProject }) {
         <div className="relative aspect-[16/10] border-b border-slate-800 overflow-hidden">
           <Preview project={project} sizes="400px" />
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="hud-traverse-y [--hud-dur:4s] absolute inset-0 bg-[linear-gradient(to_bottom,transparent_46%,rgba(59,130,246,0.25)_50%,transparent_54%)]" />
+            <div
+              style={{ animationIterationCount: 1 }}
+              className="hud-traverse-y [--hud-dur:4s] absolute inset-0 bg-[linear-gradient(to_bottom,transparent_46%,rgba(59,130,246,0.25)_50%,transparent_54%)]"
+            />
           </div>
         </div>
         <div className="p-5 flex flex-col gap-3">

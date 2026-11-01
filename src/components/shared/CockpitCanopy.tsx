@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   motion,
   useScroll,
@@ -9,6 +9,15 @@ import {
   useVelocity,
   type MotionValue,
 } from "framer-motion";
+import { onFrame } from "@/lib/frameClock";
+
+/** The glass's slow movement steps at this rate; nothing in it moves a pixel faster. */
+const GLASS_STEP_MS = 1000 / 15;
+const SCANLINE_CYCLE_MS = 6000;
+const SCANLINE_TRAVEL_PX = 60;
+const HULL_DRIFT_PX = 1.2;
+/** Half a cycle of the page's small blinking carets and pulsing dots. */
+const BLINK_MS = 525;
 
 /**
  * The canopy is the glass the whole page is read through. Everything here is
@@ -228,14 +237,55 @@ const CockpitCanopy = React.memo(() => {
     clamp: true,
   });
 
+  const hull = useRef<HTMLDivElement>(null);
+  const scan = useRef<HTMLDivElement>(null);
+
+  // The glass moves on the shared clock, and so does every blinking caret and
+  // pulsing dot on the page, through one attribute on <html>. As CSS keyframes,
+  // any one of these kept style recalculating on every vsync, for the whole page
+  // and for as long as it stayed open: a one-character caret was enough.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const root = document.documentElement;
+    let time = 0;
+    let sinceStep = 0;
+    let sinceBlink = 0;
+    let phase = false;
+    const stop = onFrame((dt) => {
+      time += dt;
+      sinceStep += dt;
+      sinceBlink += dt;
+      if (sinceBlink >= BLINK_MS) {
+        sinceBlink = 0;
+        phase = !phase;
+        root.dataset.hudPhase = phase ? "1" : "0";
+      }
+      if (sinceStep < GLASS_STEP_MS) return;
+      sinceStep = 0;
+      const seconds = time / 1000;
+      if (hull.current) {
+        hull.current.style.transform = `translate(${(Math.sin(seconds * 0.57) * HULL_DRIFT_PX).toFixed(2)}px, ${(Math.sin(seconds * 0.71) * HULL_DRIFT_PX).toFixed(2)}px)`;
+      }
+      if (scan.current) {
+        const y = ((time % SCANLINE_CYCLE_MS) / SCANLINE_CYCLE_MS - 1) * SCANLINE_TRAVEL_PX;
+        scan.current.style.transform = `translateY(${y.toFixed(1)}px)`;
+      }
+    });
+    return () => {
+      stop();
+      delete root.dataset.hudPhase;
+    };
+  }, []);
+
   return (
     // Decoration, all of it: the ladders, the tick marks and the readouts
     // are a lens over the page, so they stay out of the accessibility tree.
     <div className="fixed inset-0 pointer-events-none z-40" aria-hidden="true">
       {/* Frame chrome. The hull tick is a sub-pixel drift that keeps the glass
           from looking painted on; the whole group moves as one plate. */}
+      <div ref={hull} className="absolute inset-4 md:inset-6 will-change-transform">
       <motion.div
-        className="hud-hull absolute inset-4 md:inset-6"
+        className="absolute inset-0"
         style={{ opacity: chromeOpacity }}
       >
         {/* Gutter. A CSS border stays exactly 1px on every viewport. */}
@@ -282,13 +332,15 @@ const CockpitCanopy = React.memo(() => {
           />
         </svg>
       </motion.div>
+      </div>
 
-      {/* Scanline drift is a CSS keyframe - see globals.css. A JS timer writing
-          state here would repaint the entire overlay dozens of times a second. */}
+      {/* The scanlines drift on the frame clock, by transform on their own layer,
+          so a step moves them without repainting the overlay. */}
       <div className="absolute inset-0 overflow-hidden opacity-25">
         {/* 60px taller than the viewport so the drift never shows an edge. */}
         <div
-          className="hud-scanlines absolute inset-x-0 top-0 -bottom-[60px] will-change-transform"
+          ref={scan}
+          className="absolute inset-x-0 top-0 -bottom-[60px] will-change-transform"
           style={{
             background:
               "linear-gradient(rgba(2,6,23,0) 50%, rgba(2,6,23,0.35) 50%)",

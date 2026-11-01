@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 import { MoveDownRight, Download, Github, Linkedin } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import GeometricPlanet from "@/components/visuals/GeometricPlanet";
+import { GeometricPlanet } from "@/components/visuals/LazyPlanets";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 import DecryptText from "@/components/shared/DecryptText";
@@ -140,7 +140,7 @@ export default function Hero({
             variants={textVars}
             className="flex items-center gap-3 mb-10 w-fit border border-slate-800 px-4 py-2 bg-[#020617] border-[#020617]/50"
           >
-            <span className="w-1.5 h-1.5 bg-[#3B82F6] animate-pulse" />
+            <span className="w-1.5 h-1.5 bg-[#3B82F6] hud-dim" />
             <span className="text-[10px] md:text-xs font-mono text-slate-400 uppercase tracking-widest">
               {data.status}
             </span>

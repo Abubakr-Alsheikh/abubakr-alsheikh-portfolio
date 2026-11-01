@@ -13,7 +13,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import type { contactData } from "@/lib/data/contact";
-import GeometricBlackHole from "@/components/visuals/GeometricBlackHole";
+import { GeometricBlackHole } from "@/components/visuals/LazyPlanets";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 
@@ -431,7 +431,7 @@ export default function Horizon({
 
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-[#F97316] animate-pulse shadow-[0_0_8px_#F97316]" />
+            <span className="w-2 h-2 rounded-full bg-[#F97316] hud-dim shadow-[0_0_8px_#F97316]" />
             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
               {/* Rendered at build time into the static HTML, then again by the
                   client on a later date: suppressed so the two may differ,

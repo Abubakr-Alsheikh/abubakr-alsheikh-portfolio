@@ -2,19 +2,16 @@ import type { CSSProperties } from "react";
 
 /**
  * Dash flow for the big background bodies (planet rings, the black hole's
- * disk), as a stepped CSS animation.
+ * disk).
  *
  * A moving dash on a ring 2000px across repaints that ring every frame it
- * moves. Profiling showed those repaints, not the animation mechanism, held
- * the hero and contact sections near 50fps: CSS and SMIL flows cost the same.
- * Stepping the offset at FLOW_HZ halves that cost, and on rings this slow a
- * 20Hz update reads the same as a 60Hz one.
+ * moves. It was a CSS animation with `steps()`, which reduced the repaints but
+ * not the frames: a running stroke-dashoffset animation still recalculates style
+ * on every vsync. So `useSmilPause` now writes the offset itself, on the same
+ * slow step as the planet's SMIL. On rings this slow it reads the same as 60Hz.
  *
- * Pair with `hud-flow-stepped` from globals.css.
+ * Give the element the class `hud-flow-stepped` and these variables.
  */
-
-/** Offset updates per second. */
-export const FLOW_HZ = 20;
 
 /**
  * @param period  one dash cycle, in the path's user units
@@ -26,12 +23,8 @@ export function flowStyle(
   seconds: number,
   forward: boolean,
 ): CSSProperties {
-  // The keyframe travels +period to -period: two cycles.
-  const dur = seconds * 2;
   return {
-    "--hud-flow": `${period}px`,
-    "--hud-dur": `${dur}s`,
-    "--hud-steps": Math.max(1, Math.round(dur * FLOW_HZ)),
-    animationDirection: forward ? "reverse" : "normal",
+    "--hud-flow": `${forward ? period : -period}`,
+    "--hud-dur": `${seconds}`,
   } as CSSProperties;
 }

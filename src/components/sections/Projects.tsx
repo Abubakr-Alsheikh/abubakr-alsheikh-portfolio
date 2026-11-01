@@ -5,29 +5,18 @@ import { ArrowUpRight, BookOpen, FileText, Github, Globe, Rocket } from "lucide-
 import { WarpLink } from "@/components/shared/PageTransition";
 import { useRef } from "react";
 import SystemWindowPlaceholder from "@/components/visuals/SystemWindowPlaceholder";
-import QaderVisual from "@/components/visuals/QaderVisual";
-import MizanVisual from "@/components/visuals/MizanVisual";
-import MaxCLIVisual from "@/components/visuals/MaxCLIVisual";
-import NanoMangaVisual from "@/components/visuals/NanoMangaVisual";
+import LazyVisual from "@/components/visuals/LazyVisual";
+import { hasVisual } from "@/components/visuals/holoSize";
 import { useTraceFill } from "@/hooks/useTraceFill";
 import TracePacket from "@/components/shared/TracePacket";
 import CodeDiff from "@/components/visuals/CodeDiff";
 import type { TopProject } from "@/lib/data/topProjects";
 import { caseStudiesData } from "@/lib/data/caseStudies";
 
-/** Schematic per project, keyed by slug so reordering the list never
- *  hands a project another one's visual. */
-const VISUALS: Record<string, React.ComponentType> = {
-  qader: QaderVisual,
-  mizan: MizanVisual,
-  "max-cli": MaxCLIVisual,
-  "nanomanga-studio": NanoMangaVisual,
-};
-
+/** Keyed by slug, so reordering the list never hands a project another one's visual. */
 function ProjectVisual({ project, index }: { project: TopProject; index: number }) {
-  const Visual = VISUALS[project.slug];
-  if (!Visual) return <SystemWindowPlaceholder index={index} title={project.title} />;
-  return <Visual />;
+  if (!hasVisual(project.slug)) return <SystemWindowPlaceholder index={index} title={project.title} />;
+  return <LazyVisual slug={project.slug} />;
 }
 
 const ACTION =

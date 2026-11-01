@@ -2,7 +2,7 @@
 
 import { motion, useTransform } from "framer-motion";
 import { useRef } from "react";
-import GeometricJupiter from "@/components/visuals/GeometricJupiter";
+import { GeometricJupiter } from "@/components/visuals/LazyPlanets";
 import PlanetTag from "@/components/visuals/PlanetTag";
 import { planetNotes } from "@/lib/data/planets";
 import { useTraceFill } from "@/hooks/useTraceFill";
@@ -100,7 +100,7 @@ export default function About({
             </motion.div>
 
             <h2 className="text-xs font-mono text-[#3B82F6] mb-6 tracking-widest uppercase flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-sm bg-[#3B82F6] animate-pulse" />{" "}
+              <span className="w-1.5 h-1.5 rounded-sm bg-[#3B82F6] hud-dim" />{" "}
               CORE_ARCHITECTURE
             </h2>
             <h3 className="text-5xl md:text-7xl font-space font-bold text-slate-100 leading-[1] tracking-tighter mb-8">
@@ -140,7 +140,7 @@ export default function About({
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-50% 0px -50% 0px" }}
                 data-hud-target={`CORE.${String(index + 1).padStart(2, "0")}`}
-                className="relative p-8 bg-[#020617]/85 backdrop-blur-sm border border-slate-800 group hover:border-[#F97316]/50 transition-colors"
+                className="relative p-8 bg-[#020617]/90 border border-slate-800 group hover:border-[#F97316]/50 transition-colors"
               >
                 {/* ⚡ HARDWARE CIRCUIT TRIGGER FOR RIGHT CARDS */}
                 <motion.div

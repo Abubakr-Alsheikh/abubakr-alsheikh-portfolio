@@ -17,11 +17,8 @@ import {
 import { caseStudiesData } from "@/lib/data/caseStudies";
 import DeepSpaceEnvironment from "@/components/visuals/DeepSpaceEnvironment";
 import CodeDiff from "@/components/visuals/CodeDiff";
-import QaderVisual from "@/components/visuals/QaderVisual";
-import MizanVisual from "@/components/visuals/MizanVisual";
-import MaxCLIVisual from "@/components/visuals/MaxCLIVisual";
-import NanoMangaVisual from "@/components/visuals/NanoMangaVisual";
-import SchoolManagementVisual from "@/components/visuals/SchoolManagementVisual";
+import LazyVisual from "@/components/visuals/LazyVisual";
+import { hasVisual } from "@/components/visuals/holoSize";
 
 /**
  * A featured project's case study. Content comes from `caseStudies.ts`, which
@@ -66,17 +63,6 @@ export async function generateMetadata({
     },
   };
 }
-
-/** A visual people can use stays in the accessibility tree; the rest are decoration. */
-const INTERACTIVE_VISUALS = new Set(["qader", "mizan", "max-cli", "nanomanga-studio", "school-management-system"]);
-
-const VISUALS: Record<string, React.ComponentType> = {
-  qader: QaderVisual,
-  mizan: MizanVisual,
-  "max-cli": MaxCLIVisual,
-  "nanomanga-studio": NanoMangaVisual,
-  "school-management-system": SchoolManagementVisual,
-};
 
 const LINK =
   "flex items-center gap-2 px-4 h-9 border font-mono text-xs tracking-widest uppercase transition-colors group/link";
@@ -179,7 +165,6 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
   if (!found) notFound();
   const { project, study } = found;
 
-  const Visual = VISUALS[slug];
   const facts = study.facts ?? [];
   const featured = topProjectsData.filter((p) => caseStudiesData[p.slug]);
   // indexOf is -1 for a retired project, so its "next" is the first featured one.
@@ -229,12 +214,9 @@ export default async function CaseStudyPage({ params }: { params: Params }) {
           <Links project={project} />
         </header>
 
-        {Visual && (
-          <div
-            aria-hidden={INTERACTIVE_VISUALS.has(slug) ? undefined : true}
-            className="relative w-full mb-24 border border-slate-800"
-          >
-            <Visual />
+        {hasVisual(slug) && (
+          <div className="relative w-full mb-24 border border-slate-800">
+            <LazyVisual slug={slug} />
           </div>
         )}
 
