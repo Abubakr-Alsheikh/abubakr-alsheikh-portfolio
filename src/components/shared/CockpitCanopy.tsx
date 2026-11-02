@@ -10,6 +10,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { onFrame } from "@/lib/frameClock";
+import FlightPlan from "./FlightPlan";
 
 /** The glass's slow movement steps at this rate; nothing in it moves a pixel faster. */
 const GLASS_STEP_MS = 1000 / 15;
@@ -296,7 +297,6 @@ const CockpitCanopy = React.memo(() => {
         ))}
 
         <AltitudeRail side="left" progress={progress} labelled />
-        <AltitudeRail side="right" progress={progress} labelled={false} />
 
         {/* Centre chevrons: fixed-pixel boxes, so they stay square. */}
         <svg
@@ -332,6 +332,16 @@ const CockpitCanopy = React.memo(() => {
           />
         </svg>
       </motion.div>
+      </div>
+
+      {/* The right edge is the flight plan, and its light on the glass. It sits
+          outside the hull's drift, so the ship reads against a still route. */}
+      <div className="absolute inset-4 md:inset-6">
+        <FlightPlan
+          progress={progress}
+          velocity={velocity}
+          fallback={<AltitudeRail side="right" progress={progress} labelled={false} />}
+        />
       </div>
 
       {/* The scanlines drift on the frame clock, by transform on their own layer,
