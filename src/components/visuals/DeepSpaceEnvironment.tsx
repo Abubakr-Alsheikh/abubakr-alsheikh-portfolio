@@ -6,27 +6,30 @@ import { onFrame, requestFastFrames } from "@/lib/frameClock";
 /**
  * The starfield behind the whole page.
  *
- * One canvas, one rAF loop. Three things make it read as deep space rather than
- * as dots on a background:
+ * One canvas on the shared frame clock. Four things make it read as deep space
+ * rather than as dots on a background:
  *
- *  - Depth. Every star has a depth in 0..1 that sets its size, brightness and
- *    parallax together, so the near field slides past faster than the far one
- *    and the eye reads the difference as distance.
+ *  - Depth. Every star has a depth that sets its size, brightness and parallax
+ *    together, so the near field slides past faster than the far one and the
+ *    eye reads the difference as distance.
  *  - A galactic band. A share of the stars is scattered along a diagonal with a
- *    gaussian falloff, which reads as the Milky Way without drawing a single
- *    soft blob.
- *  - Real star colours. Mostly white, a fair number blue-white, a few warm —
- *    the spread you actually see, rather than uniform grey.
+ *    gaussian falloff, which reads as the Milky Way without a single soft blob.
+ *  - Real star colours. Mostly white, a fair number blue-white, a few warm.
+ *  - Distant galaxies, the farthest things on the page: dot-built spirals and an
+ *    elliptical, tilted in perspective, that barely move when the page does.
  *
- * Performance rules, all load-bearing:
- *  - The backing store is sized to devicePixelRatio. Without it the canvas is
- *    drawn at CSS resolution and upscaled, and every star goes soft on a scaled
- *    display.
- *  - Alpha goes through `globalAlpha`, never an `rgba(...)` string per star:
- *    building hundreds of colour strings a frame is pure garbage-collector load.
- *  - Stars are sorted by colour once, so `fillStyle` changes three times a
- *    frame instead of once per star.
- *  - Faint stars are `fillRect`, which is far cheaper than `arc` + `fill`.
+ * Scrolling is parallax only. Stars used to stretch into streaks with speed, and
+ * hundreds of lines flashing on and off at once was hard on the eyes.
+ *
+ * How it stays cheap:
+ *  - Stars are drawn in batches of colour x brightness, one path each, never a
+ *    call per star. Galaxies are drawn once into small sprites and copied.
+ *    (Pre-drawing the stars into full-viewport layers and sliding those was
+ *    tried: eight full-screen copies a frame cost far more than the dots.)
+ *  - At rest the shared clock runs near 30Hz. Any scroll, or a meteor in flight,
+ *    asks for its fast rate, which steps on an even beat of the display.
+ *  - Backing stores are sized to devicePixelRatio (capped at 2), and alpha goes
+ *    through `globalAlpha`, never an `rgba(...)` string per star.
  */
 
 interface Star {
@@ -37,7 +40,7 @@ interface Star {
   radius: number;
   alpha: number;
   tint: number;
-  /** Radians per frame; 0 for a steady star. */
+  /** Radians per 60Hz frame; 0 for a steady star. */
   twinkleSpeed: number;
   twinklePhase: number;
 }
@@ -52,13 +55,32 @@ interface Beacon {
 }
 
 interface Meteor {
+  /** Where the head is, in viewport pixels. */
   x: number;
   y: number;
-  length: number;
+  /** Unit direction of travel. */
+  dx: number;
+  dy: number;
+  /** Pixels per millisecond. */
   speed: number;
+  length: number;
   thickness: number;
+  age: number;
+  life: number;
   active: boolean;
-  delay: number;
+  /** Milliseconds until it next appears. */
+  wait: number;
+}
+
+interface Galaxy {
+  sprite: HTMLCanvasElement;
+  /** Centre, as a share of the viewport. */
+  fx: number;
+  fy: number;
+  /** The sprite's size in CSS pixels. */
+  size: number;
+  parallax: number;
+  alpha: number;
 }
 
 /** White, blue-white, warm. Index into this from `Star.tint`. */
@@ -70,6 +92,8 @@ const MAX_STARS = 1100;
 
 /** Share of stars placed in the galactic band rather than uniformly. */
 const BAND_SHARE = 0.35;
+/** Share of stars that twinkle. */
+const TWINKLE_SHARE = 0.45;
 
 /** Bright stars that get diffraction spikes. */
 const BEACONS = 9;
@@ -77,25 +101,30 @@ const BEACONS = 9;
 /** Parallax range from the farthest star to the nearest. */
 const PARALLAX_MIN = 0.04;
 const PARALLAX_MAX = 0.3;
-
-const WARP_GAIN = 3.2; // streak length per px/frame of velocity, per depth unit
-const WARP_MAX = 140; // cap so violent flicks don't smear the viewport
 const IDLE_SPEED = 0.35; // cruise speed (px per 60Hz frame) when not scrolling
 
-/** Stars are drawn in batches of tint x brightness x size, not one call each. */
+/** Stars are drawn in batches of tint x brightness, not one call each. */
 const ALPHA_LEVELS = 4;
 const ALPHA_STEP = 1 / ALPHA_LEVELS;
 /** Below this radius a star is a square, which fills far faster than an arc. */
 const DOT_RADIUS = 0.9;
 
-/** Everything here was tuned per frame at 60Hz; time is measured in those frames. */
+/** Twinkle and drift were tuned per frame at 60Hz; time is measured in those frames. */
 const FRAME_60HZ = 1000 / 60;
-/** How far the streaks lerp toward the scroll velocity in one 60Hz frame. */
-const VELOCITY_LERP = 0.12;
-/** Still moving this fast (px per 60Hz frame): stay on the clock's fast rate. */
-const FAST_VELOCITY = 0.4;
 
-/** Standard normal sample (Box-Muller), for the galactic band's falloff. */
+/** Meteors: rare, slow enough to follow, and carried by the scroll like far stars. */
+const METEORS = 2;
+const METEOR_WAIT_MS: [number, number] = [12000, 26000];
+const METEOR_LIFE_MS: [number, number] = [1100, 1700];
+const METEOR_SPEED: [number, number] = [0.35, 0.55];
+const METEOR_PARALLAX = 0.12;
+
+/** Galaxies sit behind everything and barely move: they are the farthest things here. */
+const GALAXY_PARALLAX = 0.018;
+
+const between = ([a, b]: [number, number]) => a + Math.random() * (b - a);
+
+/** Standard normal sample (Box-Muller), for falloffs. */
 function gaussian(): number {
   let u = 0;
   let v = 0;
@@ -140,7 +169,7 @@ function buildStars(width: number, height: number): Star[] {
 
     // Most stars are far away: skew depth toward 0.
     const depth = Math.pow(Math.random(), 2.2);
-    const twinkles = Math.random() < 0.45;
+    const twinkles = Math.random() < TWINKLE_SHARE;
 
     stars.push({
       x,
@@ -153,9 +182,7 @@ function buildStars(width: number, height: number): Star[] {
       twinklePhase: Math.random() * Math.PI * 2,
     });
   }
-
-  // Grouped by colour so fillStyle is set once per group, not once per star.
-  return stars.sort((a, b) => a.tint - b.tint);
+  return stars;
 }
 
 function buildBeacons(width: number, height: number): Beacon[] {
@@ -167,6 +194,94 @@ function buildBeacons(width: number, height: number): Beacon[] {
     parallax: PARALLAX_MAX * (0.7 + Math.random() * 0.3),
     phase: Math.random() * Math.PI * 2,
   }));
+}
+
+function canvasOf(width: number, height: number, dpr: number) {
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(width * dpr));
+  c.height = Math.max(1, Math.round(height * dpr));
+  const g = c.getContext("2d");
+  g?.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { c, g };
+}
+
+type GalaxyKind = "spiral" | "edge" | "elliptical";
+
+/**
+ * One galaxy as a sprite of dots: two logarithmic arms and a bulge for a spiral,
+ * a gaussian cloud for an elliptical, then tilted (flattened) and turned. Built
+ * from points like the planets are built from geometry, so it stays sharp.
+ */
+function buildGalaxy(kind: GalaxyKind, radius: number, tilt: number, turn: number, dpr: number) {
+  const size = Math.ceil(radius * 2.4);
+  const { c, g } = canvasOf(size, size, dpr);
+  if (!g) return c;
+  const cx = size / 2;
+  const cy = size / 2;
+  const cos = Math.cos(turn);
+  const sin = Math.sin(turn);
+  const dot = (x: number, y: number, r: number, alpha: number, tint: string) => {
+    // Flatten for the tilt, then turn on the sky.
+    const fy = y * tilt;
+    g.globalAlpha = alpha;
+    g.fillStyle = tint;
+    g.fillRect(cx + x * cos - fy * sin - r, cy + x * sin + fy * cos - r, r * 2, r * 2);
+  };
+
+  if (kind === "elliptical") {
+    for (let i = 0; i < 900; i++) {
+      const x = gaussian() * radius * 0.38;
+      const y = gaussian() * radius * 0.38;
+      const d = Math.hypot(x, y) / radius;
+      dot(x, y, 0.55 + Math.random() * 0.4, Math.max(0.08, 0.8 - d * 0.9), d < 0.3 ? TINTS[2] : TINTS[0]);
+    }
+    return c;
+  }
+
+  // Bulge: warm, dense, and round even when the disc is seen edge-on.
+  for (let i = 0; i < 320; i++) {
+    const x = gaussian() * radius * 0.1;
+    const y = (gaussian() * radius * 0.1) / Math.max(tilt, 0.35);
+    dot(x, y, 0.55 + Math.random() * 0.45, 0.55 + Math.random() * 0.4, TINTS[2]);
+  }
+  // Arms.
+  const arms = 2;
+  const winding = 0.32;
+  for (let i = 0; i < 1800; i++) {
+    const arm = i % arms;
+    const t = Math.pow(Math.random(), 0.8);
+    const theta = t * Math.PI * 3.2 + (arm * Math.PI * 2) / arms;
+    const r = radius * 0.12 * Math.exp(winding * theta * 0.62);
+    if (r > radius) continue;
+    const spread = r * 0.16;
+    const x = Math.cos(theta) * r + gaussian() * spread;
+    const y = Math.sin(theta) * r + gaussian() * spread;
+    const fade = 1 - r / radius;
+    dot(x, y, 0.5 + Math.random() * 0.45, 0.16 + fade * 0.55, Math.random() < 0.7 ? TINTS[1] : TINTS[0]);
+  }
+  return c;
+}
+
+/** Four galaxies in the side margins, so on a desktop none sits behind text. */
+function buildGalaxies(width: number, height: number, dpr: number): Galaxy[] {
+  const scale = Math.min(1, Math.max(0.5, Math.min(width, height) / 900));
+  const plan: { kind: GalaxyKind; r: number; tilt: number; turn: number; fx: number; fy: number; alpha: number }[] = [
+    { kind: "spiral", r: 78, tilt: 0.55, turn: -0.5, fx: 0.07, fy: 0.3, alpha: 0.6 },
+    { kind: "edge", r: 70, tilt: 0.1, turn: 0.35, fx: 0.955, fy: 0.62, alpha: 0.5 },
+    { kind: "elliptical", r: 46, tilt: 0.65, turn: 0.9, fx: 0.965, fy: 0.2, alpha: 0.5 },
+    { kind: "spiral", r: 30, tilt: 0.8, turn: 1.4, fx: 0.035, fy: 0.86, alpha: 0.45 },
+  ];
+  return plan.map((p) => {
+    const radius = p.r * scale;
+    return {
+      sprite: buildGalaxy(p.kind, radius, p.tilt, p.turn, dpr),
+      fx: p.fx,
+      fy: p.fy,
+      size: Math.ceil(radius * 2.4),
+      parallax: GALAXY_PARALLAX * (0.7 + Math.random() * 0.6),
+      alpha: p.alpha,
+    };
+  });
 }
 
 export default function DeepSpaceEnvironment() {
@@ -182,12 +297,13 @@ export default function DeepSpaceEnvironment() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    // CSS-pixel dimensions. All star positions live in this space; the context
+    // CSS-pixel dimensions. All positions live in this space; the context
     // transform maps it onto the device-pixel backing store.
     let width = 0;
     let height = 0;
     let stars: Star[] = [];
     let beacons: Beacon[] = [];
+    let galaxies: Galaxy[] = [];
 
     const setup = () => {
       // Capped at 2: beyond that the extra pixels cost fill rate and the eye
@@ -205,6 +321,7 @@ export default function DeepSpaceEnvironment() {
       // rather than leaving the field bunched into the old rectangle.
       stars = buildStars(width, height);
       beacons = buildBeacons(width, height);
+      galaxies = buildGalaxies(width, height, dpr);
     };
 
     let resizeTimer = 0;
@@ -220,34 +337,51 @@ export default function DeepSpaceEnvironment() {
     setup();
     window.addEventListener("resize", onResize);
 
-    const meteors: Meteor[] = Array.from({ length: 4 }, () => ({
+    const meteors: Meteor[] = Array.from({ length: METEORS }, (_, i) => ({
       x: 0,
       y: 0,
-      length: Math.random() * 150 + 100,
-      speed: Math.random() * 4 + 6,
-      thickness: Math.random() * 1 + 0.5,
+      dx: 0,
+      dy: 0,
+      speed: 0,
+      length: 0,
+      thickness: 1,
+      age: 0,
+      life: 1,
       active: false,
-      delay: Math.random() * 300 + 60,
+      // Staggered, so the first one does not come the moment the page opens.
+      wait: between(METEOR_WAIT_MS) * (0.4 + i * 0.6),
     }));
+
+    const launch = (m: Meteor) => {
+      // Down and to the left, at a slightly different angle each time.
+      const angle = Math.PI * (0.82 + Math.random() * 0.08);
+      m.dx = Math.cos(angle);
+      m.dy = Math.sin(angle);
+      m.x = width * (0.35 + Math.random() * 0.6);
+      m.y = height * Math.random() * 0.45;
+      m.speed = between(METEOR_SPEED);
+      m.length = 90 + Math.random() * 90;
+      m.thickness = 0.7 + Math.random() * 0.6;
+      m.age = 0;
+      m.life = between(METEOR_LIFE_MS);
+      m.active = true;
+    };
 
     // Reused every frame, so a scroll allocates nothing per star.
     const batches = Array.from({ length: TINTS.length * ALPHA_LEVELS }, () => ({
-      // Flat runs of plain numbers: x, y, then radius or streak length.
       dots: [] as number[],
       discs: [] as number[],
-      lines: [] as number[],
     }));
 
     let lastScroll = window.scrollY;
-    let velocity = 0;
     let drift = 0;
     let stop: (() => void) | null = null;
     let tick = 0;
 
-    // Wrap a scrolled y back into the viewport, handling JS's negative modulo.
-    const wrap = (y: number) => {
-      const m = y % height;
-      return m < 0 ? m + height : m;
+    // Wrap a scrolled y back into a span, handling JS's negative modulo.
+    const wrapIn = (y: number, span: number) => {
+      const m = y % span;
+      return m < 0 ? m + span : m;
     };
 
     const render = (dtMs: number) => {
@@ -255,88 +389,61 @@ export default function DeepSpaceEnvironment() {
       const step = dtMs / FRAME_60HZ;
       tick += step;
 
+      const scroll = window.scrollY;
+      const scrolled = scroll - lastScroll;
+      lastScroll = scroll;
+      if (!reduceMotion) drift += IDLE_SPEED * step;
+      const anyMeteor = meteors.some((m) => m.active);
+      // Every display frame while anything moves fast, so it never judders.
+      if (scrolled !== 0 || anyMeteor) requestFastFrames();
+
+      const travel = scroll + drift;
+
       ctx.globalAlpha = 1;
       ctx.fillStyle = "#020617";
       ctx.fillRect(0, 0, width, height);
 
-      const scroll = window.scrollY;
-      const rawDelta = (scroll - lastScroll) / Math.max(step, 0.01);
-      lastScroll = scroll;
-      // Lerp toward the raw delta: mechanical response without jitter.
-      velocity += (rawDelta - velocity) * (1 - Math.pow(1 - VELOCITY_LERP, step));
-      if (!reduceMotion) drift += IDLE_SPEED * step;
-      // Streaks need the frames while the page moves. At rest, 30Hz is plenty.
-      const fast = Math.abs(velocity) > FAST_VELOCITY;
-      if (fast) requestFastFrames();
+      // ---- Galaxies: farthest away, so drawn first and moved least ----
+      for (const gx of galaxies) {
+        const span = height + gx.size;
+        const y = wrapIn(gx.fy * height - travel * gx.parallax + gx.size / 2, span) - gx.size;
+        ctx.globalAlpha = gx.alpha;
+        ctx.drawImage(gx.sprite, gx.fx * width - gx.size / 2, y, gx.size, gx.size);
+      }
 
-      const travel = scroll + drift;
-
-      // ---- Stars ----
-      // One path per batch. A call per star was the page's single hottest
-      // function while scrolling, when every star turns into a streak.
-      ctx.lineCap = "round";
+      // ---- Stars: parallax only, in batches ----
       for (const batch of batches) {
         batch.dots.length = 0;
         batch.discs.length = 0;
-        batch.lines.length = 0;
       }
-
       for (const star of stars) {
-        const parallax =
-          PARALLAX_MIN + star.depth * (PARALLAX_MAX - PARALLAX_MIN);
-        const y = wrap(star.y - travel * parallax);
-
-        // Nobody can see a star twinkle while it is a streak.
+        const parallax = PARALLAX_MIN + star.depth * (PARALLAX_MAX - PARALLAX_MIN);
+        const y = wrapIn(star.y - travel * parallax, height);
         const shimmer =
-          star.twinkleSpeed && !reduceMotion && !fast
+          star.twinkleSpeed && !reduceMotion
             ? 0.72 + 0.28 * Math.sin(tick * star.twinkleSpeed + star.twinklePhase)
             : 1;
         const level = Math.min(ALPHA_LEVELS - 1, Math.floor((star.alpha * shimmer) / ALPHA_STEP));
         const batch = batches[star.tint * ALPHA_LEVELS + level];
-
-        const streak = reduceMotion
-          ? 0
-          : Math.max(
-              -WARP_MAX,
-              Math.min(WARP_MAX, -velocity * parallax * WARP_GAIN),
-            );
-
-        if (Math.abs(streak) > 1.5) batch.lines.push(star.x, y, streak);
-        else if (star.radius < DOT_RADIUS) batch.dots.push(star.x, y, star.radius);
+        if (star.radius < DOT_RADIUS) batch.dots.push(star.x, y, star.radius);
         else batch.discs.push(star.x, y, star.radius);
       }
-
-      ctx.lineWidth = 1;
       for (let i = 0; i < batches.length; i++) {
-        const { dots, discs, lines } = batches[i];
-        if (dots.length + discs.length + lines.length === 0) continue;
-        const tint = TINTS[Math.floor(i / ALPHA_LEVELS)];
-        ctx.fillStyle = tint;
-        ctx.strokeStyle = tint;
+        const { dots, discs } = batches[i];
+        if (dots.length + discs.length === 0) continue;
+        ctx.fillStyle = TINTS[Math.floor(i / ALPHA_LEVELS)];
         ctx.globalAlpha = ((i % ALPHA_LEVELS) + 0.5) * ALPHA_STEP;
-
-        if (dots.length || discs.length) {
-          ctx.beginPath();
-          for (let d = 0; d < dots.length; d += 3) {
-            const r = dots[d + 2];
-            ctx.rect(dots[d] - r, dots[d + 1] - r, r * 2, r * 2);
-          }
-          for (let d = 0; d < discs.length; d += 3) {
-            const r = discs[d + 2];
-            ctx.moveTo(discs[d] + r, discs[d + 1]);
-            ctx.arc(discs[d], discs[d + 1], r, 0, Math.PI * 2);
-          }
-          ctx.fill();
+        ctx.beginPath();
+        for (let d = 0; d < dots.length; d += 3) {
+          const r = dots[d + 2];
+          ctx.rect(dots[d] - r, dots[d + 1] - r, r * 2, r * 2);
         }
-
-        if (lines.length) {
-          ctx.beginPath();
-          for (let d = 0; d < lines.length; d += 3) {
-            ctx.moveTo(lines[d], lines[d + 1]);
-            ctx.lineTo(lines[d], lines[d + 1] + lines[d + 2]);
-          }
-          ctx.stroke();
+        for (let d = 0; d < discs.length; d += 3) {
+          const r = discs[d + 2];
+          ctx.moveTo(discs[d] + r, discs[d + 1]);
+          ctx.arc(discs[d], discs[d + 1], r, 0, Math.PI * 2);
         }
+        ctx.fill();
       }
 
       // ---- Beacons: the few bright stars, with diffraction spikes ----
@@ -344,22 +451,16 @@ export default function DeepSpaceEnvironment() {
       ctx.strokeStyle = "#BFDBFE";
       ctx.lineWidth = 0.6;
       ctx.lineCap = "butt";
-
       for (const b of beacons) {
-        const y = wrap(b.y - travel * b.parallax);
+        const y = wrapIn(b.y - travel * b.parallax, height);
         const pulse = reduceMotion ? 1 : 0.8 + 0.2 * Math.sin(tick * 0.02 + b.phase);
-
-        // Spikes collapse into the streak while warping, like the stars do.
-        if (Math.abs(velocity) < 2) {
-          ctx.globalAlpha = 0.45 * pulse;
-          ctx.beginPath();
-          ctx.moveTo(b.x - b.spike, y);
-          ctx.lineTo(b.x + b.spike, y);
-          ctx.moveTo(b.x, y - b.spike);
-          ctx.lineTo(b.x, y + b.spike);
-          ctx.stroke();
-        }
-
+        ctx.globalAlpha = 0.45 * pulse;
+        ctx.beginPath();
+        ctx.moveTo(b.x - b.spike, y);
+        ctx.lineTo(b.x + b.spike, y);
+        ctx.moveTo(b.x, y - b.spike);
+        ctx.lineTo(b.x, y + b.spike);
+        ctx.stroke();
         ctx.globalAlpha = pulse;
         ctx.beginPath();
         ctx.arc(b.x, y, b.radius, 0, Math.PI * 2);
@@ -368,47 +469,42 @@ export default function DeepSpaceEnvironment() {
 
       // ---- Meteors ----
       if (!reduceMotion) {
-        ctx.globalAlpha = 1;
         ctx.lineCap = "round";
-
         for (const m of meteors) {
           if (!m.active) {
-            m.delay -= step;
-            if (m.delay <= 0) {
-              m.active = true;
-              m.x = Math.random() * width + width * 0.5;
-              m.y = Math.random() * height * 0.6;
-            }
+            m.wait -= dtMs;
+            if (m.wait <= 0) launch(m);
             continue;
           }
+          m.age += dtMs;
+          m.x += m.dx * m.speed * dtMs;
+          // Carried by the scroll like a far star, so it never looks pinned to the glass.
+          m.y += m.dy * m.speed * dtMs - scrolled * METEOR_PARALLAX;
 
-          m.x -= m.speed * step;
-          m.y += m.speed * 0.5 * step;
-
-          const gradient = ctx.createLinearGradient(
-            m.x,
-            m.y,
-            m.x + m.length,
-            m.y - m.length * 0.5,
-          );
-          gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-          gradient.addColorStop(0.1, "rgba(59, 130, 246, 0.8)");
+          const t = m.age / m.life;
+          if (t >= 1) {
+            m.active = false;
+            m.wait = between(METEOR_WAIT_MS);
+            continue;
+          }
+          // Fades in and out, and the tail grows from the head instead of popping in.
+          const fade = Math.sin(Math.PI * t);
+          const tail = m.length * Math.min(1, t * 3);
+          const tx = m.x - m.dx * tail;
+          const ty = m.y - m.dy * tail;
+          const gradient = ctx.createLinearGradient(m.x, m.y, tx, ty);
+          gradient.addColorStop(0, "rgba(248, 250, 252, 1)");
+          gradient.addColorStop(0.15, "rgba(147, 197, 253, 0.7)");
           gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
-
-          ctx.beginPath();
-          ctx.moveTo(m.x, m.y);
-          ctx.lineTo(m.x + m.length, m.y - m.length * 0.5);
+          ctx.globalAlpha = fade;
           ctx.strokeStyle = gradient;
           ctx.lineWidth = m.thickness;
+          ctx.beginPath();
+          ctx.moveTo(m.x, m.y);
+          ctx.lineTo(tx, ty);
           ctx.stroke();
-
-          if (m.x < -m.length || m.y > height + m.length) {
-            m.active = false;
-            m.delay = Math.random() * 300 + 100;
-          }
         }
       }
-
     };
 
     // Reduced motion gets one still frame and no loop at all.

@@ -10,8 +10,13 @@
  * need 144 updates a second.
  *
  * So they share one rAF loop at 30Hz and all land in the same frame, which leaves
- * the frames between them clean. Scrolling or dragging asks for more with
- * `requestFastFrames`, up to 60Hz, for as long as it lasts.
+ * the frames between them clean. Scrolling, dragging or a meteor in flight asks
+ * for the fast rate with `requestFastFrames`, for as long as it lasts.
+ *
+ * Both rates step on an even beat of the display: every Nth vsync, with N fixed
+ * for the rate. A millisecond budget lands on two vsyncs, then three, then two
+ * at 144Hz, and that uneven step judders against a page that scrolls on every
+ * one. So the loop measures the display's interval and counts vsyncs instead.
  *
  * A subscriber gets elapsed milliseconds, so anything it moves stays the same
  * speed at any rate. A hidden tab gets no rAF, and with no subscribers the loop
@@ -22,13 +27,18 @@ export type FrameTick = (dtMs: number, nowMs: number) => void;
 
 const REST_MS = 1000 / 30;
 const FAST_MS = 1000 / 60;
-/** Slack, so a 33ms budget lands on every second 60Hz frame and not every third. */
-const SLACK_MS = 4;
 
 const subscribers = new Set<FrameTick>();
 let fastUntil = 0;
 let last = 0;
 let running = false;
+/** The display's frame interval, learned as the loop runs. */
+let vsync = 1000 / 60;
+let prev = 0;
+let count = 0;
+
+/** Every how many vsyncs a rate steps: 2 for 60Hz on a 144Hz screen, 1 on a 60Hz one. */
+const every = (ms: number) => Math.max(1, Math.round(ms / vsync));
 
 function loop(now: number) {
   if (subscribers.size === 0) {
@@ -36,9 +46,13 @@ function loop(now: number) {
     return;
   }
   requestAnimationFrame(loop);
-  const budget = now < fastUntil ? FAST_MS : REST_MS;
+  const gap = now - prev;
+  prev = now;
+  // Learn the interval from ordinary frames only, not from a tab coming back.
+  if (gap > 2 && gap < 50) vsync += (gap - vsync) * 0.05;
+  count += 1;
+  if (count % every(now < fastUntil ? FAST_MS : REST_MS) !== 0) return;
   const dt = now - last;
-  if (dt < budget - SLACK_MS) return;
   last = now;
   for (const tick of subscribers) tick(dt, now);
 }
